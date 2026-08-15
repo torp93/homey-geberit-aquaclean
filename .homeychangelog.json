@@ -1,0 +1,56 @@
+{
+  "0.10.6": {
+    "en": "Beta Test"
+  },
+  "0.10.7": {
+    "en": "Fixed BLE connections hanging indefinitely on a stuck operation, causing the app to silently stop responding until restarted. Button presses now queue instead of being dropped when one is already in progress. Reconnects are faster via cached advertisement lookups. Added a tunable keep-warm window so quick repeated commands reuse the existing connection. Removed the unused Flush button."
+  },
+  "0.11.0": {
+    "en": "The app now talks to the toilet through an ESP32 running ESPHome with bluetooth_proxy instead of Homey's own Bluetooth radio. Place the ESP32 near the toilet and the connection becomes both faster and far more reliable, and Homey's Bluetooth stays free for other apps. Enter the proxy address under app settings, where a test button confirms it before you save. The dryer status is now reported correctly instead of always being blank.",
+    "no": "Appen snakker nå med toalettet gjennom en ESP32 som kjører ESPHome med bluetooth_proxy, i stedet for Homeys egen Bluetooth-radio. Plasser ESP32-en nær toalettet, så blir forbindelsen både raskere og langt mer pålitelig, og Homeys Bluetooth blir ledig for andre apper. Adressen til proxyen settes i appinnstillingene, hvor en testknapp bekrefter den før du lagrer. Tørkerstatus rapporteres nå riktig i stedet for å stå tom."
+  },
+  "0.11.1": {
+    "en": "New icons throughout. Every capability now uses a Material Design icon, so the buttons are finally distinguishable at a glance — the dryer and the odour extraction used to share the same fan silhouette, and the two showers differed by two small strokes. Also fixed noisy internal errors while Bluetooth advertisements were being processed.",
+    "no": "Nye ikoner overalt. Hver kapabilitet bruker nå et Material Design-ikon, slik at knappene endelig er til å skille fra hverandre — tørkeren og luktavtrekket delte tidligere samme viftesilhuett, og de to dusjene skilte seg med to små streker. Rettet også støyende interne feil under behandling av Bluetooth-annonseringer."
+  },
+  "0.11.2": {
+    "en": "The anal shower now has an icon that shows what actually happens: a nozzle arm spraying upward, rather than a ceiling shower head.",
+    "no": "Analdusjen har fått et ikon som viser det som faktisk skjer — en dysearm som spruter oppover, i stedet for et takdusjhode."
+  },
+  "0.11.3": {
+    "en": "User detected and User sitting now show a person seated on a wall-hung toilet, drawn for this app. The old icon was an empty chair, which showed the furniture rather than the fact that someone is there.",
+    "no": "Bruker registrert og Bruker sitter viser nå en person som sitter på et vegghengt toalett, tegnet for denne appen. Det gamle ikonet var en tom stol, altså møbelet i stedet for at noen faktisk er der."
+  },
+  "0.12.0": {
+    "en": "The shower, dryer, odour extraction, lid, flush, descaling and user icons are now drawings made for this toilet rather than general-purpose symbols. A shower arm reads as a shower arm, and the lid reads as a lid.",
+    "no": "Ikonene for dusj, tørker, luktavtrekk, lokk, spyling, avkalking og bruker er nå tegninger laget for dette toalettet, ikke generelle symboler. En dusjarm ser ut som en dusjarm, og lokket ser ut som et lokk."
+  },
+  "0.13.0": {
+    "en": "Settings and maintenance. Seat heating, water temperature, shower pressure and arm position, dryer temperature and fan power, and oscillation can now be read and changed from the device page. Days until descaling and days until the ceramic filter needs replacing are shown as sensors you can build flows on, with a button to reset the filter counter once you have changed it. The dryer now reports whether it is running instead of staying blank.",
+    "no": "Innstillinger og vedlikehold. Setevarme, vanntemperatur, spylestyrke og dusjarmposisjon, lufttemperatur og viftestyrke for tørkeren, samt oscillasjon, kan nå leses og endres fra enhetssiden. Dager til avkalking og dager til bytte av keramisk filter vises som sensorer du kan bygge flows på, med en knapp for å nullstille filtertelleren når du har byttet det. Tørkeren rapporterer nå om den går, i stedet for å stå tom."
+  },
+  "0.14.0": {
+    "en": "The toilet's own details — model, serial and SAP number, production date, date first used, installed firmware, and the history of descalings and filter changes — are now read from the device and shown under the device settings, out of the way of the everyday controls. Replacing the ceramic filter moved there too, from a button on the main page to a tick box next to the filter history where it belongs.",
+    "no": "Toalettets egne opplysninger — modell, serie- og SAP-nummer, produksjonsdato, dato satt i drift, installert fastvare, samt historikk for avkalkinger og filterbytter — leses nå fra enheten og vises under enhetsinnstillingene, unna de daglige knappene. Nullstilling etter filterbytte er flyttet dit den hører hjemme: fra en knapp på hovedsiden til en avkrysning ved siden av filterhistorikken."
+  },
+  "0.15.0": {
+    "en": "The orientation light and the lid can now be configured from the device settings. Choose whether the light is off, always on, or comes on as you approach, pick one of its seven colours, and set the brightness. For the lid you can turn automatic opening and closing on or off, and adjust how far away the toilet notices someone approaching. Every change is written to the toilet and read back, so a setting that did not take is reported rather than silently accepted.",
+    "no": "Orienteringslyset og lokket kan nå stilles inn fra enhetsinnstillingene. Velg om lyset er av, alltid på, eller tennes når du nærmer deg, velg blant de sju fargene, og sett lysstyrken. For lokket kan du slå automatisk åpning og lukking av og på, og justere hvor langt unna toalettet registrerer at noen nærmer seg. Hver endring skrives til toalettet og leses tilbake, slik at en innstilling som ikke festet seg blir rapportert i stedet for stilltiende godtatt."
+  },
+  "0.16.0": {
+    "en": "The toilet keeps five user profiles, and the settings page can now edit any of them. Pick a profile and the sliders read and write that one. Note that this chooses which profile you are editing, not which profile the toilet is using — that is still selected on the toilet itself.",
+    "no": "Toalettet har fem brukerprofiler, og innstillingssiden kan nå redigere hvilken som helst av dem. Velg profil, så leser og skriver skyveknappene den. Merk at dette velger hvilken profil du redigerer, ikke hvilken toalettet bruker — den velges fortsatt på toalettet selv."
+  },
+  "0.28.1": {
+    "en": "Performance: removed dead store writes, cached device information, settings-poll backoff, opt-in frame logging, faster reconnect scans. New: automatic proxy circuit breaker, working flush Flow card.",
+    "no": "Ytelse: fjernet døde lagringer, cachet enhetsinformasjon, backoff på innstillingspoll, valgfri rammelogging, raskere gjenoppkoblingsskann. Nytt: automatisk kretsbryter mot proxyen, spyling-flowkortet virker."
+  },
+  "0.29.0": {
+    "en": "Circuit breaker stage 3: a full internal transport reset (the app-restart equivalent) when proxy recovery is not enough.",
+    "no": "Kretsbryter trinn 3: full intern transport-reset (tilsvarer app-omstart) når proxy-gjenoppretting ikke er nok."
+  },
+  "1.0.0": {
+    "en": "First public release. Local control of a Geberit AquaClean through an ESPHome Bluetooth proxy: buttons, live status, per-profile settings, maintenance counters, Flow cards and automatic recovery.",
+    "no": "Første offentlige utgivelse. Lokal styring av Geberit AquaClean via ESPHome Bluetooth-proxy: knapper, live status, innstillinger per profil, vedlikeholdstellere, flowkort og automatisk gjenoppretting."
+  }
+}

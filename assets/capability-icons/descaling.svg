@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 500 500">
+  <!-- Kilde: graphics/descaling.svg fra github.com/jens62/geberit-aquaclean.
+       Skalert og sentrert inn i 500x500; tegningen er ellers uendret.
+       Se THIRD_PARTY_NOTICES.md for opphav. -->
+  <!-- Tegningen fyller ikke kildens 720x720: blekket ligger i x 90-360,
+       y 240-720, altså med senter (225, 480) i stedet for (360, 360).
+       Forskyvningen under sentrerer den uten å endre størrelsen. -->
+  <g fill="#000" transform="translate(93.750 -83.333) scale(0.694444)">
+    <path fill="currentColor" d="M 150,305 l 0,64 -30,23 -30,22 0,153 0,153 135,-0 135,-0 0,-148 0,-148 -30,-29 -30,-29 0,-63 0,-63 -75,-0 -75,-0 0,65 z m 120,-5 l 0,30 -45,-0 -45,-0 0,-30 0,-30 45,-0 45,-0 0,30 z m 15,90 l 29,30 -52,-0 -52,-0 0,15 0,15 60,-0 60,-0 0,120 0,120 -105,-0 -105,-0 0,-120 0,-120 30,-0 30,-0 0,-15 0,-15 -22,-0 -22,-0 29,-30 29,-30 31,-0 31,-0 29,30 z"/>
+  </g>
+</svg>

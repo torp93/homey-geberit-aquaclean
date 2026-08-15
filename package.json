@@ -1,0 +1,17 @@
+{
+  "name": "com.thomastorp.geberit-aquaclean",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Control a Geberit AquaClean shower toilet through an ESP32 running ESPHome as a Bluetooth proxy. Local, no cloud.",
+  "main": "app.js",
+  "scripts": {
+    "validate": "homey app validate",
+    "run": "homey app run",
+    "test": "node --test"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thomastorp/homey-geberit-aquaclean.git"
+  }
+}

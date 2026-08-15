@@ -1,0 +1,1973 @@
+{
+  "id": "com.thomastorp.geberit-aquaclean",
+  "version": "1.0.0",
+  "compatibility": ">=12.2.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Geberit AquaClean",
+    "no": "Geberit AquaClean"
+  },
+  "description": {
+    "en": "Control a Geberit AquaClean shower toilet through an ESP32 running ESPHome as a Bluetooth proxy. Local, no cloud.",
+    "no": "Styr et Geberit AquaClean dusjtoalett gjennom en ESP32 som kjører ESPHome som Bluetooth-proxy. Lokalt, uten sky."
+  },
+  "category": [
+    "appliances"
+  ],
+  "brandColor": "#007A8A",
+  "permissions": [],
+  "api": {
+    "testProxy": {
+      "method": "GET",
+      "path": "/testProxy"
+    }
+  },
+  "capabilities": {
+    "aquaclean_connection_state": {
+      "type": "enum",
+      "title": {
+        "en": "Bluetooth connection",
+        "no": "Bluetooth-forbindelse"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/bluetooth.svg",
+      "values": [
+        {
+          "id": "ready",
+          "title": {
+            "en": "Ready (on-demand)",
+            "no": "Klar (on-demand)"
+          }
+        },
+        {
+          "id": "connected",
+          "title": {
+            "en": "Connected",
+            "no": "Tilkoblet"
+          }
+        },
+        {
+          "id": "reconnecting",
+          "title": {
+            "en": "Reconnecting",
+            "no": "Kobler til på nytt"
+          }
+        },
+        {
+          "id": "disconnected",
+          "title": {
+            "en": "Disconnected",
+            "no": "Frakoblet"
+          }
+        }
+      ]
+    },
+    "aquaclean_last_status_update": {
+      "type": "string",
+      "title": {
+        "en": "Last successful status read",
+        "no": "Siste vellykkede statuslesing"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/clock-check.svg"
+    },
+    "aquaclean_connection_error": {
+      "type": "string",
+      "title": {
+        "en": "Last Bluetooth error",
+        "no": "Siste Bluetooth-feil"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/bluetooth-alert.svg"
+    },
+    "aquaclean_user_sitting": {
+      "type": "boolean",
+      "title": {
+        "en": "User detected",
+        "no": "Bruker registrert"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/user-seat.svg",
+      "insightsTitleTrue": {
+        "en": "User sitting",
+        "no": "Bruker sitter"
+      },
+      "insightsTitleFalse": {
+        "en": "Seat vacant",
+        "no": "Ingen bruker"
+      }
+    },
+    "aquaclean_anal_shower_running": {
+      "type": "boolean",
+      "title": {
+        "en": "Anal shower",
+        "no": "Analdusj"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/anal-shower.svg",
+      "insightsTitleTrue": {
+        "en": "Anal shower running",
+        "no": "Analdusj pågår"
+      },
+      "insightsTitleFalse": {
+        "en": "Anal shower off",
+        "no": "Analdusj av"
+      }
+    },
+    "aquaclean_lady_shower_running": {
+      "type": "boolean",
+      "title": {
+        "en": "Lady shower",
+        "no": "Ladydusj"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/lady-shower.svg",
+      "insightsTitleTrue": {
+        "en": "Lady shower running",
+        "no": "Ladydusj pågår"
+      },
+      "insightsTitleFalse": {
+        "en": "Lady shower off",
+        "no": "Ladydusj av"
+      }
+    },
+    "aquaclean_odour_extraction_running": {
+      "type": "boolean",
+      "title": {
+        "en": "Odour extraction",
+        "no": "Luktavsug"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/odour.svg",
+      "insightsTitleTrue": {
+        "en": "Odour extraction running",
+        "no": "Luktavsug pågår"
+      },
+      "insightsTitleFalse": {
+        "en": "Odour extraction off",
+        "no": "Luktavsug av"
+      }
+    },
+    "measure_aquaclean_user_sitting": {
+      "type": "number",
+      "title": {
+        "en": "User sitting",
+        "no": "Bruker sitter"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "max": 1,
+      "uiComponent": null,
+      "icon": "/assets/capability-icons/user-seat.svg"
+    },
+    "measure_aquaclean_anal_shower": {
+      "type": "number",
+      "title": {
+        "en": "Anal shower",
+        "no": "Analdusj"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "max": 1,
+      "uiComponent": null,
+      "icon": "/assets/capability-icons/anal-shower.svg"
+    },
+    "measure_aquaclean_lady_shower": {
+      "type": "number",
+      "title": {
+        "en": "Lady shower",
+        "no": "Ladydusj"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "max": 1,
+      "uiComponent": null,
+      "icon": "/assets/capability-icons/lady-shower.svg"
+    },
+    "measure_aquaclean_odour_extraction": {
+      "type": "number",
+      "title": {
+        "en": "Odour extraction",
+        "no": "Luktavsug"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "max": 1,
+      "uiComponent": null,
+      "icon": "/assets/capability-icons/odour.svg"
+    },
+    "aquaclean_descaling_state": {
+      "type": "enum",
+      "title": {
+        "en": "Descaling",
+        "no": "Avkalking"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/descaling.svg",
+      "values": [
+        {
+          "id": "idle",
+          "title": {
+            "en": "Idle",
+            "no": "Inaktiv"
+          }
+        },
+        {
+          "id": "preparing",
+          "title": {
+            "en": "Preparing",
+            "no": "Forbereder"
+          }
+        },
+        {
+          "id": "waiting",
+          "title": {
+            "en": "Waiting",
+            "no": "Venter"
+          }
+        },
+        {
+          "id": "running",
+          "title": {
+            "en": "Running",
+            "no": "Pågår"
+          }
+        },
+        {
+          "id": "unknown",
+          "title": {
+            "en": "Unknown",
+            "no": "Ukjent"
+          }
+        }
+      ]
+    },
+    "aquaclean_error_code": {
+      "type": "number",
+      "title": {
+        "en": "Error code",
+        "no": "Feilkode"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/error.svg",
+      "min": 0,
+      "max": 65535,
+      "step": 1,
+      "decimals": 0
+    },
+    "aquaclean_raw_status": {
+      "type": "string",
+      "title": {
+        "en": "Raw live status",
+        "no": "Rå live-status"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/raw-status.svg"
+    },
+    "aquaclean_button_anal_shower": {
+      "type": "boolean",
+      "title": {
+        "en": "Anal shower",
+        "no": "Anal-dusj"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "icon": "/assets/capability-icons/anal-shower.svg"
+    },
+    "aquaclean_button_lady_shower": {
+      "type": "boolean",
+      "title": {
+        "en": "Lady shower",
+        "no": "Lady-dusj"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "icon": "/assets/capability-icons/lady-shower.svg"
+    },
+    "aquaclean_button_dryer": {
+      "type": "boolean",
+      "title": {
+        "en": "Dryer",
+        "no": "Tørker"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "icon": "/assets/capability-icons/dryer.svg"
+    },
+    "aquaclean_button_stop": {
+      "type": "boolean",
+      "title": {
+        "en": "Stop",
+        "no": "Stopp"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "icon": "/assets/capability-icons/stop.svg"
+    },
+    "aquaclean_button_lid": {
+      "type": "boolean",
+      "title": {
+        "en": "Toggle lid",
+        "no": "Åpne/lukk lokk"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "icon": "/assets/capability-icons/lid.svg"
+    },
+    "aquaclean_button_odour_extraction": {
+      "type": "boolean",
+      "title": {
+        "en": "Odour extraction",
+        "no": "Luktavsug"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "icon": "/assets/capability-icons/odour.svg"
+    },
+    "aquaclean_button_odour_run_on": {
+      "type": "boolean",
+      "title": {
+        "en": "Odour run-on",
+        "no": "Etterløp luktavsug"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "icon": "/assets/capability-icons/odour-run-on.svg"
+    },
+    "aquaclean_button_refresh_status": {
+      "type": "boolean",
+      "title": {
+        "en": "Refresh status",
+        "no": "Oppdater status"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "icon": "/assets/capability-icons/refresh.svg"
+    },
+    "aquaclean_days_until_descaling": {
+      "type": "number",
+      "title": {
+        "en": "Days until descaling",
+        "no": "Dager til avkalking"
+      },
+      "units": {
+        "en": "days",
+        "no": "dager"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/descaling.svg",
+      "min": 0,
+      "max": 3650,
+      "step": 1,
+      "decimals": 0,
+      "insights": true
+    },
+    "aquaclean_days_until_filter": {
+      "type": "number",
+      "title": {
+        "en": "Days until filter change",
+        "no": "Dager til filterbytte"
+      },
+      "units": {
+        "en": "days",
+        "no": "dager"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/filter.svg",
+      "min": 0,
+      "max": 3650,
+      "step": 1,
+      "decimals": 0,
+      "insights": true
+    },
+    "aquaclean_dryer_running": {
+      "type": "boolean",
+      "title": {
+        "en": "Dryer",
+        "no": "Tørker"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/dryer.svg",
+      "insightsTitleTrue": {
+        "en": "Dryer running",
+        "no": "Tørker på"
+      },
+      "insightsTitleFalse": {
+        "en": "Dryer off",
+        "no": "Tørker av"
+      }
+    },
+    "measure_aquaclean_dryer": {
+      "type": "number",
+      "title": {
+        "en": "Dryer",
+        "no": "Tørker"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": null,
+      "icon": "/assets/capability-icons/dryer.svg",
+      "min": 0,
+      "max": 1,
+      "step": 1,
+      "decimals": 0,
+      "insights": true,
+      "chartType": "stepLine"
+    },
+    "aquaclean_last_setting_write": {
+      "type": "string",
+      "title": {
+        "en": "Last saved",
+        "no": "Sist lagret"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/clock-check.svg",
+      "insights": false
+    }
+  },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Thomas Torp"
+  },
+  "flow": {
+    "triggers": [
+      {
+        "id": "aquaclean_user_sitting_true",
+        "title": {
+          "en": "A user is detected",
+          "no": "En bruker er registrert"
+        },
+        "highlight": true,
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_user_sitting_false",
+        "title": {
+          "en": "The user has left",
+          "no": "Brukeren har forlatt toalettet"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_anal_shower_running_true",
+        "title": {
+          "en": "The anal shower starts",
+          "no": "Analdusjen starter"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_anal_shower_running_false",
+        "title": {
+          "en": "The anal shower stops",
+          "no": "Analdusjen stopper"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_lady_shower_running_true",
+        "title": {
+          "en": "The lady shower starts",
+          "no": "Ladydusjen starter"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_lady_shower_running_false",
+        "title": {
+          "en": "The lady shower stops",
+          "no": "Ladydusjen stopper"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_descaling_state_changed",
+        "title": {
+          "en": "The descaling state changes",
+          "no": "Avkalkingsstatusen endres"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_error_code_changed",
+        "title": {
+          "en": "The error code changes",
+          "no": "Feilkoden endres"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_days_until_descaling_below",
+        "title": {
+          "en": "Days until descaling drop below a limit",
+          "no": "Dager til avkalking faller under en grense"
+        },
+        "titleFormatted": {
+          "en": "Days until descaling drop below [[days]]",
+          "no": "Dager til avkalking faller under [[days]]"
+        },
+        "hint": {
+          "en": "Fires once when the counter crosses below the limit, not on every later read.",
+          "no": "Utløses én gang når telleren krysser under grensen, ikke ved hver senere avlesning."
+        },
+        "tokens": [
+          {
+            "name": "days",
+            "type": "number",
+            "title": {
+              "en": "Days left",
+              "no": "Dager igjen"
+            },
+            "example": 14
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "days",
+            "type": "number",
+            "min": 1,
+            "max": 365,
+            "step": 1,
+            "placeholder": {
+              "en": "14",
+              "no": "14"
+            },
+            "title": {
+              "en": "Days",
+              "no": "Dager"
+            }
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_days_until_filter_below",
+        "title": {
+          "en": "Days until filter change drop below a limit",
+          "no": "Dager til filterbytte faller under en grense"
+        },
+        "titleFormatted": {
+          "en": "Days until filter change drop below [[days]]",
+          "no": "Dager til filterbytte faller under [[days]]"
+        },
+        "hint": {
+          "en": "Fires once when the counter crosses below the limit, not on every later read.",
+          "no": "Utløses én gang når telleren krysser under grensen, ikke ved hver senere avlesning."
+        },
+        "tokens": [
+          {
+            "name": "days",
+            "type": "number",
+            "title": {
+              "en": "Days left",
+              "no": "Dager igjen"
+            },
+            "example": 14
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "days",
+            "type": "number",
+            "min": 1,
+            "max": 365,
+            "step": 1,
+            "placeholder": {
+              "en": "14",
+              "no": "14"
+            },
+            "title": {
+              "en": "Days",
+              "no": "Dager"
+            }
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_connection_lost",
+        "title": {
+          "en": "The Bluetooth connection is lost",
+          "no": "Bluetooth-forbindelsen går tapt"
+        },
+        "hint": {
+          "en": "Fires when the app gives up reconnecting, not on a single failed attempt.",
+          "no": "Utløses når appen gir opp å koble til på nytt, ikke ved et enkelt mislykket forsøk."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_connection_restored",
+        "title": {
+          "en": "The Bluetooth connection is restored",
+          "no": "Bluetooth-forbindelsen er tilbake"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "aquaclean_condition_user_sitting",
+        "title": {
+          "en": "A user !{{is|isn't}} detected",
+          "no": "Bruker !{{er|er ikke}} registrert"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_condition_anal_shower",
+        "title": {
+          "en": "The anal shower !{{is|isn't}} running",
+          "no": "Analdusjen !{{pågår|pågår ikke}}"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_condition_lady_shower",
+        "title": {
+          "en": "The lady shower !{{is|isn't}} running",
+          "no": "Ladydusjen !{{pågår|pågår ikke}}"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_condition_descaling",
+        "title": {
+          "en": "Descaling !{{is|isn't}} active",
+          "no": "Avkalking !{{er|er ikke}} aktiv"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_condition_error",
+        "title": {
+          "en": "An error !{{is|isn't}} present",
+          "no": "En feil !{{er|er ikke}} registrert"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "aquaclean_action_anal_shower",
+        "title": {
+          "en": "Toggle the anal shower",
+          "no": "Slå analdusjen av/på"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_lady_shower",
+        "title": {
+          "en": "Toggle the lady shower",
+          "no": "Slå ladydusjen av/på"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_dryer",
+        "title": {
+          "en": "Toggle the dryer",
+          "no": "Slå tørkeren av/på"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_stop",
+        "title": {
+          "en": "Stop all functions",
+          "no": "Stopp alle funksjoner"
+        },
+        "highlight": true,
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_lid",
+        "title": {
+          "en": "Open or close the lid",
+          "no": "Åpne eller lukk lokket"
+        },
+        "highlight": true,
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_odour_extraction",
+        "title": {
+          "en": "Toggle odour extraction",
+          "no": "Slå luktavsuget av/på"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_odour_run_on",
+        "title": {
+          "en": "Run odour extraction on",
+          "no": "Kjør etterløp for luktavsug"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_flush",
+        "title": {
+          "en": "Trigger a flush",
+          "no": "Start spyling"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_refresh_status",
+        "title": {
+          "en": "Refresh the complete status",
+          "no": "Oppdater full status"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "id": "mera_comfort",
+      "name": {
+        "en": "AquaClean Mera Comfort",
+        "no": "AquaClean Mera Comfort"
+      },
+      "class": "other",
+      "capabilities": [
+        "measure_signal_strength",
+        "aquaclean_connection_state",
+        "aquaclean_last_status_update",
+        "aquaclean_connection_error",
+        "aquaclean_button_anal_shower",
+        "aquaclean_button_lady_shower",
+        "aquaclean_button_dryer",
+        "aquaclean_button_stop",
+        "aquaclean_button_lid",
+        "aquaclean_button_odour_extraction",
+        "aquaclean_button_odour_run_on",
+        "aquaclean_button_refresh_status",
+        "aquaclean_user_sitting",
+        "aquaclean_anal_shower_running",
+        "aquaclean_lady_shower_running",
+        "aquaclean_odour_extraction_running",
+        "measure_aquaclean_user_sitting",
+        "measure_aquaclean_anal_shower",
+        "measure_aquaclean_lady_shower",
+        "measure_aquaclean_odour_extraction",
+        "aquaclean_descaling_state",
+        "aquaclean_error_code",
+        "aquaclean_raw_status",
+        "aquaclean_days_until_descaling",
+        "aquaclean_days_until_filter",
+        "aquaclean_dryer_running",
+        "measure_aquaclean_dryer",
+        "aquaclean_last_setting_write"
+      ],
+      "capabilitiesOptions": {
+        "aquaclean_connection_state": {
+          "title": {
+            "en": "Bluetooth",
+            "no": "Bluetooth"
+          }
+        },
+        "aquaclean_last_status_update": {
+          "title": {
+            "en": "Last status update",
+            "no": "Siste statusoppdatering"
+          }
+        },
+        "aquaclean_connection_error": {
+          "title": {
+            "en": "Last Bluetooth error",
+            "no": "Siste Bluetooth-feil"
+          }
+        },
+        "aquaclean_user_sitting": {
+          "preventInsights": true,
+          "titleTrue": {
+            "en": "Detected",
+            "no": "Registrert"
+          },
+          "titleFalse": {
+            "en": "Not detected",
+            "no": "Ikke registrert"
+          },
+          "insightsTitleTrue": {
+            "en": "User sitting",
+            "no": "Bruker sitter"
+          },
+          "insightsTitleFalse": {
+            "en": "Seat vacant",
+            "no": "Ingen bruker"
+          }
+        },
+        "aquaclean_anal_shower_running": {
+          "preventInsights": true,
+          "titleTrue": {
+            "en": "Running",
+            "no": "Pågår"
+          },
+          "titleFalse": {
+            "en": "Off",
+            "no": "Av"
+          },
+          "insightsTitleTrue": {
+            "en": "Anal shower running",
+            "no": "Analdusj pågår"
+          },
+          "insightsTitleFalse": {
+            "en": "Anal shower off",
+            "no": "Analdusj av"
+          }
+        },
+        "aquaclean_lady_shower_running": {
+          "preventInsights": true,
+          "titleTrue": {
+            "en": "Running",
+            "no": "Pågår"
+          },
+          "titleFalse": {
+            "en": "Off",
+            "no": "Av"
+          },
+          "insightsTitleTrue": {
+            "en": "Lady shower running",
+            "no": "Ladydusj pågår"
+          },
+          "insightsTitleFalse": {
+            "en": "Lady shower off",
+            "no": "Ladydusj av"
+          }
+        },
+        "aquaclean_odour_extraction_running": {
+          "preventInsights": true,
+          "titleTrue": {
+            "en": "Running",
+            "no": "Pågår"
+          },
+          "titleFalse": {
+            "en": "Off",
+            "no": "Av"
+          },
+          "insightsTitleTrue": {
+            "en": "Odour extraction running",
+            "no": "Luktavsug pågår"
+          },
+          "insightsTitleFalse": {
+            "en": "Odour extraction off",
+            "no": "Luktavsug av"
+          }
+        },
+        "measure_aquaclean_user_sitting": {
+          "preventInsights": false,
+          "title": {
+            "en": "User sitting",
+            "no": "Bruker sitter"
+          }
+        },
+        "measure_aquaclean_anal_shower": {
+          "preventInsights": false,
+          "title": {
+            "en": "Anal shower",
+            "no": "Analdusj"
+          }
+        },
+        "measure_aquaclean_lady_shower": {
+          "preventInsights": false,
+          "title": {
+            "en": "Lady shower",
+            "no": "Ladydusj"
+          }
+        },
+        "measure_aquaclean_odour_extraction": {
+          "preventInsights": false,
+          "title": {
+            "en": "Odour extraction",
+            "no": "Luktavsug"
+          }
+        },
+        "aquaclean_button_anal_shower": {
+          "title": {
+            "en": "Anal shower",
+            "no": "Anal-dusj"
+          }
+        },
+        "aquaclean_button_lady_shower": {
+          "title": {
+            "en": "Lady shower",
+            "no": "Lady-dusj"
+          }
+        },
+        "aquaclean_button_dryer": {
+          "title": {
+            "en": "Dryer",
+            "no": "Tørker"
+          }
+        },
+        "aquaclean_button_stop": {
+          "title": {
+            "en": "Stop",
+            "no": "Stopp"
+          }
+        },
+        "aquaclean_button_lid": {
+          "title": {
+            "en": "Toggle lid",
+            "no": "Åpne/lukk lokk"
+          }
+        },
+        "aquaclean_button_odour_extraction": {
+          "title": {
+            "en": "Odour extraction",
+            "no": "Luktavsug"
+          }
+        },
+        "aquaclean_button_odour_run_on": {
+          "title": {
+            "en": "Odour run-on",
+            "no": "Etterløp luktavsug"
+          }
+        },
+        "aquaclean_button_refresh_status": {
+          "title": {
+            "en": "Refresh status",
+            "no": "Oppdater status"
+          }
+        },
+        "aquaclean_raw_status": {
+          "title": {
+            "en": "Raw P0-P7",
+            "no": "Rå P0-P7"
+          }
+        },
+        "measure_aquaclean_dryer": {
+          "preventInsights": false,
+          "title": {
+            "en": "Dryer",
+            "no": "Tørker"
+          }
+        },
+        "aquaclean_dryer_running": {
+          "preventInsights": true,
+          "titleTrue": {
+            "en": "Running",
+            "no": "Pågår"
+          },
+          "titleFalse": {
+            "en": "Off",
+            "no": "Av"
+          },
+          "insightsTitleTrue": {
+            "en": "Dryer running",
+            "no": "Tørker pågår"
+          },
+          "insightsTitleFalse": {
+            "en": "Dryer off",
+            "no": "Tørker av"
+          }
+        }
+      },
+      "settings": [
+        {
+          "id": "anal_status_parameter",
+          "type": "dropdown",
+          "label": {
+            "en": "Anal shower status source",
+            "no": "Statuskilde for analdusj"
+          },
+          "hint": {
+            "en": "Parameter 1 is confirmed for Mera Comfort. Parameter 3 remains available for alternate firmware.",
+            "no": "Parameter 1 er bekreftet for Mera Comfort. Parameter 3 er fortsatt tilgjengelig for alternativ firmware."
+          },
+          "value": "1",
+          "values": [
+            {
+              "id": "1",
+              "label": {
+                "en": "Parameter 1 (confirmed)",
+                "no": "Parameter 1 (bekreftet)"
+              }
+            },
+            {
+              "id": "3",
+              "label": {
+                "en": "Parameter 3 (alternate firmware)",
+                "no": "Parameter 3 (alternativ firmware)"
+              }
+            }
+          ]
+        },
+        {
+          "id": "odour_auto_tracking",
+          "type": "checkbox",
+          "label": {
+            "en": "Track automatic odour extraction",
+            "no": "Spor automatisk luktavsug"
+          },
+          "hint": {
+            "en": "Uses confirmed user detection to log automatic odour extraction. Disable this if automatic odour extraction is turned off on the toilet.",
+            "no": "Bruker bekreftet brukerdeteksjon til å logge automatisk luktavsug. Slå av dette hvis automatisk luktavsug er deaktivert på toalettet."
+          },
+          "value": true
+        },
+        {
+          "id": "odour_run_on_seconds",
+          "type": "number",
+          "label": {
+            "en": "Odour extraction run-on",
+            "no": "Etterløp for luktavsug"
+          },
+          "hint": {
+            "en": "How long odour extraction remains active after the user leaves.",
+            "no": "Hvor lenge luktavsuget regnes som aktivt etter at brukeren reiser seg."
+          },
+          "value": 120,
+          "min": 0,
+          "max": 600,
+          "step": 10,
+          "units": {
+            "en": "seconds",
+            "no": "sekunder"
+          }
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Bluetooth and polling",
+            "no": "Bluetooth og oppdatering"
+          },
+          "children": [
+            {
+              "id": "ble_keep_warm_seconds",
+              "type": "number",
+              "label": {
+                "en": "Hold Bluetooth open (seconds)",
+                "no": "Hold Bluetooth åpen (sekunder)"
+              },
+              "value": 30,
+              "min": 0,
+              "max": 900,
+              "step": 10,
+              "units": {
+                "en": "s",
+                "no": "s"
+              },
+              "hint": {
+                "en": "How long the connection is held after you last used the device. The toilet accepts one connection at a time, and the physical remote is dead while Homey holds the line — that is by Geberit design. Reconnecting now costs under two seconds, so a short window is cheap. 0 disconnects immediately.",
+                "no": "Hvor lenge forbindelsen holdes etter at du sist brukte enheten. Toalettet tar bare én tilkobling om gangen, og den fysiske fjernkontrollen er død så lenge Homey holder linjen — det er slik Geberit har laget den. En ny oppkobling koster nå under to sekunder, så et kort vindu er billig. 0 kobler ned med én gang."
+              }
+            },
+            {
+              "id": "status_poll_idle_seconds",
+              "type": "number",
+              "label": {
+                "en": "Status interval when idle",
+                "no": "Statusintervall i ro"
+              },
+              "value": 30,
+              "min": 5,
+              "max": 600,
+              "step": 5,
+              "units": {
+                "en": "s",
+                "no": "s"
+              },
+              "hint": {
+                "en": "How often the status is read while nothing is running. Each read occupies the toilet for about two seconds, and the physical remote is dead during that time. Longer means a freer remote and staler status.",
+                "no": "Hvor ofte statusen leses når ingenting kjører. Hver avlesning opptar toalettet i rundt to sekunder, og den fysiske fjernkontrollen er død så lenge. Lengre gir friere fjernkontroll og eldre status."
+              }
+            },
+            {
+              "id": "status_poll_active_seconds",
+              "type": "number",
+              "label": {
+                "en": "Status interval during activity",
+                "no": "Statusintervall mens noe kjører"
+              },
+              "value": 2.5,
+              "min": 1,
+              "max": 60,
+              "step": 0.5,
+              "units": {
+                "en": "s",
+                "no": "s"
+              },
+              "hint": {
+                "en": "How often the status is read while the shower, dryer or odour extraction is running. This is when Homey follows along most closely — and also when the remote is blocked most of the time. Raise it if the remote feels sluggish mid-cycle.",
+                "no": "Hvor ofte statusen leses mens dusj, tørker eller luktavsug går. Det er da Homey følger tettest med — og samtidig da fjernkontrollen er blokkert mest. Øk den hvis fjernkontrollen føles treg midt i en syklus."
+              }
+            },
+            {
+              "id": "debug_frame_logging",
+              "type": "checkbox",
+              "label": {
+                "en": "Log every Bluetooth frame",
+                "no": "Logg hver Bluetooth-ramme"
+              },
+              "value": false,
+              "hint": {
+                "en": "Writes every BLE frame in both directions to the app log, plus every routine poll result. Only useful while debugging the protocol — leave off in daily use.",
+                "no": "Skriver hver BLE-ramme i begge retninger til app-loggen, pluss hvert rutinemessige poll-resultat. Kun nyttig ved feilsøking av protokollen — la den stå av til daglig."
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "User profile",
+            "no": "Brukerprofil"
+          },
+          "children": [
+            {
+              "id": "edit_profile",
+              "type": "dropdown",
+              "label": {
+                "en": "Profile to edit",
+                "no": "Profil som redigeres"
+              },
+              "hint": {
+                "no": "Hvilken profil glidebryterne leser og skriver. Grunninnstillinger er det toalettet bruker når ingen brukerprofil er aktivert — det er som regel den du vil ha. Målt mot toalettet: endringer gjort under Grunninnstillinger havner her, mens fjernkontrollens profil 1 havner i Profil 1. Toalettet kan ikke fortelle hvilken det bruker, så valget må gjøres for hånd.",
+                "en": "Which profile the sliders read and write. Base settings is what the toilet uses when no user profile is active — usually the one you want. Measured against the toilet: changes made under Base settings land here, while the remote profile 1 lands in Profile 1. The toilet cannot report which one it is using, so this has to be chosen by hand."
+              },
+              "value": "0",
+              "values": [
+                {
+                  "id": "0",
+                  "label": {
+                    "en": "Base settings",
+                    "no": "Grunninnstillinger"
+                  }
+                },
+                {
+                  "id": "1",
+                  "label": {
+                    "en": "Profile 1",
+                    "no": "Profil 1"
+                  }
+                },
+                {
+                  "id": "2",
+                  "label": {
+                    "en": "Profile 2",
+                    "no": "Profil 2"
+                  }
+                },
+                {
+                  "id": "3",
+                  "label": {
+                    "en": "Profile 3",
+                    "no": "Profil 3"
+                  }
+                },
+                {
+                  "id": "4",
+                  "label": {
+                    "en": "Profile 4",
+                    "no": "Profil 4"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "profile_values_read",
+              "type": "label",
+              "label": {
+                "en": "Sliders show",
+                "no": "Glidebryterne viser"
+              },
+              "value": "",
+              "hint": {
+                "no": "Hvilken profil verdiene på enhetssiden sist ble lest fra, og når. Bytter du profil, tar avlesningen et par sekunder — vent til dette feltet viser den nye profilen før du drar i noe, ellers skriver du inn en verdi du trodde tilhørte en annen profil.",
+                "en": "Which profile the values on the device page were last read from, and when. After switching profile the read takes a couple of seconds — wait until this field shows the new profile before touching a slider."
+              }
+            },
+            {
+              "id": "profile_oscillation",
+              "type": "checkbox",
+              "label": {
+                "en": "Oscillation",
+                "no": "Oscillasjon"
+              },
+              "value": false,
+              "hint": {
+                "en": "Moves the shower arm back and forth during a wash. Applies to the profile selected above.",
+                "no": "Beveger dusjarmen fram og tilbake mens spylingen pågår. Gjelder profilen som er valgt over."
+              }
+            },
+            {
+              "id": "profile_odour_extraction",
+              "type": "checkbox",
+              "label": {
+                "en": "Odour extraction",
+                "no": "Luktavsug"
+              },
+              "value": false,
+              "hint": {
+                "en": "Whether odour extraction is available in the profile selected above. Turned off here, it cannot be started for that profile.",
+                "no": "Om luktavsuget er tilgjengelig i profilen som er valgt over. Slår du det av her, kan det ikke startes for denne profilen."
+              }
+            },
+            {
+              "id": "profile_system_flush",
+              "type": "checkbox",
+              "label": {
+                "en": "System flush",
+                "no": "Systemspyling"
+              },
+              "value": false,
+              "hint": {
+                "en": "Automatic flushing of the water system for the profile selected above. Intended to prevent water standing in the shower arm. The factory value on your toilet is off.",
+                "no": "Automatisk gjennomspyling av vannsystemet for profilen som er valgt over. Skal hindre stillestående vann i dusjarmen. Fabrikkverdien på ditt toalett er av."
+              }
+            },
+            {
+              "id": "profile_dryer_state",
+              "type": "checkbox",
+              "label": {
+                "en": "Dryer",
+                "no": "Tørker"
+              },
+              "value": false,
+              "hint": {
+                "en": "Whether the dryer is available in the profile selected above. The factory value is on; you had it switched off in every profile you use.",
+                "no": "Om tørkeren er tilgjengelig i profilen som er valgt over. Fabrikkverdien er på; du hadde den avslått i alle profilene du bruker."
+              }
+            },
+            {
+              "id": "profile_seat_heat",
+              "type": "number",
+              "label": {
+                "en": "Seat heat",
+                "no": "Setevarme"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 5,
+              "step": 1,
+              "hint": {
+                "no": "Gjelder profilen som er valgt over. Området er 0–5, målt mot toalettet.",
+                "en": "Applies to the profile selected above. The range is 0-5, measured against the toilet."
+              }
+            },
+            {
+              "id": "profile_water_temperature",
+              "type": "number",
+              "label": {
+                "en": "Water temperature",
+                "no": "Vanntemperatur"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 5,
+              "step": 1,
+              "hint": {
+                "no": "Gjelder profilen som er valgt over. Området er 0–5, målt mot toalettet.",
+                "en": "Applies to the profile selected above. The range is 0-5, measured against the toilet."
+              }
+            },
+            {
+              "id": "profile_anal_pressure",
+              "type": "number",
+              "label": {
+                "en": "Anal shower pressure",
+                "no": "Spylestyrke analdusj"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 4,
+              "step": 1,
+              "hint": {
+                "no": "Gjelder profilen som er valgt over. Området er 0–4, målt mot toalettet.",
+                "en": "Applies to the profile selected above. The range is 0-4, measured against the toilet."
+              }
+            },
+            {
+              "id": "profile_anal_position",
+              "type": "number",
+              "label": {
+                "en": "Anal shower position",
+                "no": "Dusjarmposisjon analdusj"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 4,
+              "step": 1,
+              "hint": {
+                "no": "Gjelder profilen som er valgt over. Området er 0–4, målt mot toalettet.",
+                "en": "Applies to the profile selected above. The range is 0-4, measured against the toilet."
+              }
+            },
+            {
+              "id": "profile_lady_pressure",
+              "type": "number",
+              "label": {
+                "en": "Lady shower pressure",
+                "no": "Spylestyrke ladydusj"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 4,
+              "step": 1,
+              "hint": {
+                "no": "Gjelder profilen som er valgt over. Området er 0–4, målt mot toalettet.",
+                "en": "Applies to the profile selected above. The range is 0-4, measured against the toilet."
+              }
+            },
+            {
+              "id": "profile_lady_position",
+              "type": "number",
+              "label": {
+                "en": "Lady shower position",
+                "no": "Dusjarmposisjon ladydusj"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 4,
+              "step": 1,
+              "hint": {
+                "no": "Gjelder profilen som er valgt over. Området er 0–4, målt mot toalettet.",
+                "en": "Applies to the profile selected above. The range is 0-4, measured against the toilet."
+              }
+            },
+            {
+              "id": "profile_dryer_temperature",
+              "type": "number",
+              "label": {
+                "en": "Dryer temperature",
+                "no": "Lufttemperatur tørker"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 5,
+              "step": 1,
+              "hint": {
+                "no": "Gjelder profilen som er valgt over. Området er 0–5, målt mot toalettet.",
+                "en": "Applies to the profile selected above. The range is 0-5, measured against the toilet."
+              }
+            },
+            {
+              "id": "profile_dryer_fan_power",
+              "type": "number",
+              "label": {
+                "en": "Dryer fan power",
+                "no": "Viftestyrke tørker"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 4,
+              "step": 1,
+              "hint": {
+                "no": "Gjelder profilen som er valgt over. Området er 0–4, målt mot toalettet.",
+                "en": "Applies to the profile selected above. The range is 0-4, measured against the toilet."
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Lid",
+            "no": "Lokk"
+          },
+          "children": [
+            {
+              "id": "lid_auto_open",
+              "type": "checkbox",
+              "label": {
+                "en": "Open automatically on approach",
+                "no": "Åpne automatisk ved tilnærming"
+              },
+              "value": true
+            },
+            {
+              "id": "lid_auto_close",
+              "type": "checkbox",
+              "label": {
+                "en": "Close automatically",
+                "no": "Lukk automatisk"
+              },
+              "value": true
+            },
+            {
+              "id": "lid_sensor_range",
+              "type": "number",
+              "label": {
+                "en": "Proximity sensor range",
+                "no": "Rekkevidde nærhetssensor"
+              },
+              "hint": {
+                "en": "How far away the toilet notices someone approaching. Five steps, 0 is shortest. The lid automation runs on this sensor, not on the seat sensor.",
+                "no": "Hvor langt unna toalettet registrerer at noen nærmer seg. Fem trinn, 0 er kortest. Lokkautomatikken styres av denne sensoren, ikke av setesensoren."
+              },
+              "value": 4,
+              "min": 0,
+              "max": 4,
+              "step": 1
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Orientation light",
+            "no": "Orienteringslys"
+          },
+          "children": [
+            {
+              "id": "light_mode",
+              "type": "dropdown",
+              "label": {
+                "en": "When the light comes on",
+                "no": "Når lyset tennes"
+              },
+              "value": "2",
+              "values": [
+                {
+                  "id": "0",
+                  "label": {
+                    "en": "Never",
+                    "no": "Aldri"
+                  }
+                },
+                {
+                  "id": "1",
+                  "label": {
+                    "en": "Always on",
+                    "no": "Alltid på"
+                  }
+                },
+                {
+                  "id": "2",
+                  "label": {
+                    "en": "When approached",
+                    "no": "Ved tilnærming"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "light_colour",
+              "type": "dropdown",
+              "label": {
+                "en": "Colour",
+                "no": "Farge"
+              },
+              "value": "0",
+              "values": [
+                {
+                  "id": "0",
+                  "label": {
+                    "en": "Blue",
+                    "no": "Blå"
+                  }
+                },
+                {
+                  "id": "1",
+                  "label": {
+                    "en": "Turquoise",
+                    "no": "Turkis"
+                  }
+                },
+                {
+                  "id": "2",
+                  "label": {
+                    "en": "Magenta",
+                    "no": "Magenta"
+                  }
+                },
+                {
+                  "id": "3",
+                  "label": {
+                    "en": "Orange",
+                    "no": "Oransje"
+                  }
+                },
+                {
+                  "id": "4",
+                  "label": {
+                    "en": "Yellow",
+                    "no": "Gul"
+                  }
+                },
+                {
+                  "id": "5",
+                  "label": {
+                    "en": "Warm white",
+                    "no": "Varmhvit"
+                  }
+                },
+                {
+                  "id": "6",
+                  "label": {
+                    "en": "Cold white",
+                    "no": "Kaldhvit"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "light_brightness",
+              "type": "number",
+              "label": {
+                "en": "Brightness",
+                "no": "Lysstyrke"
+              },
+              "hint": {
+                "en": "Five steps, 0 is dimmest.",
+                "no": "Fem trinn, 0 er svakest."
+              },
+              "value": 4,
+              "min": 0,
+              "max": 4,
+              "step": 1
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Device information",
+            "no": "Enhetsinformasjon"
+          },
+          "children": [
+            {
+              "id": "info_model",
+              "type": "label",
+              "label": {
+                "en": "Model",
+                "no": "Modell"
+              },
+              "value": ""
+            },
+            {
+              "id": "info_serial_number",
+              "type": "label",
+              "label": {
+                "en": "Serial number",
+                "no": "Serienummer"
+              },
+              "value": ""
+            },
+            {
+              "id": "info_sap_number",
+              "type": "label",
+              "label": {
+                "en": "SAP number",
+                "no": "SAP-nummer"
+              },
+              "value": ""
+            },
+            {
+              "id": "info_production_date",
+              "type": "label",
+              "label": {
+                "en": "Production date",
+                "no": "Produksjonsdato"
+              },
+              "value": ""
+            },
+            {
+              "id": "info_initial_operation_date",
+              "type": "label",
+              "label": {
+                "en": "Initial operation date",
+                "no": "Satt i drift"
+              },
+              "value": ""
+            },
+            {
+              "id": "info_firmware",
+              "type": "label",
+              "label": {
+                "en": "Installed firmware",
+                "no": "Installert fastvare"
+              },
+              "value": ""
+            },
+            {
+              "id": "info_soc_versions",
+              "type": "label",
+              "label": {
+                "en": "SOC versions",
+                "no": "SOC-versjoner"
+              },
+              "value": ""
+            },
+            {
+              "id": "info_last_descale",
+              "type": "label",
+              "label": {
+                "en": "Last descaling",
+                "no": "Siste avkalking"
+              },
+              "value": ""
+            },
+            {
+              "id": "info_descale_cycles",
+              "type": "label",
+              "label": {
+                "en": "Descaling cycles",
+                "no": "Antall avkalkinger"
+              },
+              "value": ""
+            },
+            {
+              "id": "info_last_filter_change",
+              "type": "label",
+              "label": {
+                "en": "Last filter change",
+                "no": "Siste filterbytte"
+              },
+              "value": ""
+            },
+            {
+              "id": "info_filter_changes",
+              "type": "label",
+              "label": {
+                "en": "Filter changes",
+                "no": "Antall filterbytter"
+              },
+              "value": ""
+            },
+            {
+              "id": "info_read_at",
+              "type": "label",
+              "label": {
+                "en": "Read at",
+                "no": "Avlest"
+              },
+              "value": ""
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Maintenance",
+            "no": "Vedlikehold"
+          },
+          "children": [
+            {
+              "id": "reset_filter_counter",
+              "type": "checkbox",
+              "label": {
+                "en": "Ceramic filter replaced",
+                "no": "Keramisk filter byttet"
+              },
+              "hint": {
+                "en": "Tick this after fitting a new ceramic filter. The counter goes back to a full year and the replacement is logged on the toilet. The box clears itself once that is done.",
+                "no": "Huk av etter at du har satt inn et nytt keramisk filter. Telleren settes tilbake til et helt år og byttet registreres på toalettet. Avkrysningen fjerner seg selv når det er gjort."
+              },
+              "value": false
+            },
+            {
+              "id": "refresh_device_information",
+              "type": "checkbox",
+              "label": {
+                "en": "Read device information now",
+                "no": "Les enhetsinformasjon nå"
+              },
+              "hint": {
+                "en": "Device information is read at startup and then every few hours. Tick this to fetch it immediately.",
+                "no": "Enhetsinformasjon leses ved oppstart og deretter noen ganger i døgnet. Huk av for å hente den med én gang."
+              },
+              "value": false
+            },
+            {
+              "id": "restart_ble_proxy",
+              "type": "checkbox",
+              "label": {
+                "en": "Restart Bluetooth proxy",
+                "no": "Restart Bluetooth-proxy"
+              },
+              "value": false,
+              "hint": {
+                "en": "Reboots the ESP32. Helps when the proxy has wedged, but not against a weak signal — below −85 dBm it is placement that needs changing. The connection is gone for about half a minute.",
+                "no": "Starter ESP32-en på nytt. Hjelper når proxyen har satt seg fast, men ikke mot svakt signal — er RSSI dårligere enn −85 dBm, er det plasseringen som må endres. Forbindelsen er borte i cirka et halvt minutt."
+              }
+            },
+            {
+              "id": "clear_ble_cache",
+              "type": "checkbox",
+              "label": {
+                "en": "Clear Bluetooth cache",
+                "no": "Tøm Bluetooth-cache"
+              },
+              "value": false,
+              "hint": {
+                "en": "Asks the proxy to forget what it cached about the toilet Bluetooth services. Try this before a restart if connecting fails immediately while the toilet is still visible in a scan.",
+                "no": "Ber proxyen glemme det den har lagret om toalettets Bluetooth-tjenester. Prøv denne før omstart hvis tilkoblingen feiler med det samme, men toalettet er synlig i skann."
+              }
+            }
+          ]
+        }
+      ],
+      "connectivity": [
+        "ble"
+      ],
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "images": {
+        "small": "/drivers/mera_comfort/assets/images/small.png",
+        "large": "/drivers/mera_comfort/assets/images/large.png",
+        "xlarge": "/drivers/mera_comfort/assets/images/xlarge.png"
+      }
+    }
+  ],
+  "homepage": "https://github.com/thomastorp/homey-geberit-aquaclean",
+  "source": "https://github.com/thomastorp/homey-geberit-aquaclean",
+  "support": "https://github.com/thomastorp/homey-geberit-aquaclean/issues",
+  "bugs": {
+    "url": "https://github.com/thomastorp/homey-geberit-aquaclean/issues"
+  },
+  "license": "MIT",
+  "tags": {
+    "en": [
+      "geberit",
+      "aquaclean",
+      "toilet",
+      "bidet",
+      "esphome",
+      "bluetooth",
+      "ble",
+      "esp32"
+    ],
+    "no": [
+      "geberit",
+      "aquaclean",
+      "toalett",
+      "dusjtoalett",
+      "esphome",
+      "bluetooth",
+      "ble",
+      "esp32"
+    ]
+  }
+}

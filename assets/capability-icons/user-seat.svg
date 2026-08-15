@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 500 500">
+  <!-- Kilde: graphics/is_user_sitting.svg fra github.com/jens62/geberit-aquaclean.
+       Skalert og sentrert inn i 500x500; tegningen er ellers uendret.
+       Se THIRD_PARTY_NOTICES.md for opphav. -->
+  <!-- Blekket lå på x 0-234 i 500-boksen — hele figuren i venstre halvdel.
+       Forskyvningen under sentrerer den uten å endre størrelsen. -->
+  <g fill="#000" transform="translate(133.099 -0.921) scale(3.750000)">
+    <defs
+     id="defs1" />
+  <g
+     id="g1"
+     transform="translate(-35.999999,-13.097331)">
+    <path
+       id="path1"
+       style="fill:#000000"
+       d="M 63.999999,49.333659 V 86.66569 h 25.333984 v 33.33398 L 98.14452,120.2023 98.347154,82.861003 90.30664,77.333659 H 73.333983 v -28 z m -28,13.332031 v 8.628907 c 4.223714,-0.07296 8.443362,-0.162331 12.666016,0.03906 l 0.178817,31.332033 h 24.489151 v 1.03711 l -0.202634,2.05028 -1.010266,2.4834 -2.833975,2.68409 -12.30028,0.008 0.177234,8.46338 c 0,0 7.937235,0.60852 11.704587,-0.41527 1.483955,-0.40327 3.536193,-0.61588 4.869621,-1.38186 1.442108,-0.82841 2.862307,-2.04869 4.057132,-3.20555 0.943257,-0.91328 1.641285,-1.79145 2.360837,-2.88966 0.719251,-1.09775 1.955569,-3.29296 1.955569,-3.29296 L 83.039062,93.333417 H 57.333983 V 62.66569 Z"
+       />
+    <circle
+       style="fill:#000000;stroke-width:1.16119"
+       id="path4"
+       cx="68.858162"
+       cy="27.921038"
+       r="13" />
+  </g>
+  </g>
+</svg>

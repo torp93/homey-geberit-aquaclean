@@ -41,12 +41,11 @@ REQUIREMENTS
 - An ESP32 (a basic ESP32-C3 is enough) running ESPHome with the
   bluetooth_proxy component and one connection slot, placed within a few
   metres of the toilet with clear line of sight. Enter its address in the
-  app settings after installation.
+  app settings after installation. A complete, tested ESPHome configuration
+  is included in the repository — copy it, add your WiFi secrets and flash.
 
-  A complete, tested ESPHome configuration is included in the repository —
-  copy it, add your WiFi secrets and flash:
-  https://github.com/torp93/homey-geberit-aquaclean
-- The app does not use Homey's own Bluetooth radio.
+- The app does not use Homey's own Bluetooth radio, so the toilet needs to
+  be within range of the ESP32, not of your Homey.
 
 GOOD TO KNOW
 

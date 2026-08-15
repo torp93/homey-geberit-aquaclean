@@ -28,29 +28,28 @@ Homey Pro ──TCP 6053──> ESP32 (ESPHome bluetooth_proxy) ──BLE──>
 
 - Geberit AquaClean Mera Comfort (other AquaClean models may work — the
   protocol is shared — but only the Mera Comfort has been tested).
-- An ESP32 with ESPHome. A minimal configuration:
+- An ESP32 running ESPHome as a Bluetooth proxy. A complete, tested
+  configuration is included: **[`esphome/geberit-aquaclean-proxy.yaml`](esphome/geberit-aquaclean-proxy.yaml)**.
+  Set your WiFi secrets and the fallback AP password, then flash it.
 
-```yaml
-esp32:
-  board: esp32-c3-devkitm-1   # any ESP32 works; a C3 is enough
-
-bluetooth_proxy:
-  active: true
-
-esp32_ble_tracker:
-  scan_parameters:
-    active: true
-
-api:      # native API, no encryption (the app speaks plaintext frames)
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-```
+  A basic ESP32-C3 is enough — the config is tuned for one, with BLE 5.0
+  disabled to free RAM. A classic ESP32 works too; drop the `esp32:` block
+  and use your board's own settings.
 
 Place the ESP32 within a few metres of the toilet with clear line of sight —
 BLE range is the single most common source of trouble. Aim for an RSSI
-better than −80 dBm; a human body between the ESP32 and the toilet costs
-about 13 dB.
+better than −80 dBm; connections start failing around −87 dBm, and a human
+body between the ESP32 and the toilet costs about 13 dB. That last point
+matters more than it sounds: the signal is weakest exactly when someone is
+sitting on the toilet, which is when the app is most likely to be used.
+
+Two details in the proxy config are load-bearing:
+
+- `connection_slots: 1` and `active: true` — the AquaClean needs two-way
+  GATT, and one slot is all it will grant.
+- The **restart** and **factory reset** buttons. The Homey app presses these
+  itself after repeated failures to recover a wedged proxy; without them it
+  cannot self-heal.
 
 ## Setup
 

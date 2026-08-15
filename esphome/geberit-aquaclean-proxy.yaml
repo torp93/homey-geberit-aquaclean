@@ -1,0 +1,125 @@
+# ESPHome Bluetooth proxy for a Geberit AquaClean.
+#
+# This is the configuration this Homey app was developed and tested against,
+# running on a generic ESP32-C3 board. Based on the proxy configuration in
+# jens62/geberit-aquaclean (esphome/aquaclean-proxy-c3.yaml).
+#
+# Before flashing, set:
+#   - wifi_ssid / wifi_password in your ESPHome secrets.yaml
+#   - the ap: password below
+#   - use_address, if your ESPHome instance cannot resolve mDNS
+#
+# C3-specific notes: one RISC-V core is shared between WiFi and BLE, and there
+# is 400 KB SRAM against 520 KB on a classic ESP32. Hence esp-idf and BLE 5.0
+# disabled. A classic ESP32 works too — drop the esp32: variant/sdkconfig block
+# and use your board's own settings.
+
+esphome:
+  name: geberit-aquaclean-proxy
+  friendly_name: Geberit AquaClean Proxy
+
+esp32:
+  variant: esp32c3
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: n   # BLE 5.0 off — frees ~40 KB RAM
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y   # BLE 4.2 is all the AquaClean needs
+
+logger:
+  level: INFO
+  baud_rate: 0   # UART logger off; logging over the API still works
+
+# ---------------------------------------------------------------------------
+# Native API on port 6053 — this is what the Homey app connects to.
+# Runs unencrypted: API 1.14 removed password authentication, and plaintext
+# framing is confirmed working against this chip. That keeps the Homey app
+# free of a Noise handshake and of external dependencies.
+# ---------------------------------------------------------------------------
+api:
+  reboot_timeout: 15min   # reboot if no API client connects for 15 minutes
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: NONE   # avoids WiFi/BLE contention on the shared 2.4 GHz radio
+
+  # If your ESPHome instance runs in a Docker bridge network, mDNS will not
+  # reach it and "geberit-aquaclean-proxy.local" will not resolve. Then set
+  # the proxy's IP here so OTA knows where to push. A DHCP reservation for
+  # the board is recommended either way.
+  # use_address: 192.168.1.50
+
+  # Rescue path: if the WiFi credentials are wrong the chip brings up its own
+  # network instead of becoming unreachable. OTA works against 192.168.4.1.
+  ap:
+    ssid: AquaClean Proxy Fallback
+    password: "CHANGE-ME"
+
+# ---------------------------------------------------------------------------
+# BLE proxy
+# active: true gives two-way GATT — required for the AquaClean; passive
+# scanning is not enough. 320/200 ms (62.5 % duty cycle) is the scan setting
+# confirmed in daily operation on a C3.
+# ---------------------------------------------------------------------------
+esp32_ble_tracker:
+  id: ble_tracker_id
+  scan_parameters:
+    active: true
+    interval: 320ms
+    window: 200ms
+
+bluetooth_proxy:
+  active: true
+  connection_slots: 1
+
+# ---------------------------------------------------------------------------
+# These two buttons are what the Homey app's circuit breaker presses on its
+# own after repeated connection failures: first the cache clear, then the
+# restart. Keep both, or the app cannot recover a wedged proxy by itself.
+#
+# Clear Bluetooth Cache wipes NVS, including the NimBLE GATT cache. It is the
+# fix for ATT error 0x01 (Invalid Handle) — a plain reboot does not help,
+# because NVS survives restarts.
+# ---------------------------------------------------------------------------
+button:
+  - platform: restart
+    name: "Restart AquaClean Proxy"
+
+  - platform: factory_reset
+    name: "Clear Bluetooth Cache"
+
+debug:
+
+sensor:
+  - platform: wifi_signal
+    name: "Proxy WiFi Signal"
+    update_interval: 60s
+
+  # Heap diagnostics — the most important numbers on this board.
+  # If "Proxy Max Free Block" drops below ~25 KB, GATT becomes unreliable in a
+  # confusing way: BLE connects fine, but reads time out.
+  - platform: debug
+    free:
+      name: "Proxy Free Heap"
+    block:
+      name: "Proxy Max Free Block"
+
+  - platform: uptime
+    name: "Proxy Uptime"
+
+# ---------------------------------------------------------------------------
+# web_server and captive_portal cost ~30-50 KB of heap between them. On a C3
+# that can push "Max Free Block" under ~25 KB, and the symptom is deceptive:
+# BLE connects, but GATT reads time out, and the log shows
+# connect -> service_discovery -> disconnect every ~7 seconds.
+# Only enable them if Max Free Block stays above 40 KB. On the test board it
+# sits around 88 KB with web_server enabled, so there is room:
+#
+# web_server:
+#   port: 80
+#   version: 3
+# ---------------------------------------------------------------------------

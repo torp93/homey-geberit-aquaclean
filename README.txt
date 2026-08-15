@@ -42,6 +42,10 @@ REQUIREMENTS
   bluetooth_proxy component and one connection slot, placed within a few
   metres of the toilet with clear line of sight. Enter its address in the
   app settings after installation.
+
+  A complete, tested ESPHome configuration is included in the repository —
+  copy it, add your WiFi secrets and flash:
+  https://github.com/torp93/homey-geberit-aquaclean
 - The app does not use Homey's own Bluetooth radio.
 
 GOOD TO KNOW
@@ -55,6 +59,13 @@ GOOD TO KNOW
 - Shower pressure and position are read by the toilet when a shower starts.
   Set them first, then start the shower.
 
+SOURCE, ISSUES AND FEEDBACK
+
+https://github.com/torp93/homey-geberit-aquaclean
+
+Bug reports, feature requests and reports from other AquaClean models are
+all welcome there.
+
 This is a community project with no affiliation to Geberit AG. It builds on
 the protocol research of the jens62/geberit-aquaclean project; see the
-repository for full third-party notices and the ESPHome configuration.
+repository for full third-party notices.

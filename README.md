@@ -14,9 +14,9 @@ ESP32's.
 Click to enlarge.
 
 <p>
-  <a href="docs/screenshots/device-controls.jpg"><img src="docs/screenshots/device-controls.jpg" alt="Device controls" width="200"></a>
-  <a href="docs/screenshots/device-status.jpg"><img src="docs/screenshots/device-status.jpg" alt="Live status" width="200"></a>
-  <a href="docs/screenshots/insights.jpg"><img src="docs/screenshots/insights.jpg" alt="Insights" width="200"></a>
+  <a href="docs/screenshots/device-controls.jpg"><img src="docs/screenshots/device-controls.jpg" alt="Device controls" width="250"></a>
+  <a href="docs/screenshots/device-status.jpg"><img src="docs/screenshots/device-status.jpg" alt="Live status" width="250"></a>
+  <a href="docs/screenshots/insights.jpg"><img src="docs/screenshots/insights.jpg" alt="Insights" width="250"></a>
 </p>
 
 ## Architecture

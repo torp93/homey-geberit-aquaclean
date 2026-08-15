@@ -1,6 +1,6 @@
 # Geberit AquaClean for Homey
 
-Control a **Geberit AquaClean Mera Comfort** shower toilet from a Homey Pro,
+Control a **Geberit AquaClean** shower toilet from a Homey Pro,
 over Bluetooth LE through an **ESP32 running ESPHome as a Bluetooth proxy**.
 No cloud, no Geberit account — everything stays on your own network.
 
@@ -76,6 +76,10 @@ Comfort:
 - Stored profile values are read when a function **starts**; writing them
   mid-shower changes nothing. The remote adjusts pressure live through a
   channel that is not exposed over this GATT service.
+- Command 37, inherited as `TRIGGER_FLUSH`, is acknowledged with status 0
+  but does nothing observable on a Mera Comfort — tested with the seat both
+  empty and occupied. A Mera has no bowl flush of its own, so the name is
+  probably wrong. Not exposed in the app.
 
 ## Credits
 

@@ -13,7 +13,7 @@ ESP32's.
 
 | Controls | Status | Insights |
 |---|---|---|
-| ![Device controls](docs/screenshots/device-controls.png) | ![Live status](docs/screenshots/device-status.png) | ![Insights](docs/screenshots/insights.png) |
+| ![Device controls](docs/screenshots/device-controls.jpg) | ![Live status](docs/screenshots/device-status.jpg) | ![Insights](docs/screenshots/insights.jpg) |
 
 ## Architecture
 

@@ -1941,11 +1941,11 @@
       }
     }
   ],
-  "homepage": "https://github.com/thomastorp/homey-geberit-aquaclean",
-  "source": "https://github.com/thomastorp/homey-geberit-aquaclean",
-  "support": "https://github.com/thomastorp/homey-geberit-aquaclean/issues",
+  "homepage": "https://github.com/torp93/homey-geberit-aquaclean",
+  "source": "https://github.com/torp93/homey-geberit-aquaclean",
+  "support": "https://github.com/torp93/homey-geberit-aquaclean/issues",
   "bugs": {
-    "url": "https://github.com/thomastorp/homey-geberit-aquaclean/issues"
+    "url": "https://github.com/torp93/homey-geberit-aquaclean/issues"
   },
   "license": "MIT",
   "tags": {

@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -901,20 +901,6 @@
         "title": {
           "en": "Run odour extraction on",
           "no": "Kjør etterløp for luktavsug"
-        },
-        "args": [
-          {
-            "name": "device",
-            "type": "device",
-            "filter": "driver_id=mera_comfort"
-          }
-        ]
-      },
-      {
-        "id": "aquaclean_action_flush",
-        "title": {
-          "en": "Trigger a flush",
-          "no": "Start spyling"
         },
         "args": [
           {

@@ -719,24 +719,6 @@ class MeraComfortDevice extends Homey.Device {
     this.log('Proxy button pressed', { button: pressed });
   }
 
-  // The flush Flow card used to route through executeControlCapability with a
-  // capability id that was retired from the device page — every run threw
-  // "Unsupported AquaClean control". The command itself is fine; it just needs
-  // a path that does not require a capability.
-  async executeFlush() {
-    try {
-      await this.runProtocolOperation({
-        command: {
-          code: AQUACLEAN_COMMANDS.TRIGGER_FLUSH,
-          label: 'trigger flush'
-        }
-      });
-    } catch (error) {
-      this.error('AquaClean flush failed', error);
-      throw new Error(this.getUserErrorMessage(error));
-    }
-  }
-
   async executeFilterReset() {
     this.log('Resetting the AquaClean ceramic filter counter');
     await this.runProtocolOperation({

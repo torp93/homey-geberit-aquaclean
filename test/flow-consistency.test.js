@@ -36,8 +36,7 @@ const CAPABILITY_BACKED_ACTIONS = {
   aquaclean_action_odour_run_on: 'aquaclean_button_odour_run_on'
 };
 const METHOD_BACKED_ACTIONS = {
-  aquaclean_action_refresh_status: 'executeStatusRefresh',
-  aquaclean_action_flush: 'executeFlush'
+  aquaclean_action_refresh_status: 'executeStatusRefresh'
 };
 
 test('every declared Flow action has a handler that can actually run', () => {

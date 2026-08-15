@@ -97,12 +97,6 @@ class GeberitAquaCleanApp extends Homey.App {
       .getActionCard('aquaclean_action_refresh_status')
       .registerRunListener(({ device }) => device.executeStatusRefresh());
 
-    // Flush has no button capability on the device page (deliberately retired),
-    // so its card runs the command directly.
-    this.homey.flow
-      .getActionCard('aquaclean_action_flush')
-      .registerRunListener(({ device }) => device.executeFlush());
-
     // The device fires these on every drop in the counter; each flow's own
     // threshold decides here whether that drop crossed it. Comparing against
     // the previous value keeps a flow from firing again on every later drop.

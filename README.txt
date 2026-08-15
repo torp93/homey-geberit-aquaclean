@@ -6,10 +6,14 @@ an ESP32 running ESPHome as a Bluetooth proxy. No cloud, no Geberit account
 
 FEATURES
 
-- Buttons for anal shower, lady shower, dryer, stop, lid, odour extraction
-  (with a run-on timer) and status refresh, plus a Flow-only flush action.
+- Buttons on the device page for anal shower, lady shower, dryer, stop,
+  lid, odour extraction, odour run-on and status refresh. Flushing is
+  available as a Flow action.
 - Live status: user presence, shower and dryer activity, descaling state
   and the last device error code — with 0/1 Insights graphs for each.
+  Odour extraction is the one function the toilet does not report, so the
+  app tracks it itself; how long it counts as running after you stand up
+  is adjustable in the device settings.
 - All twelve per-profile settings (shower pressure and position, water and
   dryer temperature, seat heat, fan power, oscillation, odour extraction
   and more) readable and writable from the device settings, per profile.

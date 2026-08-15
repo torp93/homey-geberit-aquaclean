@@ -54,7 +54,6 @@
     "no": "Første offentlige utgivelse. Lokal styring av Geberit AquaClean via ESPHome Bluetooth-proxy: knapper, live status, innstillinger per profil, vedlikeholdstellere, flowkort og automatisk gjenoppretting."
   },
   "1.0.1": {
-    "en": "Cleaned up the app and driver icons so they render reliably everywhere.",
-    "no": "Ryddet opp i app- og driverikonet slik at de tegnes riktig overalt."
+    "en": "cd \"C:/Users/thotorp/Documents/Codex/2026-08-08/app/homey-geberit-aquaclean\"; npx homey app publish"
   }
 }

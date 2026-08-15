@@ -56,5 +56,9 @@
   "1.0.2": {
     "en": "Removed the flush Flow action: the underlying command is acknowledged by the toilet but has no observable effect on a Mera Comfort. Clearer wording for the odour run-on setting.",
     "no": "Fjernet spyling-flowkortet: kommandoen kvitteres av toalettet, men har ingen observerbar effekt på en Mera Comfort. Tydeligere beskrivelse av etterløp for luktavsug."
+  },
+  "1.0.3": {
+    "en": "New store images: the AquaClean product photography, used with permission from Geberit.",
+    "no": "Nye butikkbilder: AquaClean-produktbilder, brukt med tillatelse fra Geberit."
   }
 }

@@ -12,6 +12,15 @@ No third-party runtime code or dependency is bundled in the Homey app. The
 references were used to verify UUID roles, message framing, CRC behavior,
 session initialization, flow control, and safe system-state parameters.
 
+## Product photography
+
+The app and driver store images are Geberit product photography, used with
+permission from Geberit AG. Copyright remains with Geberit AG; they are not
+covered by this project's MIT licence and may not be reused from here.
+
+Everything else in this project — code, icons, diagrams — is covered by the
+licences described below.
+
 ## Icons
 
 The app icon, the driver icon, and every capability icon are derived from

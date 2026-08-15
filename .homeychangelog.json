@@ -52,5 +52,9 @@
   "1.0.0": {
     "en": "First public release. Local control of a Geberit AquaClean through an ESPHome Bluetooth proxy: buttons, live status, per-profile settings, maintenance counters, Flow cards and automatic recovery.",
     "no": "Første offentlige utgivelse. Lokal styring av Geberit AquaClean via ESPHome Bluetooth-proxy: knapper, live status, innstillinger per profil, vedlikeholdstellere, flowkort og automatisk gjenoppretting."
+  },
+  "1.0.1": {
+    "en": "Cleaned up the app and driver icons so they render reliably everywhere.",
+    "no": "Ryddet opp i app- og driverikonet slik at de tegnes riktig overalt."
   }
 }

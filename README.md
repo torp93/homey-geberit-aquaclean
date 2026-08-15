@@ -12,9 +12,9 @@ ESP32's.
 ## Screenshots
 
 <p>
-  <img src="docs/screenshots/device-controls.jpg" alt="Device controls" width="240">
-  <img src="docs/screenshots/device-status.jpg" alt="Live status" width="240">
-  <img src="docs/screenshots/insights.jpg" alt="Insights" width="240">
+  <img src="docs/screenshots/device-controls.jpg" alt="Device controls" width="300">
+  <img src="docs/screenshots/device-status.jpg" alt="Live status" width="300">
+  <img src="docs/screenshots/insights.jpg" alt="Insights" width="300">
 </p>
 
 ## Architecture

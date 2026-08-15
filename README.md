@@ -9,7 +9,13 @@ raw GATT through the proxy. Homey's own Bluetooth radio is not used, which
 means the toilet does not need to be within Homey's range — only within the
 ESP32's.
 
-undefined
+## Screenshots
+
+| Controls | Status | Insights |
+|---|---|---|
+| ![Device controls](docs/screenshots/device-controls.png) | ![Live status](docs/screenshots/device-status.png) | ![Insights](docs/screenshots/insights.png) |
+
+## Architecture
 
 ```
 Homey Pro ──TCP 6053──> ESP32 (ESPHome bluetooth_proxy) ──BLE──> AquaClean

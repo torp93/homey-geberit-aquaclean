@@ -11,10 +11,12 @@ ESP32's.
 
 ## Screenshots
 
+Click to enlarge.
+
 <p>
-  <img src="docs/screenshots/device-controls.jpg" alt="Device controls" width="300">
-  <img src="docs/screenshots/device-status.jpg" alt="Live status" width="300">
-  <img src="docs/screenshots/insights.jpg" alt="Insights" width="300">
+  <a href="docs/screenshots/device-controls.jpg"><img src="docs/screenshots/device-controls.jpg" alt="Device controls" width="200"></a>
+  <a href="docs/screenshots/device-status.jpg"><img src="docs/screenshots/device-status.jpg" alt="Live status" width="200"></a>
+  <a href="docs/screenshots/insights.jpg"><img src="docs/screenshots/insights.jpg" alt="Insights" width="200"></a>
 </p>
 
 ## Architecture

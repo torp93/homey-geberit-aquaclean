@@ -29,13 +29,15 @@ Homey Pro ──TCP 6053──> ESP32 (ESPHome bluetooth_proxy) ──BLE──>
   intervals and the keep-warm window are user-configurable.
 - **Verified writes**: every setting written is read back from the toilet
   before it is reported as saved.
-- **Self-healing**: a three-stage circuit breaker (proxy cache clear → proxy
-  restart → internal transport reset) recovers a wedged proxy automatically.
+- **Self-healing**: after repeated failures a three-stage circuit breaker
+  works through proxy cache clear → proxy restart → internal transport reset,
+  30 minutes apart, and resets as soon as a connection succeeds.
 
 ## Requirements
 
-- Geberit AquaClean Mera Comfort (other AquaClean models may work — the
-  protocol is shared — but only the Mera Comfort has been tested).
+- A Geberit AquaClean. Developed and tested against a Mera Comfort; other
+  models share the same Bluetooth protocol and are likely to work, but are
+  untested — reports from other models are very welcome.
 - An ESP32 running ESPHome as a Bluetooth proxy. A complete, tested
   configuration is included: **[`esphome/geberit-aquaclean-proxy.yaml`](esphome/geberit-aquaclean-proxy.yaml)**.
   Set your WiFi secrets and the fallback AP password, then flash it.

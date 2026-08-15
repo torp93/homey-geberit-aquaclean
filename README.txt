@@ -25,16 +25,19 @@ FEATURES
   setting is read back from the toilet before it is reported as saved.
 - Maintenance tools: filter-change reset, device information readout, and
   buttons to clear the proxy's Bluetooth cache or restart the proxy.
-- Self-healing: after repeated connection failures the app automatically
-  clears the proxy cache, restarts the proxy, and finally resets its own
-  transport — no manual intervention needed.
+- Self-healing: after repeated connection failures the app works through a
+  recovery sequence on its own — clearing the proxy's Bluetooth cache,
+  restarting the proxy, and finally resetting its own connection — instead
+  of waiting for you to notice.
 - Considerate Bluetooth: short on-demand connections and configurable poll
   intervals, so the toilet's physical remote and the Geberit Home phone app
   stay usable alongside Homey. The toilet accepts one connection at a time.
 
 REQUIREMENTS
 
-- A Geberit AquaClean Mera Comfort.
+- A Geberit AquaClean. Developed and tested against a Mera Comfort; other
+  models share the same Bluetooth protocol and are likely to work, but are
+  untested — feedback from other models is very welcome.
 - An ESP32 (a basic ESP32-C3 is enough) running ESPHome with the
   bluetooth_proxy component and one connection slot, placed within a few
   metres of the toilet with clear line of sight. Enter its address in the
@@ -52,5 +55,6 @@ GOOD TO KNOW
 - Shower pressure and position are read by the toilet when a shower starts.
   Set them first, then start the shower.
 
-This app builds on the protocol research of the jens62/geberit-aquaclean
-project. See the repository for full third-party notices.
+This is a community project with no affiliation to Geberit AG. It builds on
+the protocol research of the jens62/geberit-aquaclean project; see the
+repository for full third-party notices and the ESPHome configuration.

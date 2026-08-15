@@ -1,8 +1,8 @@
 Geberit AquaClean
 
-Control a Geberit AquaClean Mera Comfort shower toilet from Homey, through
-an ESP32 running ESPHome as a Bluetooth proxy. No cloud, no Geberit account
-— everything stays on your own network.
+Control a Geberit AquaClean shower toilet from Homey, through an ESP32
+running ESPHome as a Bluetooth proxy. No cloud, no Geberit account —
+everything stays on your own network.
 
 FEATURES
 

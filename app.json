@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.0.3",
+  "version": "1.3.1",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -11,13 +11,13 @@
     "no": "Geberit AquaClean"
   },
   "description": {
-    "en": "Control a Geberit AquaClean shower toilet through an ESP32 running ESPHome as a Bluetooth proxy. Local, no cloud.",
-    "no": "Styr et Geberit AquaClean dusjtoalett gjennom en ESP32 som kjører ESPHome som Bluetooth-proxy. Lokalt, uten sky."
+    "en": "Shower, dryer, lid and every profile setting for your AquaClean — entirely on your own network.",
+    "no": "Dusj, tørker, lokk og alle profilinnstillinger for AquaClean — helt på ditt eget nett."
   },
   "category": [
     "appliances"
   ],
-  "brandColor": "#007A8A",
+  "brandColor": "#0072BA",
   "permissions": [],
   "api": {
     "testProxy": {
@@ -735,6 +735,105 @@
             "filter": "driver_id=mera_comfort"
           }
         ]
+      },
+      {
+        "id": "aquaclean_dryer_running_true",
+        "title": {
+          "en": "The dryer starts",
+          "no": "Tørkeren starter"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_dryer_running_false",
+        "title": {
+          "en": "The dryer stops",
+          "no": "Tørkeren stopper"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_odour_extraction_running_true",
+        "title": {
+          "en": "Odour extraction starts",
+          "no": "Luktavsuget starter"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_odour_extraction_running_false",
+        "title": {
+          "en": "Odour extraction stops",
+          "no": "Luktavsuget stopper"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_error_occurred",
+        "title": {
+          "en": "The toilet reports a fault",
+          "no": "Toalettet melder en feil"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ],
+        "hint": {
+          "en": "Fires when the toilet itself reports a fault code — not when Homey loses contact with it.",
+          "no": "Utløses når toalettet selv melder en feilkode — ikke når Homey mister kontakten med det."
+        },
+        "tokens": [
+          {
+            "name": "code",
+            "type": "number",
+            "title": {
+              "en": "Fault code",
+              "no": "Feilkode"
+            },
+            "example": 12
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_error_cleared",
+        "title": {
+          "en": "The fault is gone",
+          "no": "Feilen er borte"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -807,6 +906,48 @@
             "filter": "driver_id=mera_comfort"
           }
         ]
+      },
+      {
+        "id": "aquaclean_condition_dryer",
+        "title": {
+          "en": "The dryer !{{is|is not}} running",
+          "no": "Tørkeren !{{går|går ikke}}"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_condition_odour",
+        "title": {
+          "en": "Odour extraction !{{is|is not}} running",
+          "no": "Luktavsuget !{{går|går ikke}}"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_condition_connected",
+        "title": {
+          "en": "The toilet !{{is|is not}} reachable",
+          "no": "Toalettet !{{er|er ikke}} tilgjengelig"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
       }
     ],
     "actions": [
@@ -822,7 +963,8 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "deprecated": true
       },
       {
         "id": "aquaclean_action_lady_shower",
@@ -836,7 +978,8 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "deprecated": true
       },
       {
         "id": "aquaclean_action_dryer",
@@ -850,7 +993,8 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "deprecated": true
       },
       {
         "id": "aquaclean_action_stop",
@@ -865,7 +1009,11 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "hint": {
+          "en": "Stops the shower, dryer and odour extraction at once.",
+          "no": "Stopper dusj, tørker og luktavsug samtidig."
+        }
       },
       {
         "id": "aquaclean_action_lid",
@@ -880,7 +1028,11 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "hint": {
+          "en": "The toilet does not report the lid position, so this switches between open and closed rather than setting one.",
+          "no": "Toalettet rapporterer ikke lokkets posisjon, så denne veksler mellom åpen og lukket i stedet for å sette én av dem."
+        }
       },
       {
         "id": "aquaclean_action_odour_extraction",
@@ -894,7 +1046,8 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "deprecated": true
       },
       {
         "id": "aquaclean_action_odour_run_on",
@@ -908,13 +1061,165 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "hint": {
+          "en": "Keeps the odour extraction running for a while after you leave, then stops it by itself.",
+          "no": "Lar luktavsuget gå en stund etter at du har reist deg, og stopper det så selv."
+        }
       },
       {
         "id": "aquaclean_action_refresh_status",
         "title": {
           "en": "Refresh the complete status",
           "no": "Oppdater full status"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ],
+        "hint": {
+          "en": "The status updates by itself. Use this to re-read everything while troubleshooting.",
+          "no": "Statusen oppdateres av seg selv. Bruk denne for å lese alt på nytt ved feilsøking."
+        }
+      },
+      {
+        "id": "aquaclean_action_anal_shower_start",
+        "title": {
+          "en": "Start the anal shower",
+          "no": "Start analdusjen"
+        },
+        "hint": {
+          "en": "Does nothing if the anal shower is already running.",
+          "no": "Gjør ingenting hvis analdusjen allerede går."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_anal_shower_stop",
+        "title": {
+          "en": "Stop the anal shower",
+          "no": "Stopp analdusjen"
+        },
+        "hint": {
+          "en": "Stops only the anal shower. Other functions keep running.",
+          "no": "Stopper kun analdusjen. Andre funksjoner fortsetter."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_lady_shower_start",
+        "title": {
+          "en": "Start the lady shower",
+          "no": "Start ladydusjen"
+        },
+        "hint": {
+          "en": "Does nothing if the lady shower is already running.",
+          "no": "Gjør ingenting hvis ladydusjen allerede går."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_lady_shower_stop",
+        "title": {
+          "en": "Stop the lady shower",
+          "no": "Stopp ladydusjen"
+        },
+        "hint": {
+          "en": "Stops only the lady shower. Other functions keep running.",
+          "no": "Stopper kun ladydusjen. Andre funksjoner fortsetter."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_dryer_start",
+        "title": {
+          "en": "Start the dryer",
+          "no": "Start tørkeren"
+        },
+        "hint": {
+          "en": "Does nothing if the dryer is already running.",
+          "no": "Gjør ingenting hvis tørkeren allerede går."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_dryer_stop",
+        "title": {
+          "en": "Stop the dryer",
+          "no": "Stopp tørkeren"
+        },
+        "hint": {
+          "en": "Stops only the dryer. Other functions keep running.",
+          "no": "Stopper kun tørkeren. Andre funksjoner fortsetter."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_odour_extraction_on",
+        "title": {
+          "en": "Turn odour extraction on",
+          "no": "Slå på luktavsuget"
+        },
+        "hint": {
+          "en": "The toilet does not report odour extraction, so the app tracks it. Does nothing if it is already on.",
+          "no": "Toalettet rapporterer ikke luktavsug, så appen holder styr på det selv. Gjør ingenting hvis det allerede er på."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_odour_extraction_off",
+        "title": {
+          "en": "Turn odour extraction off",
+          "no": "Slå av luktavsuget"
+        },
+        "hint": {
+          "en": "The toilet does not report odour extraction, so the app tracks it. Does nothing if it is already off.",
+          "no": "Toalettet rapporterer ikke luktavsug, så appen holder styr på det selv. Gjør ingenting hvis det allerede er av."
         },
         "args": [
           {
@@ -1908,6 +2213,15 @@
         "ble"
       ],
       "pair": [
+        {
+          "id": "start",
+          "navigation": {
+            "next": "proxy"
+          }
+        },
+        {
+          "id": "proxy"
+        },
         {
           "id": "list_devices",
           "template": "list_devices",

@@ -28,10 +28,7 @@ class GeberitAquaCleanApp extends Homey.App {
       // Fresh installs have no proxy address yet. The device page shows this
       // message as the connection error until the app settings are filled in.
       if (!host) {
-        throw new Error(
-          'No ESPHome proxy configured. Open the app settings and enter '
-          + 'the address of your ESP32 Bluetooth proxy.',
-        );
+        throw new Error(this.homey.__('error.no_proxy'));
       }
       this._ble = new EsphomeBle({
         host,
@@ -60,23 +57,42 @@ class GeberitAquaCleanApp extends Homey.App {
     const booleanConditions = {
       aquaclean_condition_user_sitting: 'aquaclean_user_sitting',
       aquaclean_condition_anal_shower: 'aquaclean_anal_shower_running',
-      aquaclean_condition_lady_shower: 'aquaclean_lady_shower_running'
+      aquaclean_condition_lady_shower: 'aquaclean_lady_shower_running',
+      aquaclean_condition_dryer: 'aquaclean_dryer_running',
+      aquaclean_condition_odour: 'aquaclean_odour_extraction_running'
     };
 
+    // A device that never gained the capability would otherwise answer
+    // "undefined is truthy" — false is the honest answer.
     for (const [cardId, capabilityId] of Object.entries(booleanConditions)) {
       this.homey.flow.getConditionCard(cardId).registerRunListener(({ device }) =>
-        Boolean(device.getCapabilityValue(capabilityId)));
+        (device.hasCapability(capabilityId)
+          ? Boolean(device.getCapabilityValue(capabilityId))
+          : false));
     }
+
+    // "Reachable" means Homey can talk to the toilet, which is a different
+    // question from whether the toilet reports a fault.
+    this.homey.flow
+      .getConditionCard('aquaclean_condition_connected')
+      .registerRunListener(({ device }) => {
+        const state = device.getCapabilityValue('aquaclean_connection_state');
+        return state === 'ready' || state === 'connected';
+      });
 
     this.homey.flow
       .getConditionCard('aquaclean_condition_descaling')
       .registerRunListener(({ device }) =>
-        device.getCapabilityValue('aquaclean_descaling_state') !== 'idle');
+        (device.hasCapability('aquaclean_descaling_state')
+          ? device.getCapabilityValue('aquaclean_descaling_state') !== 'idle'
+          : false));
 
     this.homey.flow
       .getConditionCard('aquaclean_condition_error')
       .registerRunListener(({ device }) =>
-        Number(device.getCapabilityValue('aquaclean_error_code')) > 0);
+        (device.hasCapability('aquaclean_error_code')
+          ? Number(device.getCapabilityValue('aquaclean_error_code')) > 0
+          : false));
 
     const controlActions = {
       aquaclean_action_anal_shower: 'aquaclean_button_anal_shower',
@@ -91,6 +107,24 @@ class GeberitAquaCleanApp extends Homey.App {
     for (const [cardId, capabilityId] of Object.entries(controlActions)) {
       this.homey.flow.getActionCard(cardId).registerRunListener(({ device }) =>
         device.executeControlCapability(capabilityId));
+    }
+
+    // Deterministic actions: each one states the outcome it wants, so running
+    // the same Flow twice leaves the toilet in the same place. The toggle cards
+    // above stay registered for Flows that already use them.
+    const deterministicActions = {
+      aquaclean_action_anal_shower_start: ['anal_shower', true],
+      aquaclean_action_anal_shower_stop: ['anal_shower', false],
+      aquaclean_action_lady_shower_start: ['lady_shower', true],
+      aquaclean_action_lady_shower_stop: ['lady_shower', false],
+      aquaclean_action_dryer_start: ['dryer', true],
+      aquaclean_action_dryer_stop: ['dryer', false],
+      aquaclean_action_odour_extraction_on: ['odour_extraction', true],
+      aquaclean_action_odour_extraction_off: ['odour_extraction', false]
+    };
+    for (const [cardId, [fn, desired]] of Object.entries(deterministicActions)) {
+      this.homey.flow.getActionCard(cardId).registerRunListener(({ device }) =>
+        device.setFunctionState(fn, desired));
     }
 
     this.homey.flow

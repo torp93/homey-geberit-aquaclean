@@ -1034,6 +1034,8 @@ test('connection is lost after 3 failures; the breaker presses proxy buttons aft
     pressProxyButton: async id => pressed.push(id),
     resetTransport: async () => { resets += 1; },
     runCircuitBreaker: MeraComfortDevice.prototype.runCircuitBreaker,
+    homey: { __: key => key },
+    setUnavailable: async () => {},
     log: () => {},
     error: () => {}
   };

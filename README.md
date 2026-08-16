@@ -42,7 +42,9 @@ Homey Pro ──TCP 6053──> ESP32 (ESPHome bluetooth_proxy) ──BLE──>
   untested — reports from other models are very welcome.
 - An ESP32 running ESPHome as a Bluetooth proxy. A complete, tested
   configuration is included: **[`esphome/geberit-aquaclean-proxy.yaml`](esphome/geberit-aquaclean-proxy.yaml)**.
-  Set your WiFi secrets and the fallback AP password, then flash it.
+  Set `wifi_ssid` and `wifi_password` in your ESPHome `secrets.yaml`, then
+  flash it. Pairing in Homey asks for the proxy's address afterwards; the app
+  settings hold the same two fields if you need to change them later.
 
   A basic ESP32-C3 is enough — the config is tuned for one, with BLE 5.0
   disabled to free RAM. A classic ESP32 works too; drop the `esp32:` block

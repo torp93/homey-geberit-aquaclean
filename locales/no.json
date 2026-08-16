@@ -1,0 +1,86 @@
+{
+  "error": {
+    "busy_homey": "Homeys Bluetooth er opptatt. Kommandoen ble ikke sendt — prøv igjen om litt.",
+    "busy_device": "AquaClean holder på med noe annet. Prøv igjen om litt.",
+    "timeout": "AquaClean koblet til, men svarte ikke. Lukk Geberit Home-appen, flytt proxyen nærmere, og prøv igjen.",
+    "unreachable": "Fikk ikke kontakt med AquaClean.",
+    "no_proxy": "Ingen Bluetooth-proxy er satt opp. Åpne appinnstillingene og skriv inn adressen til ESPHome-proxyen.",
+    "unsupported_control": "Denne funksjonen er ikke tilgjengelig på AquaClean.",
+    "unknown_setting": "Ukjent innstilling.",
+    "out_of_range": "{{setting}} godtar {{min}}–{{max}}. Fikk {{value}}.",
+    "not_kept": "AquaClean beholdt {{stored}} i stedet for {{value}}.",
+    "not_kept_profile": "AquaClean beholdt {{stored}} for profil {{profile}} i stedet for {{value}}.",
+    "service_missing": "Fant ikke Geberit-tjenesten på enheten.",
+    "gatt_incomplete": "AquaClean sin Bluetooth-profil er ufullstendig. Mangler: {{missing}}.",
+    "not_found": "Fant ikke AquaClean. Lukk Geberit Home-appen, vekk toalettet, og sjekk at proxyen er innenfor rekkevidde.",
+    "multiple_found": "Flere AquaClean-enheter ble funnet, men den sammenkoblede svarte ikke.",
+    "deleted": "Enheten er fjernet fra Homey."
+  },
+  "unavailable": {
+    "no_contact": "Ingen kontakt med AquaClean. Sjekk Bluetooth-proxyen og avstanden til toalettet."
+  },
+  "state": {
+    "on": "på",
+    "off": "av",
+    "saved": "lagret",
+    "profile": "profil",
+    "base_settings": "Grunninnstillinger",
+    "profile_n": "Profil {{n}}",
+    "read": "lest",
+    "reading": "leser …",
+    "read_failed": "avlesning feilet",
+    "do_not_trust": "verdiene under er ikke til å stole på"
+  },
+  "setting": {
+    "profile_oscillation": "Oscillasjon",
+    "profile_seat_heat": "Setevarme",
+    "profile_water_temperature": "Vanntemperatur",
+    "profile_dryer_temperature": "Lufttemperatur",
+    "profile_dryer_fan_power": "Viftestyrke tørker",
+    "profile_anal_pressure": "Spylestyrke analdusj",
+    "profile_anal_position": "Dusjarmposisjon analdusj",
+    "profile_lady_pressure": "Spylestyrke ladydusj",
+    "profile_lady_position": "Dusjarmposisjon ladydusj",
+    "profile_odour_extraction": "Luktavsug",
+    "profile_system_flush": "Systemspyling",
+    "profile_dryer_state": "Tørker",
+    "light_mode": "Når lyset tennes",
+    "light_colour": "Farge",
+    "light_brightness": "Lysstyrke",
+    "lid_auto_open": "Åpne automatisk ved tilnærming",
+    "lid_auto_close": "Lukk automatisk",
+    "lid_sensor_range": "Rekkevidde nærhetssensor"
+  },
+  "pair": {
+    "start": {
+      "title": "Før du starter",
+      "intro": "Homey snakker ikke direkte med AquaClean. Den går via en ESP32 som kjører ESPHome som Bluetooth-proxy, så noen ting må være på plass.",
+      "step_proxy": "Flash en ESP32 med ESPHome. En komplett, testet konfigurasjon ligger på GitHub: github.com/torp93/homey-geberit-aquaclean, som esphome/geberit-aquaclean-proxy.yaml.",
+      "step_wifi": "Før du flasher må du legge inn WiFi-navn og passord i ESPHome sin secrets.yaml som wifi_ssid og wifi_password.",
+      "step_range": "Plasser ESP32-en noen få meter fra toalettet, med minst mulig betong og metall imellom.",
+      "step_address": "Neste skjerm spør etter adressen til ESP32-en. Bruk fast IP eller DHCP-reservasjon så den ikke flytter seg.",
+      "step_app": "Lukk Geberit Home-appen på telefonen. Toalettet godtar bare én Bluetooth-tilkobling om gangen.",
+      "note": "Når det er gjort, kan du gå videre, så leter Homey etter toalettet."
+    },
+    "proxy": {
+      "title": "Bluetooth-proxy",
+      "intro": "Skriv inn adressen til ESP32-en som kjører ESPHome. Bruk fast IP eller DHCP-reservasjon så den ikke flytter seg senere.",
+      "hostLabel": "Adresse",
+      "portLabel": "Port (native API, normalt 6053)",
+      "test": "Test tilkobling",
+      "saveNext": "Lagre og fortsett",
+      "testing": "Kontakter proxyen…",
+      "invalidHost": "Skriv inn en gyldig IP-adresse eller vertsnavn.",
+      "invalidPort": "Porten må være mellom 1 og 65535.",
+      "noProxy": "Tilkoblet, men denne enheten har ikke bluetooth_proxy slått på. Legg til bluetooth_proxy og esp32_ble_tracker i ESPHome-konfigen.",
+      "failed": "Fikk ikke kontakt med proxyen",
+      "untested": "Lagret uten vellykket test — søket finner kanskje ingenting.",
+      "searching": "Leter etter AquaClean…"
+    },
+    "result": {
+      "already_added": "Fant {{name}}, men den er allerede lagt til i Homey. Vil du pare den på nytt, må du fjerne den eksisterende enheten først. Ellers kan du lukke dette og fortsette med den du har.",
+      "none_advertising": "Proxyen fungerer og ser {{count}} Bluetooth-enheter, men ingen av dem er en AquaClean. Lukk Geberit Home-appen på telefonen, trykk på en knapp på toalettet for å vekke det, og prøv igjen.",
+      "proxy_silent": "Bluetooth-proxyen meldte ingen enheter i det hele tatt. Sjekk at ESP32-en har strøm, er tilgjengelig på adressen du skrev inn, og kjører bluetooth_proxy."
+    }
+  }
+}

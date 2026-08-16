@@ -1,0 +1,8 @@
+# Files that ship in the repository but have no business inside the installed
+# app. Nothing here is reachable from a Homey — an installed app is not
+# browsable — so packaging them only makes the download bigger.
+#
+# The ESPHome configuration lives on GitHub, and the app text points there.
+esphome/
+docs/
+test/

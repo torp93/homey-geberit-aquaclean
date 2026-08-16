@@ -1,0 +1,57 @@
+<!--
+  Searching before the proxy address is set always ends in "no devices found",
+  and nothing on that screen explains why. This view runs first and says what
+  has to be in place — including where the ESPHome configuration lives and that
+  the WiFi credentials have to go in before flashing, which the store page and
+  the settings page never mention.
+
+  Homey injects homey.js itself — do not add it here.
+
+  The English text is written into the markup rather than fetched, so a failure
+  in the translation call downgrades to readable English instead of the blank
+  screen a thrown script would leave behind on a user's very first pairing.
+-->
+<style>
+  .aq-intro { padding: 0 24px; line-height: 1.5; }
+  .aq-intro h2 { margin: 0 0 12px; }
+  .aq-intro ol { padding-left: 20px; }
+  .aq-intro li { margin-bottom: 10px; }
+  .aq-note { opacity: 0.7; font-size: 0.9em; margin-top: 18px; }
+</style>
+
+<div class="aq-intro">
+  <p data-i18n="pair.start.intro">Homey does not talk to the AquaClean directly. It goes through an ESP32 running ESPHome as a Bluetooth proxy, so a few things need to be in place.</p>
+  <ol>
+    <li data-i18n="pair.start.step_proxy">Flash an ESP32 with ESPHome. A complete, tested configuration is on GitHub at github.com/torp93/homey-geberit-aquaclean, as esphome/geberit-aquaclean-proxy.yaml.</li>
+    <li data-i18n="pair.start.step_wifi">Before flashing, put your WiFi name and password into ESPHome’s secrets.yaml as wifi_ssid and wifi_password.</li>
+    <li data-i18n="pair.start.step_range">Place the ESP32 within a few metres of the toilet, with as little concrete and metal in between as possible.</li>
+    <li data-i18n="pair.start.step_address">The next screen asks for the ESP32’s address. Use a fixed IP or a DHCP reservation so it does not move.</li>
+    <li data-i18n="pair.start.step_app">Close the Geberit Home app on your phone. The toilet accepts only one Bluetooth connection at a time.</li>
+  </ol>
+  <p class="aq-note" data-i18n="pair.start.note">Once that is done, continue and Homey will look for the toilet.</p>
+</div>
+
+<script type="application/javascript">
+  // A missing key comes back as the key itself, which would read as
+  // "pair.start.title" on screen — worse than the English already in place.
+  function translate(key) {
+    try {
+      const text = Homey.__(key);
+      return (text && text !== key) ? text : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  try {
+    for (const element of document.querySelectorAll('[data-i18n]')) {
+      const text = translate(element.getAttribute('data-i18n'));
+      if (text) element.textContent = text;
+    }
+    const title = translate('pair.start.title');
+    if (title) Homey.setTitle(title);
+  } catch (error) {
+    // The English markup stands on its own; the Next button comes from
+    // navigation.next in app.json either way.
+  }
+</script>

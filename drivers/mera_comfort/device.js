@@ -1,6 +1,7 @@
 'use strict';
 
 const Homey = require('homey');
+const { translate } = require('../../lib/i18n');
 const {
   AQUACLEAN_COMMANDS,
   AquaCleanProtocol,
@@ -123,44 +124,9 @@ const EDITABLE_PROFILE_IDS = Object.freeze([0, 1, 2, 3, 4]);
 // A slider that snaps back tells you nothing about whether the toilet took the
 // value. This line is the receipt: what was written, to which profile, when.
 const LAST_WRITE_CAPABILITY = 'aquaclean_last_setting_write';
-// Runtime-generated text (the save receipt, the profile read-out marker) is
-// localized against the Homey language: Norwegian on Norwegian Homeys,
-// English everywhere else.
-const SETTING_LABELS = Object.freeze({
-  profile_oscillation: { en: 'Oscillation', no: 'Oscillasjon' },
-  profile_seat_heat: { en: 'Seat heat', no: 'Setevarme' },
-  profile_water_temperature: { en: 'Water temperature', no: 'Vanntemperatur' },
-  profile_dryer_temperature: { en: 'Dryer temperature', no: 'Lufttemperatur' },
-  profile_dryer_fan_power: { en: 'Dryer fan power', no: 'Viftestyrke tørker' },
-  profile_anal_pressure: { en: 'Anal shower pressure', no: 'Spylestyrke analdusj' },
-  profile_anal_position: { en: 'Anal shower position', no: 'Dusjarmposisjon analdusj' },
-  profile_lady_pressure: { en: 'Lady shower pressure', no: 'Spylestyrke ladydusj' },
-  profile_lady_position: { en: 'Lady shower position', no: 'Dusjarmposisjon ladydusj' },
-  profile_odour_extraction: { en: 'Odour extraction', no: 'Luktavsug' },
-  profile_system_flush: { en: 'System flush', no: 'Systemspyling' },
-  profile_dryer_state: { en: 'Dryer', no: 'Tørker' },
-  light_mode: { en: 'Light activation', no: 'Når lyset tennes' },
-  light_colour: { en: 'Light colour', no: 'Farge' },
-  light_brightness: { en: 'Light brightness', no: 'Lysstyrke' },
-  lid_auto_open: { en: 'Lid auto-open', no: 'Åpne automatisk ved tilnærming' },
-  lid_auto_close: { en: 'Lid auto-close', no: 'Lukk automatisk' },
-  lid_sensor_range: { en: 'Proximity sensor range', no: 'Rekkevidde nærhetssensor' }
-});
-
-const RUNTIME_TEXT = Object.freeze({
-  en: {
-    on: 'on', off: 'off', saved: 'saved', profile: 'profile',
-    baseSettings: 'Base settings', profileN: n => `Profile ${n}`,
-    read: 'read', reading: 'reading …',
-    readFailed: 'read failed', doNotTrust: 'the values below are not to be trusted'
-  },
-  no: {
-    on: 'på', off: 'av', saved: 'lagret', profile: 'profil',
-    baseSettings: 'Grunninnstillinger', profileN: n => `Profil ${n}`,
-    read: 'lest', reading: 'leser …',
-    readFailed: 'avlesning feilet', doNotTrust: 'verdiene under er ikke til å stole på'
-  }
-});
+// User-facing runtime text lives in locales/en.json and locales/no.json and is
+// resolved with homey.__(), so a Norwegian Homey shows Norwegian throughout.
+// Setting labels reuse the same keys as their ids: setting.<settingId>.
 
 const MAINTENANCE_CAPABILITIES = Object.freeze([
   'aquaclean_days_until_descaling',
@@ -238,6 +204,42 @@ const SETTINGS_REFRESH_INTERVAL_MS = 6 * 60 * 60 * 1000;
 const SETTINGS_RETRY_INTERVAL_MS = 5 * 60 * 1000;
 
 const STATUS_REFRESH_CAPABILITY = 'aquaclean_button_refresh_status';
+
+// The AquaClean protocol only offers TOGGLE commands, which makes a Flow card
+// that "toggles" non-deterministic: run it twice and you undo yourself. For
+// every function whose state the toilet actually reports, the app can read
+// first and only send the toggle when the state differs — turning the same
+// card into "make it so".
+//
+// The lid is deliberately absent: its position is not exposed anywhere in the
+// protocol (verified by exhausting the system parameters and context 0x00), so
+// an "open the lid" card could not know whether it had succeeded. It stays a
+// toggle, and its hint says why.
+const DETERMINISTIC_FUNCTIONS = Object.freeze({
+  anal_shower: {
+    button: 'aquaclean_button_anal_shower',
+    status: 'aquaclean_anal_shower_running',
+    reported: true
+  },
+  lady_shower: {
+    button: 'aquaclean_button_lady_shower',
+    status: 'aquaclean_lady_shower_running',
+    reported: true
+  },
+  dryer: {
+    button: 'aquaclean_button_dryer',
+    status: 'aquaclean_dryer_running',
+    reported: true
+  },
+  // The toilet never reports odour extraction, so the app's own tracked state
+  // is the only thing to compare against. Still deterministic from Homey's
+  // point of view, which is what a Flow needs.
+  odour_extraction: {
+    button: 'aquaclean_button_odour_extraction',
+    status: 'aquaclean_odour_extraction_running',
+    reported: false
+  }
+});
 const STATUS_CAPABILITIES = Object.freeze([
   'aquaclean_connection_state',
   'aquaclean_connection_error',
@@ -276,6 +278,14 @@ const DESCALING_STATES = Object.freeze({
   3: 'running'
 });
 const BOOLEAN_STATUS_TRIGGER_IDS = Object.freeze({
+  aquaclean_dryer_running: {
+    true: 'aquaclean_dryer_running_true',
+    false: 'aquaclean_dryer_running_false'
+  },
+  aquaclean_odour_extraction_running: {
+    true: 'aquaclean_odour_extraction_running_true',
+    false: 'aquaclean_odour_extraction_running_false'
+  },
   aquaclean_user_sitting: {
     true: 'aquaclean_user_sitting_true',
     false: 'aquaclean_user_sitting_false'
@@ -475,18 +485,13 @@ class MeraComfortDevice extends Homey.Device {
     }, POLL_SCHEDULER_INTERVAL_MS);
   }
 
+  // Everything the user can see is localized. The raw error keeps flowing to
+  // the app log, where it is worth having; the UI gets something actionable.
   getUserErrorMessage(error) {
-    if (isBleInProgressError(error)) {
-      return 'Homey Bluetooth is temporarily busy. The command was not sent; try again shortly.';
-    }
-    if (error && error.code === 'AQUACLEAN_BUSY') {
-      return 'The AquaClean is already handling another Bluetooth request. Try again shortly.';
-    }
-    if (error && error.code === 'AQUACLEAN_TIMEOUT') {
-      return 'The AquaClean connected but did not answer. '
-        + 'Close the Geberit Home app, move Homey closer, and try again.';
-    }
-    return error && error.message ? error.message : 'AquaClean BLE communication failed.';
+    if (isBleInProgressError(error)) return this.homey.__('error.busy_homey');
+    if (error && error.code === 'AQUACLEAN_BUSY') return this.homey.__('error.busy_device');
+    if (error && error.code === 'AQUACLEAN_TIMEOUT') return this.homey.__('error.timeout');
+    return this.homey.__('error.unreachable');
   }
 
   async ensureCapabilities() {
@@ -605,6 +610,31 @@ class MeraComfortDevice extends Homey.Device {
     });
   }
 
+  // Deterministic Flow actions: "start the dryer" must leave the dryer running
+  // whether it ran before or not, and must be a no-op the second time.
+  async setFunctionState(functionKey, desired) {
+    const fn = DETERMINISTIC_FUNCTIONS[functionKey];
+    if (!fn) throw new Error(this.homey.__('error.unsupported_control'));
+
+    // A stale reading would make the decision wrong, so the reported functions
+    // are re-read first. The unreported one has nothing fresher to consult.
+    if (fn.reported) {
+      await this.refreshStatus({ keepWarm: true }).catch(error => {
+        this.error('Could not refresh AquaClean state before a Flow action', error);
+      });
+    }
+
+    const current = Boolean(this.getCapabilityValue(fn.status));
+    if (current === desired) {
+      this.log('AquaClean already in the requested state', {
+        function: functionKey,
+        desired
+      });
+      return;
+    }
+    await this.executeControlCapability(fn.button);
+  }
+
   async executeControlCapability(capabilityId) {
     const command = CONTROL_CAPABILITY_COMMANDS[capabilityId];
     if (!command) {
@@ -686,23 +716,21 @@ class MeraComfortDevice extends Homey.Device {
     }
   }
 
-  runtimeText() {
-    return RUNTIME_TEXT[this._language] || RUNTIME_TEXT.en;
-  }
-
   async noteSettingSaved(settingId, value, profileId = null) {
     if (!this.hasCapability(LAST_WRITE_CAPABILITY)) return;
 
-    const t = this.runtimeText();
-    const labelEntry = SETTING_LABELS[settingId];
-    const label = labelEntry ? (labelEntry[this._language] || labelEntry.en) : settingId;
-    const shown = typeof value === 'boolean' ? (value ? t.on : t.off) : value;
-    const where = profileId === null ? '' : ` (${t.profile} ${profileId})`;
+    const label = this.homey.__(`setting.${settingId}`) || settingId;
+    const shown = typeof value === 'boolean'
+      ? this.homey.__(value ? 'state.on' : 'state.off')
+      : value;
+    const where = profileId === null
+      ? ''
+      : ` (${this.homey.__('state.profile')} ${profileId})`;
     const time = this.formatLocalTime(new Date(), { hour: '2-digit', minute: '2-digit' });
 
     await this.setCapabilityValue(
       LAST_WRITE_CAPABILITY,
-      `${label}: ${shown}${where}, ${t.saved} ${time}`
+      `${label}: ${shown}${where}, ${this.homey.__('state.saved')} ${time}`
     ).catch(error => {
       this.error('Could not store the AquaClean save receipt', error.message);
     });
@@ -851,7 +879,7 @@ class MeraComfortDevice extends Homey.Device {
   // the value would land there instead of in the one just chosen.
   async writeConfigSetting(settingId, value, profileIdOverride = null) {
     const entry = configEntryFor(settingId);
-    if (!entry) throw new Error(`Unknown AquaClean configuration ${settingId}.`);
+    if (!entry) throw new Error(this.homey.__('error.unknown_setting'));
 
     const wireValue = toWireConfigValue(entry.kind, value);
     if (
@@ -859,9 +887,12 @@ class MeraComfortDevice extends Homey.Device {
       || wireValue < entry.setting.min
       || wireValue > entry.setting.max
     ) {
-      throw new Error(
-        `${settingId} accepts ${entry.setting.min}–${entry.setting.max}; received ${value}.`,
-      );
+      throw new Error(translate(this.homey, 'error.out_of_range', {
+        setting: this.homey.__(`setting.${settingId}`) || settingId,
+        min: entry.setting.min,
+        max: entry.setting.max,
+        value
+      }));
     }
 
     // A profile setting is stored per profile, so it goes to the one the page
@@ -877,9 +908,9 @@ class MeraComfortDevice extends Homey.Device {
           await protocol.setProfileSetting(entry.setting.id, wireValue, profileId);
           const kept = await protocol.getProfileSetting(entry.setting.id, profileId);
           if (kept !== wireValue) {
-            throw new Error(
-              `The AquaClean kept ${kept} for ${settingId} instead of ${wireValue}.`,
-            );
+            throw new Error(translate(this.homey, 'error.not_kept_profile', {
+              stored: kept, profile: profileId, value: wireValue
+            }));
           }
           return kept;
         }
@@ -888,9 +919,9 @@ class MeraComfortDevice extends Homey.Device {
         // reads back — a silent no-op would otherwise look like success.
         const stored = await protocol.setCommonSetting(entry.setting.id, wireValue);
         if (stored !== wireValue) {
-          throw new Error(
-            `The AquaClean kept ${stored} for ${settingId} instead of ${wireValue}.`,
-          );
+          throw new Error(translate(this.homey, 'error.not_kept', {
+            stored, value: wireValue
+          }));
         }
         return stored;
       }
@@ -953,13 +984,14 @@ class MeraComfortDevice extends Homey.Device {
   // values, and there is nothing on screen to say so.
   async noteProfileValuesRead(profileId, ok) {
     if (typeof this.setSettings !== 'function') return;
-    const t = this.runtimeText();
     const time = this.formatLocalTime(new Date(), { hour: '2-digit', minute: '2-digit' });
-    const label = profileId === 0 ? t.baseSettings : t.profileN(profileId);
+    const label = profileId === 0
+      ? this.homey.__('state.base_settings')
+      : translate(this.homey, 'state.profile_n', { n: profileId });
     await this.setSettings({
       profile_values_read: ok
-        ? `${label} — ${t.read} ${time}`
-        : `${label} — ${t.readFailed} ${time}, ${t.doNotTrust}`
+        ? `${label} — ${this.homey.__('state.read')} ${time}`
+        : `${label} — ${this.homey.__('state.read_failed')} ${time}, ${this.homey.__('state.do_not_trust')}`
     }).catch(error => {
       this.error('Could not store which profile the sliders show', error.message);
     });
@@ -1084,7 +1116,7 @@ class MeraComfortDevice extends Homey.Device {
     skipIfBusy = false
   } = {}) {
     if (this._deleted) {
-      throw new Error('The AquaClean device has been deleted.');
+      throw new Error(this.homey.__('error.deleted'));
     }
 
     if (this._busy) {
@@ -1336,7 +1368,7 @@ class MeraComfortDevice extends Homey.Device {
     const service = discoveredServices.find(candidate =>
       normalizeUuid(candidate.uuid) === GEBERIT_GATT_SERVICE_UUID);
     if (!service) {
-      throw new Error('The Geberit protocol service was not found in the GATT map.');
+      throw new Error(this.homey.__('error.service_missing'));
     }
 
     this.log('AquaClean GATT service discovered', {
@@ -1369,7 +1401,7 @@ class MeraComfortDevice extends Homey.Device {
     const service = services.find(candidate =>
       normalizeUuid(candidate.uuid) === GEBERIT_GATT_SERVICE_UUID);
     if (!service) {
-      throw new Error('The Geberit protocol service was not found in the GATT map.');
+      throw new Error(this.homey.__('error.service_missing'));
     }
 
     const characteristics = new Map(
@@ -1381,7 +1413,7 @@ class MeraComfortDevice extends Homey.Device {
     const missing = [...WRITE_CHARACTERISTIC_UUIDS, ...READ_CHARACTERISTIC_UUIDS]
       .filter(uuid => !characteristics.has(uuid));
     if (missing.length > 0) {
-      throw new Error(`The AquaClean GATT profile is incomplete. Missing: ${missing.join(', ')}`);
+      throw new Error(translate(this.homey, 'error.gatt_incomplete', { missing: missing.join(', ') }));
     }
 
     const writeCharacteristics = WRITE_CHARACTERISTIC_UUIDS
@@ -1895,6 +1927,19 @@ class MeraComfortDevice extends Homey.Device {
     await this.setCapabilityValue(capabilityId, value);
     if (previousValue === null || previousValue === undefined) return;
 
+    // An error appearing and an error clearing are the two moments worth a
+    // Flow; the raw code changing from one fault to another is not.
+    if (capabilityId === 'aquaclean_error_code') {
+      const had = Number(previousValue) > 0;
+      const has = Number(value) > 0;
+      if (had !== has) {
+        const id = has ? 'aquaclean_error_occurred' : 'aquaclean_error_cleared';
+        await this.homey.flow.getDeviceTriggerCard(id)
+          .trigger(this, { code: Number(value) || 0 }, {})
+          .catch(error => this.error('AquaClean error trigger failed', error.message));
+      }
+    }
+
     let triggerId = VALUE_STATUS_TRIGGER_IDS[capabilityId];
     const booleanTriggers = BOOLEAN_STATUS_TRIGGER_IDS[capabilityId];
     if (booleanTriggers) triggerId = booleanTriggers[String(Boolean(value))];
@@ -1929,6 +1974,13 @@ class MeraComfortDevice extends Homey.Device {
     // is what the trigger's hint has promised all along.
     if (this._reconnectFailures >= CONNECTION_LOST_AFTER_FAILURES) {
       await this.setConnectionState('disconnected');
+      // Homey's own availability, so the device is visibly greyed out rather
+      // than silently showing values from an hour ago. Deliberately not on the
+      // first failure: the remote or the phone app holding the toilet for a
+      // moment is normal, and the existing backoff handles it.
+      await this.setUnavailable(this.homey.__('unavailable.no_contact')).catch(err => {
+        this.error('Could not mark the AquaClean unavailable', err.message);
+      });
     } else {
       await this.setConnectionState('reconnecting');
     }
@@ -2125,14 +2177,9 @@ class MeraComfortDevice extends Homey.Device {
 
     if (lastScanError && lastCandidates.length === 0) throw lastScanError;
     if (lastCandidates.length > 1) {
-      throw new Error(
-        'Multiple AquaClean devices were found, but the paired toilet was not advertising.',
-      );
+      throw new Error(this.homey.__('error.multiple_found'));
     }
-    throw new Error(
-      'Geberit AC PRO was not found after three BLE scans. '
-      + 'Close the Geberit Home app, wake the toilet, and move Homey closer.',
-    );
+    throw new Error(this.homey.__('error.not_found'));
   }
 
   async discoverWithBusyRetry(targetUuid = null) {
@@ -2293,7 +2340,7 @@ class MeraComfortDevice extends Homey.Device {
         this._lastSettingsRefreshAt = 0;
         // Say up front that the sliders still show the profile being left, so
         // a value dragged before the read lands is not mistaken for this one.
-        this.setSettings({ profile_values_read: this.runtimeText().reading }).catch(() => {});
+        this.setSettings({ profile_values_read: this.homey.__('state.reading') }).catch(() => {});
         this.refreshSettingsAndMaintenance().catch(error => {
           this.error('Reading the newly selected AquaClean profile failed', error);
           this.noteProfileValuesRead(chosenProfileId, false).catch(() => {});

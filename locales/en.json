@@ -1,0 +1,86 @@
+{
+  "error": {
+    "busy_homey": "Homey's Bluetooth is busy. The command was not sent — try again shortly.",
+    "busy_device": "The AquaClean is handling another request. Try again shortly.",
+    "timeout": "The AquaClean connected but did not answer. Close the Geberit Home app, move the proxy closer, and try again.",
+    "unreachable": "Could not reach the AquaClean.",
+    "no_proxy": "No Bluetooth proxy configured. Open the app settings and enter the address of your ESPHome proxy.",
+    "unsupported_control": "This control is not available on the AquaClean.",
+    "unknown_setting": "Unknown setting.",
+    "out_of_range": "{{setting}} accepts {{min}}–{{max}}. Received {{value}}.",
+    "not_kept": "The AquaClean kept {{stored}} instead of {{value}}.",
+    "not_kept_profile": "The AquaClean kept {{stored}} for profile {{profile}} instead of {{value}}.",
+    "service_missing": "The Geberit service was not found on the device.",
+    "gatt_incomplete": "The AquaClean Bluetooth profile is incomplete. Missing: {{missing}}.",
+    "not_found": "The AquaClean was not found. Close the Geberit Home app, wake the toilet, and check that the proxy is within range.",
+    "multiple_found": "Several AquaClean devices were found, but the paired one was not responding.",
+    "deleted": "The device has been removed from Homey."
+  },
+  "unavailable": {
+    "no_contact": "No contact with the AquaClean. Checking the Bluetooth proxy and the distance to the toilet usually helps."
+  },
+  "state": {
+    "on": "on",
+    "off": "off",
+    "saved": "saved",
+    "profile": "profile",
+    "base_settings": "Base settings",
+    "profile_n": "Profile {{n}}",
+    "read": "read",
+    "reading": "reading …",
+    "read_failed": "read failed",
+    "do_not_trust": "the values below cannot be trusted"
+  },
+  "setting": {
+    "profile_oscillation": "Oscillation",
+    "profile_seat_heat": "Seat heat",
+    "profile_water_temperature": "Water temperature",
+    "profile_dryer_temperature": "Dryer temperature",
+    "profile_dryer_fan_power": "Dryer fan power",
+    "profile_anal_pressure": "Anal shower pressure",
+    "profile_anal_position": "Anal shower position",
+    "profile_lady_pressure": "Lady shower pressure",
+    "profile_lady_position": "Lady shower position",
+    "profile_odour_extraction": "Odour extraction",
+    "profile_system_flush": "System flush",
+    "profile_dryer_state": "Dryer",
+    "light_mode": "Light activation",
+    "light_colour": "Light colour",
+    "light_brightness": "Light brightness",
+    "lid_auto_open": "Lid auto-open",
+    "lid_auto_close": "Lid auto-close",
+    "lid_sensor_range": "Proximity sensor range"
+  },
+  "pair": {
+    "start": {
+      "title": "Before you start",
+      "intro": "Homey does not talk to the AquaClean directly. It goes through an ESP32 running ESPHome as a Bluetooth proxy, so a few things need to be in place.",
+      "step_proxy": "Flash an ESP32 with ESPHome. A complete, tested configuration is on GitHub at github.com/torp93/homey-geberit-aquaclean, as esphome/geberit-aquaclean-proxy.yaml.",
+      "step_wifi": "Before flashing, put your WiFi name and password into ESPHome’s secrets.yaml as wifi_ssid and wifi_password.",
+      "step_range": "Place the ESP32 within a few metres of the toilet, with as little concrete and metal in between as possible.",
+      "step_address": "The next screen asks for the ESP32’s address. Use a fixed IP or a DHCP reservation so it does not move.",
+      "step_app": "Close the Geberit Home app on your phone. The toilet accepts only one Bluetooth connection at a time.",
+      "note": "Once that is done, continue and Homey will look for the toilet."
+    },
+    "proxy": {
+      "title": "Bluetooth proxy",
+      "intro": "Enter the address of the ESP32 running ESPHome. Use a fixed IP or a DHCP reservation so it does not move later.",
+      "hostLabel": "Address",
+      "portLabel": "Port (native API, normally 6053)",
+      "test": "Test connection",
+      "saveNext": "Save and continue",
+      "testing": "Contacting the proxy…",
+      "invalidHost": "Enter a valid IP address or hostname.",
+      "invalidPort": "Port must be between 1 and 65535.",
+      "noProxy": "Connected, but this device has no bluetooth_proxy enabled. Add bluetooth_proxy and esp32_ble_tracker to its ESPHome config.",
+      "failed": "Could not reach the proxy",
+      "untested": "Saved without a successful test — the search may find nothing.",
+      "searching": "Looking for the AquaClean…"
+    },
+    "result": {
+      "already_added": "Found {{name}}, but it is already added to Homey. To pair it again, remove the existing device first. Otherwise you can close this and keep using the one you have.",
+      "none_advertising": "The proxy is working and sees {{count}} Bluetooth devices, but none of them is an AquaClean. Close the Geberit Home app on your phone, press a button on the toilet to wake it, and try again.",
+      "proxy_silent": "The Bluetooth proxy reported no devices at all. Check that the ESP32 is powered on, reachable at the address you entered, and running bluetooth_proxy."
+    }
+  }
+}

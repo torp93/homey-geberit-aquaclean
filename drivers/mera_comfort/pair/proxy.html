@@ -1,0 +1,163 @@
+<!--
+  The address of the ESPHome proxy used to live only in the app settings, so
+  pairing told the user to leave the flow, find that page, come back and start
+  over. This view sets it in place, and tests it before the search runs — a
+  wrong address otherwise surfaces as "no devices found", which points at the
+  toilet rather than at the proxy.
+
+  English text sits in the markup so a failing translation call degrades to
+  readable English rather than a blank screen.
+-->
+<style>
+  .aq { padding: 0 24px; line-height: 1.5; }
+  .aq h2 { margin: 0 0 10px; }
+  .aq label { display: block; margin: 14px 0 4px; font-size: 0.9em; opacity: 0.75; }
+  .aq input { width: 100%; box-sizing: border-box; padding: 9px 10px; font-size: 1em;
+              border: 1px solid rgba(128,128,128,0.4); border-radius: 6px; background: transparent;
+              color: inherit; }
+  .aq .buttons { display: flex; gap: 10px; margin-top: 18px; }
+  .aq button { flex: 1; padding: 10px; font-size: 0.95em; border-radius: 6px; cursor: pointer;
+               border: 1px solid rgba(128,128,128,0.4); background: transparent; color: inherit; }
+  .aq button.primary { background: #0072BA; border-color: #0072BA; color: #fff; }
+  .aq button[disabled] { opacity: 0.5; cursor: default; }
+  .aq #result { margin-top: 16px; white-space: pre-wrap; font-size: 0.88em; line-height: 1.45; }
+  .aq #result.ok { color: #1a8a3c; }
+  .aq #result.bad { color: #c0392b; }
+</style>
+
+<div class="aq">
+  <p data-i18n="pair.proxy.intro">Enter the address of the ESP32 running ESPHome. Use a fixed IP or a DHCP reservation so it does not move later.</p>
+
+  <label for="host" data-i18n="pair.proxy.hostLabel">Address</label>
+  <input id="host" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="192.168.1.50">
+
+  <label for="port" data-i18n="pair.proxy.portLabel">Port (native API, normally 6053)</label>
+  <input id="port" type="number" min="1" max="65535" value="6053">
+
+  <div class="buttons">
+    <button id="test" data-i18n="pair.proxy.test">Test connection</button>
+    <button id="next" class="primary" data-i18n="pair.proxy.saveNext">Save and continue</button>
+  </div>
+
+  <div id="result"></div>
+</div>
+
+<script type="application/javascript">
+  const FALLBACK = {
+    'pair.proxy.testing': 'Contacting the proxy…',
+    'pair.proxy.invalidHost': 'Enter a valid IP address or hostname.',
+    'pair.proxy.invalidPort': 'Port must be between 1 and 65535.',
+    'pair.proxy.noProxy': 'Connected, but this device has no bluetooth_proxy enabled.',
+    'pair.proxy.failed': 'Could not reach the proxy',
+    'pair.proxy.searching': 'Looking for the AquaClean…',
+    'pair.proxy.untested': 'Saved without a successful test — the search may find nothing.'
+  };
+
+  // A missing key comes back as the key itself, which would read as
+  // "pair.proxy.failed" on screen.
+  function t(key) {
+    try {
+      const text = Homey.__(key);
+      if (text && text !== key) return text;
+    } catch (error) { /* fall through */ }
+    return FALLBACK[key] || key;
+  }
+
+  const hostEl = document.getElementById('host');
+  const portEl = document.getElementById('port');
+  const resultEl = document.getElementById('result');
+  const testBtn = document.getElementById('test');
+  const nextBtn = document.getElementById('next');
+
+  function show(text, cls) {
+    resultEl.textContent = text;
+    resultEl.className = cls || '';
+  }
+
+  for (const element of document.querySelectorAll('[data-i18n]')) {
+    const key = element.getAttribute('data-i18n');
+    let text = null;
+    try {
+      const value = Homey.__(key);
+      if (value && value !== key) text = value;
+    } catch (error) { /* keep the markup */ }
+    if (text) element.textContent = text;
+  }
+
+  try {
+    const title = Homey.__('pair.proxy.title');
+    if (title && title !== 'pair.proxy.title') Homey.setTitle(title);
+  } catch (error) { /* Homey falls back to its own header */ }
+
+  Homey.emit('getProxy', null, (error, current) => {
+    if (error || !current) return;
+    if (current.host) hostEl.value = current.host;
+    if (current.port) portEl.value = current.port;
+  });
+
+  function readInputs() {
+    const host = hostEl.value.trim();
+    const port = Number(portEl.value || 6053);
+    if (!/^[a-zA-Z0-9._-]+$/.test(host)) { show(t('pair.proxy.invalidHost'), 'bad'); return null; }
+    if (!Number.isInteger(port) || port < 1 || port > 65535) { show(t('pair.proxy.invalidPort'), 'bad'); return null; }
+    return { host, port };
+  }
+
+  let tested = false;
+
+  testBtn.addEventListener('click', () => {
+    const input = readInputs();
+    if (!input) return;
+    show(t('pair.proxy.testing'), '');
+    testBtn.disabled = true;
+    Homey.emit('testProxy', input, (error, info) => {
+      testBtn.disabled = false;
+      if (error) {
+        tested = false;
+        show(t('pair.proxy.failed') + ': ' + (error.message || error), 'bad');
+        return;
+      }
+      const lines = [
+        info.name,
+        'ESPHome ' + info.esphomeVersion + '  ·  ' + info.model,
+        info.macAddress
+      ].join('\n');
+      if (!info.bluetoothProxy) {
+        tested = false;
+        show(lines + '\n\n' + t('pair.proxy.noProxy'), 'bad');
+        return;
+      }
+      tested = true;
+      show('✓ ' + lines, 'ok');
+    });
+  });
+
+  // Continuing without a green test is allowed — the proxy may simply be
+  // asleep — but the warning explains an empty device list in advance.
+  nextBtn.addEventListener('click', () => {
+    const input = readInputs();
+    if (!input) return;
+    nextBtn.disabled = true;
+    show(t('pair.proxy.searching'), '');
+    Homey.emit('saveProxy', input, (error) => {
+      if (error) {
+        nextBtn.disabled = false;
+        show(String(error.message || error), 'bad');
+        return;
+      }
+      // Scan here rather than after moving on: Homey's device list offers only
+      // a Close button, so a scan that finds nothing usable would dead-end.
+      // Reporting it on this page leaves the address field and both buttons in
+      // place, which is the retry.
+      Homey.emit('probe', null, (probeError, result) => {
+        nextBtn.disabled = false;
+        if (probeError) { show(String(probeError.message || probeError), 'bad'); return; }
+        if (result && result.outcome !== 'ok') {
+          show(result.message, 'bad');
+          return;
+        }
+        Homey.showView('list_devices');
+      });
+    });
+  });
+</script>

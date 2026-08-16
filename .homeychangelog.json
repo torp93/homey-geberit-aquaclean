@@ -60,5 +60,29 @@
   "1.0.3": {
     "en": "New store images: the AquaClean product photography, used with permission from Geberit.",
     "no": "Nye butikkbilder: AquaClean-produktbilder, brukt med tillatelse fra Geberit."
+  },
+  "1.1.0": {
+    "en": "Flow actions that start and stop each function instead of toggling it, so a Flow run twice leaves the toilet where you asked. New Flow cards for the dryer, odour extraction, reachability and fault codes. All messages now follow Homey’s language, and pairing explains the Bluetooth proxy up front. The app icon is now the Geberit logo, and the driver keeps the toilet glyph of its own.",
+    "no": "Flowhandlinger som starter og stopper hver funksjon i stedet for å veksle, slik at en flow som kjører to ganger etterlater toalettet der du ba om. Nye flowkort for tørker, luktavsug, tilgjengelighet og feilkoder. Alle meldinger følger nå språket i Homey, og paringen forklarer Bluetooth-proxyen først. Appikonet er nå Geberit-logoen, og driveren beholder sin egen toalettglyf."
+  },
+  "1.1.1": {
+    "en": "Setup is now explained where you actually are: pairing and the app settings say where the ESPHome configuration lives and that your WiFi name and password have to go in before flashing.",
+    "no": "Oppsettet forklares nå der du faktisk er: paringen og appinnstillingene sier hvor ESPHome-konfigurasjonen ligger, og at WiFi-navn og passord må legges inn før du flasher."
+  },
+  "1.2.0": {
+    "en": "Pairing now asks for the Bluetooth proxy address itself, and tests the connection before searching, instead of sending you off to the app settings and back.",
+    "no": "Paringen spør nå selv om adressen til Bluetooth-proxyen, og tester tilkoblingen før søket, i stedet for å sende deg ut i appinnstillingene og tilbake."
+  },
+  "1.2.1": {
+    "en": "Corrected the setup text: the ESPHome configuration is on GitHub, not inside the installed app, where nobody could have opened it.",
+    "no": "Rettet oppsettsteksten: ESPHome-konfigurasjonen ligger på GitHub, ikke inni den installerte appen, der ingen kunne åpnet den."
+  },
+  "1.3.0": {
+    "en": "Pairing now explains what it found. An AquaClean that is already added says so by name instead of reporting no devices found, and an empty scan distinguishes a sleeping toilet from an unreachable proxy.",
+    "no": "Paringen forklarer nå hva den fant. En AquaClean som allerede er lagt til sier det med navn i stedet for å melde ingen enheter funnet, og et tomt søk skiller et sovende toalett fra en utilgjengelig proxy."
+  },
+  "1.3.1": {
+    "en": "Messages with a value in them showed the placeholder instead of the value. The pairing steps also answer on their own page now, so a scan that finds nothing can be retried instead of ending in a Close button.",
+    "no": "Meldinger med en verdi i seg viste plassholderen i stedet for verdien. Paringsstegene svarer nå også på sin egen side, så et søk som ikke finner noe kan prøves på nytt i stedet for å ende i en Lukk-knapp."
   }
 }

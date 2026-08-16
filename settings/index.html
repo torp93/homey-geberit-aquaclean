@@ -47,9 +47,13 @@
     const STRINGS = {
       en: {
         title: 'ESPHome Bluetooth proxy',
-        hint: 'This app reaches the toilet through an ESP32 running ESPHome with '
-            + 'bluetooth_proxy, not through Homey’s own Bluetooth. Enter the address '
-            + 'of that ESP32. Use a fixed IP or a DHCP reservation so it does not move.',
+        hint: 'The app reaches the toilet through an ESP32 running ESPHome with '
+             + 'bluetooth_proxy, not through Homey’s own Bluetooth. A complete, tested '
+             + 'configuration is on GitHub at github.com/torp93/homey-geberit-aquaclean, as '
+             + 'esphome/geberit-aquaclean-proxy.yaml. Put your WiFi name and '
+             + 'password into ESPHome’s secrets.yaml as wifi_ssid and wifi_password before '
+             + 'flashing, then enter the address of the ESP32 below. Use a fixed IP or a DHCP '
+             + 'reservation so it does not move.',
         hostLabel: 'Address',
         portLabel: 'Port (native API, normally 6053)',
         test: 'Test connection',
@@ -65,8 +69,12 @@
       no: {
         title: 'ESPHome Bluetooth-proxy',
         hint: 'Appen når toalettet gjennom en ESP32 som kjører ESPHome med '
-            + 'bluetooth_proxy, ikke gjennom Homeys egen Bluetooth. Skriv inn adressen '
-            + 'til denne ESP32-en. Bruk fast IP eller DHCP-reservasjon så den ikke flytter seg.',
+            + 'bluetooth_proxy, ikke gjennom Homeys egen Bluetooth. En komplett, testet '
+            + 'konfigurasjon ligger på GitHub: github.com/torp93/homey-geberit-aquaclean, som '
+            + 'esphome/geberit-aquaclean-proxy.yaml. Legg inn WiFi-navn og '
+            + 'passord i ESPHome sin secrets.yaml som wifi_ssid og wifi_password før du '
+            + 'flasher, og skriv deretter inn adressen til ESP32-en under. Bruk fast IP eller '
+            + 'DHCP-reservasjon så den ikke flytter seg.',
         hostLabel: 'Adresse',
         portLabel: 'Port (native API, normalt 6053)',
         test: 'Test tilkobling',

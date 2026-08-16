@@ -84,5 +84,9 @@
   "1.3.1": {
     "en": "Messages with a value in them showed the placeholder instead of the value. The pairing steps also answer on their own page now, so a scan that finds nothing can be retried instead of ending in a Close button.",
     "no": "Meldinger med en verdi i seg viste plassholderen i stedet for verdien. Paringsstegene svarer nå også på sin egen side, så et søk som ikke finner noe kan prøves på nytt i stedet for å ende i en Lukk-knapp."
+  },
+  "1.4.0": {
+    "en": "Credit for the protocol research this app builds on, donation links, a driver icon drawn on the full canvas, and hints on the Flow cards whose behaviour is not obvious.",
+    "no": "Kreditt for protokollarbeidet appen bygger på, donasjonslenker, driverikon tegnet på hele lerretet, og hint på flowkortene der oppførselen ikke er åpenbar."
   }
 }

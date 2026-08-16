@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -776,7 +776,11 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "hint": {
+          "en": "The toilet does not report odour extraction, so this fires when the app turns it on.",
+          "no": "Toalettet rapporterer ikke luktavsug, så denne utløses når appen slår det på."
+        }
       },
       {
         "id": "aquaclean_odour_extraction_running_false",
@@ -790,7 +794,11 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "hint": {
+          "en": "The toilet does not report odour extraction, so this fires when the app turns it off or the run-on ends.",
+          "no": "Toalettet rapporterer ikke luktavsug, så denne utløses når appen slår det av eller etterløpet slutter."
+        }
       },
       {
         "id": "aquaclean_error_occurred",
@@ -833,7 +841,11 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "hint": {
+          "en": "Fires when the toilet stops reporting a fault code — not when Homey regains contact.",
+          "no": "Utløses når toalettet slutter å melde en feilkode — ikke når Homey får kontakt igjen."
+        }
       }
     ],
     "conditions": [
@@ -849,7 +861,11 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "hint": {
+          "en": "The toilet reports this from its own seat sensor.",
+          "no": "Toalettet melder dette fra sin egen setesensor."
+        }
       },
       {
         "id": "aquaclean_condition_anal_shower",
@@ -891,7 +907,11 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "hint": {
+          "en": "True while a descaling cycle is running, which blocks the other functions.",
+          "no": "Sann mens en avkalking pågår, noe som blokkerer de andre funksjonene."
+        }
       },
       {
         "id": "aquaclean_condition_error",
@@ -905,7 +925,11 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "hint": {
+          "en": "True when the toilet itself reports a fault code, not when Homey loses contact with it.",
+          "no": "Sann når toalettet selv melder en feilkode, ikke når Homey mister kontakten med det."
+        }
       },
       {
         "id": "aquaclean_condition_dryer",
@@ -933,7 +957,11 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "hint": {
+          "en": "The toilet does not report odour extraction, so this reflects what the app last set.",
+          "no": "Toalettet rapporterer ikke luktavsug, så denne viser det appen sist satte."
+        }
       },
       {
         "id": "aquaclean_condition_connected",
@@ -947,7 +975,11 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "hint": {
+          "en": "Whether Homey can reach the toilet over Bluetooth. This is not the same as the toilet reporting a fault.",
+          "no": "Om Homey får kontakt med toalettet over Bluetooth. Det er ikke det samme som at toalettet melder en feil."
+        }
       }
     ],
     "actions": [
@@ -2269,5 +2301,15 @@
       "ble",
       "esp32"
     ]
+  },
+  "contributing": {
+    "donate": {
+      "githubSponsors": {
+        "username": "torp93"
+      },
+      "paypal": {
+        "username": "torpthomas"
+      }
+    }
   }
 }

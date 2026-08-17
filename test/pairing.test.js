@@ -51,14 +51,16 @@ test('every pair view in app.json exists on disk', () => {
   }
 });
 
-// Repair views live in the same pair/ folder as the pairing views, and nothing
-// in `homey app validate` looks at the repair array at all — a typo in the id
-// would surface only as a blank screen on the phone.
+// Repair views live in their OWN repair/ folder, not alongside the pairing
+// views — HomeyCompose resolves drivers/<id>/<pairType>/ for pairType in
+// ['pair', 'repair']. Putting the file in pair/ makes Homey answer
+// "unknown_error_getting_file" on the phone, and `homey app validate` says
+// nothing: it never looks at the repair array at all.
 test('every repair view in app.json exists on disk', () => {
   for (const view of driverManifest.repair || []) {
     if (view.template) continue;
-    const file = path.join(__dirname, '..', 'drivers', 'mera_comfort', 'pair', `${view.id}.html`);
-    assert.ok(fs.existsSync(file), `repair view "${view.id}" has no pair/${view.id}.html`);
+    const file = path.join(__dirname, '..', 'drivers', 'mera_comfort', 'repair', `${view.id}.html`);
+    assert.ok(fs.existsSync(file), `repair view "${view.id}" has no repair/${view.id}.html`);
   }
 });
 
@@ -86,7 +88,7 @@ test('the four calibration steps map to the documented command codes', async () 
 
   // Every button in the view must name a step the device recognises.
   const html = fs.readFileSync(
-    path.join(__dirname, '..', 'drivers', 'mera_comfort', 'pair', 'calibrate_lid.html'), 'utf8',
+    path.join(__dirname, '..', 'drivers', 'mera_comfort', 'repair', 'calibrate_lid.html'), 'utf8',
   );
   for (const step of ['start', 'up', 'down', 'save']) {
     assert.match(html, new RegExp(`id="${step}"`), `the view has no ${step} button`);

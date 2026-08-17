@@ -92,5 +92,9 @@
   "1.5.0": {
     "en": "Added a lid position calibration to the device repair screen — the routine that otherwise sits behind the service menu on the toilet itself. Start it, raise or lower the resting position while you watch the lid, then save. Every step prints what the toilet answered, because these four commands come from published protocol documentation and are not verified against the Mera.",
     "no": "Lagt til kalibrering av lokkposisjon i reparasjonsskjermen for enheten — rutinen som ellers ligger bak servicemenyen på selve toalettet. Start den, hev eller senk hvileposisjonen mens du ser på lokket, og lagre til slutt. Hvert steg viser hva toalettet svarte, fordi disse fire kommandoene er hentet fra publisert protokolldokumentasjon og ikke er verifisert mot Meraen."
+  },
+  "1.5.1": {
+    "en": "Fixes the lid calibration screen failing to open with \"unknown_error_getting_file\".",
+    "no": "Retter at kalibreringsskjermen for lokket ikke åpnet seg, men ga «unknown_error_getting_file»."
   }
 }

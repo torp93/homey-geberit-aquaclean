@@ -27,15 +27,21 @@ const isDynamic = key => key.startsWith('setting.')
   || key === 'state.on'
   || key === 'state.off';
 
-// Every file that can name a translation key: source, driver, pair views.
+// Every file that can name a translation key: source, driver, pair and repair
+// views. Repair views sit in their own folder, so listing only pair/ here would
+// report every repair.* key as an unused orphan.
+const viewFiles = folder => fs
+  .readdirSync(path.join(root, `drivers/mera_comfort/${folder}`))
+  .map(name => `drivers/mera_comfort/${folder}/${name}`);
+
 const sourceText = () => {
-  const pairDir = path.join(root, 'drivers/mera_comfort/pair');
   const files = [
     'app.js',
     'api.js',
     'drivers/mera_comfort/device.js',
     'drivers/mera_comfort/driver.js',
-    ...fs.readdirSync(pairDir).map(name => `drivers/mera_comfort/pair/${name}`)
+    ...viewFiles('pair'),
+    ...viewFiles('repair')
   ];
   return files
     .map(file => fs.readFileSync(path.join(root, file), 'utf8'))

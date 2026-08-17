@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -289,6 +289,8 @@
       },
       "getable": true,
       "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
       "uiComponent": "sensor",
       "icon": "/assets/capability-icons/error.svg",
       "min": 0,

@@ -72,7 +72,7 @@ const OPTIMISTIC_FUNCTION_STATE_HOLD_MS = 12 * 1000;
 // Anything slower is a person pressing again, and must be sent.
 const DUPLICATE_COMMAND_WINDOW_MS = 750;
 const DEFAULT_ODOUR_RUN_ON_SECONDS = 120;
-const INSIGHTS_OPTIONS_VERSION = 7;
+const INSIGHTS_OPTIONS_VERSION = 8;
 
 const CONTROL_CAPABILITY_COMMANDS = Object.freeze({
   aquaclean_button_anal_shower: {
@@ -373,6 +373,15 @@ const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
       en: 'Dryer off',
       no: 'Tørker av'
     }
+  },
+  // Every other numeric history capability had insights in its definition from
+  // the start; the error code did not, so Homey never created a log for it —
+  // a fault could come and go without leaving a timestamp anywhere. The
+  // definition in app.json now carries insights too; this entry pushes the
+  // same options onto devices paired before the fix, without re-pairing.
+  aquaclean_error_code: {
+    insights: true,
+    chartType: 'stepLine'
   }
 });
 
@@ -581,9 +590,17 @@ class MeraComfortDevice extends Homey.Device {
     for (const [capabilityId, insightsOptions] of
       Object.entries(INSIGHTS_CAPABILITY_OPTIONS)) {
       if (!this.hasCapability(capabilityId)) continue;
-      const currentOptions = typeof this.getCapabilityOptions === 'function'
-        ? (this.getCapabilityOptions(capabilityId) || {})
-        : {};
+      // getCapabilityOptions throws for a capability that has no options yet —
+      // true for aquaclean_error_code, which ships without manifest options.
+      // The four boolean statuses never hit this because theirs exist.
+      let currentOptions = {};
+      if (typeof this.getCapabilityOptions === 'function') {
+        try {
+          currentOptions = this.getCapabilityOptions(capabilityId) || {};
+        } catch (error) {
+          currentOptions = {};
+        }
+      }
       await this.setCapabilityOptions(capabilityId, {
         ...currentOptions,
         ...insightsOptions
@@ -1931,9 +1948,14 @@ class MeraComfortDevice extends Homey.Device {
         ? {}
         : { aquaclean_dryer_running: Boolean(state.dryerIsRunning) }),
       aquaclean_descaling_state: DESCALING_STATES[state.descalingState] || 'unknown',
-      aquaclean_error_code: Number.isFinite(state.lastErrorCode)
-        ? state.lastErrorCode
-        : 0
+      // SPL parameter 6, AC_STATUS_LAST_ERROR. Only a read that actually
+      // carried the parameter may change this value: coercing a missing read
+      // to 0 used to fabricate an "error cleared" transition out of thin air,
+      // wiping the one clue a failing lid leaves behind. The Insights history
+      // built on this capability is only as truthful as this guard.
+      ...(Number.isFinite(state.lastErrorCode)
+        ? { aquaclean_error_code: state.lastErrorCode }
+        : {})
     };
 
     for (const [capabilityId, value] of Object.entries(values)) {

@@ -1,6 +1,6 @@
 {
   "name": "com.thomastorp.geberit-aquaclean",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "private": true,
   "description": "Control a Geberit AquaClean shower toilet through an ESP32 running ESPHome as a Bluetooth proxy. Local, no cloud.",
   "main": "app.js",

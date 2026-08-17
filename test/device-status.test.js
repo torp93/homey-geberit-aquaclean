@@ -1121,3 +1121,143 @@ test('a command that may already have been carried out says so', () => {
     'error.timeout',
   );
 });
+
+// ---------------------------------------------------------------------------
+// Error-code history. The toilet exposes exactly one error datum over BLE:
+// SPL parameter 6, AC_STATUS_LAST_ERROR — no error history, no per-subsystem
+// registers (those are Alba-protocol DpIds, absent on a Mera Comfort). So the
+// only history that will ever exist is the one Homey records itself, and that
+// history is only as truthful as these rules:
+//
+//   - only a read that carried parameter 6 may change the value
+//   - zero is a valid reading, not a gap
+//   - a missing/failed read keeps the last known value
+//   - unknown codes pass through untouched
+//   - an unchanged code is not rewritten (no Insights flooding)
+//   - 42 -> 0 -> 42 is two occurrences, not one
+
+const errorDevice = (initial = {}) => {
+  const caps = { aquaclean_error_code: null, ...initial };
+  const writes = [];
+  const triggers = [];
+  const device = Object.create(MeraComfortDevice.prototype);
+  Object.assign(device, {
+    homey: {
+      __: key => key,
+      flow: {
+        getDeviceTriggerCard: id => ({
+          trigger: async (dev, tokens) => { triggers.push({ id, tokens }); }
+        })
+      }
+    },
+    hasCapability: id => id in caps,
+    getCapabilityValue: id => caps[id],
+    setCapabilityValue: async (id, value) => { writes.push({ id, value }); caps[id] = value; },
+    syncStatusInsightsCapability: async () => {},
+    applyRawLiveStatus: async () => {},
+    applyAutomaticOdourState: async () => {},
+    log: () => {},
+    error: () => {}
+  });
+  return { device, caps, writes, triggers };
+};
+
+const systemState = (lastErrorCode) => ({
+  userIsSitting: false,
+  analShowerIsRunning: false,
+  ladyShowerIsRunning: false,
+  dryerIsRunning: null,
+  descalingState: 0,
+  lastErrorCode
+});
+
+test('a valid error code reaches the capability, zero included', async () => {
+  const { device, caps } = errorDevice();
+  await MeraComfortDevice.prototype.applySystemState.call(device, systemState(0));
+  assert.equal(caps.aquaclean_error_code, 0, 'zero is a reading, not a gap');
+
+  await MeraComfortDevice.prototype.applySystemState.call(device, systemState(42));
+  assert.equal(caps.aquaclean_error_code, 42);
+});
+
+test('an unknown error code passes through untouched', async () => {
+  const { device, caps } = errorDevice();
+  await MeraComfortDevice.prototype.applySystemState.call(device, systemState(73));
+  assert.equal(caps.aquaclean_error_code, 73,
+    'no mapping table exists, so the raw number is the entire evidence');
+});
+
+test('a read without parameter 6 keeps the last known error', async () => {
+  const { device, caps } = errorDevice({ aquaclean_error_code: 42 });
+  await MeraComfortDevice.prototype.applySystemState.call(device, systemState(undefined));
+  assert.equal(caps.aquaclean_error_code, 42,
+    'coercing a missing read to 0 fabricates an "error cleared" transition');
+});
+
+test('an unchanged error code is not rewritten', async () => {
+  const { device, writes } = errorDevice({ aquaclean_error_code: 42 });
+  await MeraComfortDevice.prototype.applySystemState.call(device, systemState(42));
+  assert.deepEqual(writes.filter(w => w.id === 'aquaclean_error_code'), [],
+    'repeating the same value would flood Insights with identical entries');
+});
+
+test('42 -> 0 -> 42 is two occurrences and one clearing', async () => {
+  const { device, writes, triggers } = errorDevice({ aquaclean_error_code: 0 });
+  for (const code of [42, 0, 42]) {
+    await MeraComfortDevice.prototype.applySystemState.call(device, systemState(code));
+  }
+  assert.deepEqual(
+    writes.filter(w => w.id === 'aquaclean_error_code').map(w => w.value),
+    [42, 0, 42],
+    'each transition must land in Insights as its own entry',
+  );
+  assert.deepEqual(
+    triggers
+      .filter(t => t.id === 'aquaclean_error_occurred' || t.id === 'aquaclean_error_cleared')
+      .map(t => t.id),
+    ['aquaclean_error_occurred', 'aquaclean_error_cleared', 'aquaclean_error_occurred'],
+  );
+  // The raw value-changed trigger fires on every transition alongside them.
+  assert.equal(triggers.filter(t => t.id === 'aquaclean_error_code_changed').length, 3);
+});
+
+test('the first reading after pairing fires no error trigger', async () => {
+  const { device, triggers, caps } = errorDevice();
+  await MeraComfortDevice.prototype.applySystemState.call(device, systemState(42));
+  assert.equal(caps.aquaclean_error_code, 42, 'the value itself is recorded');
+  assert.deepEqual(triggers.filter(t => t.id.startsWith('aquaclean_error')), [],
+    'unknown -> known is not a transition worth waking a Flow for');
+});
+
+test('the error capability records Insights history', () => {
+  const appJson = JSON.parse(require('node:fs').readFileSync(
+    require('node:path').join(__dirname, '..', 'app.json'), 'utf8',
+  ));
+  const definition = appJson.capabilities.aquaclean_error_code;
+  assert.equal(definition.insights, true,
+    'without this Homey never creates a log, and a fault leaves no timestamp');
+  assert.equal(definition.chartType, 'stepLine',
+    'an error code holds between polls; interpolation would draw nonsense');
+
+  // Devices paired before the fix get the same options pushed at startup.
+  const source = require('node:fs').readFileSync(
+    require('node:path').join(__dirname, '..', 'drivers', 'mera_comfort', 'device.js'), 'utf8',
+  );
+  assert.match(source, /aquaclean_error_code: \{\s*\n\s*insights: true/,
+    'existing paired devices rely on the INSIGHTS_CAPABILITY_OPTIONS push');
+  const version = Number(source.match(/INSIGHTS_OPTIONS_VERSION = (\d+)/)[1]);
+  assert.ok(version >= 8, 'the options push is gated on this version stamp');
+});
+
+test('the decoder never invents parameter 6', () => {
+  const { decodeSystemParameters } = require('../lib/aquaclean-protocol');
+  const ids = [0, 1, 2, 3];
+  const data = Buffer.alloc(1 + (ids.length * 5));
+  ids.forEach((id, index) => { data[1 + (index * 5)] = id; });
+
+  const decoded = decodeSystemParameters(data, ids);
+  assert.equal(decoded.lastErrorCode, undefined,
+    'a live-scope read without parameter 6 must not manufacture a zero');
+  assert.equal(decoded.parameters[6], undefined,
+    'an unrequested parameter is absent, not zero');
+});

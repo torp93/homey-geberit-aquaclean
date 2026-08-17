@@ -116,5 +116,9 @@
   "1.7.0": {
     "en": "The toilet reports a service state that the app was reading and discarding. The lid calibration screen now shows it after every step, so it is visible whether the routine actually started and whether saving actually ended it.",
     "no": "Toalettet melder en servicetilstand som appen leste og kastet. Kalibreringsskjermen viser den nå etter hvert steg, slik at det er synlig om rutinen faktisk startet og om lagring faktisk avsluttet den."
+  },
+  "1.7.1": {
+    "en": "The error code now records history in Homey Insights, so a fault can be matched to the time it happened. A failed read can no longer overwrite the last known error with zero.",
+    "no": "Feilkoden lagrer nå historikk i Homey Insights, slik at en feil kan knyttes til tidspunktet den oppsto. En mislykket avlesning kan ikke lenger overskrive siste kjente feil med null."
   }
 }

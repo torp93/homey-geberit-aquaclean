@@ -308,3 +308,17 @@ test('duplicate and late continuation notifications are idempotent', async () =>
   assert.equal(response.result.length, 53);
   assert.equal(writes.length, 2);
 });
+
+// Parameter 7 was requested and then dropped by the decoder, so the app could
+// not tell that a calibration had left the toilet in service mode.
+test('the decoder exposes the service state', () => {
+  const ids = [0, 7];
+  // One header byte, then five bytes per parameter: a tag and a uint32.
+  const data = Buffer.alloc(1 + (ids.length * 5));
+  data.writeUInt32LE(0, 2);
+  data.writeUInt32LE(3, 7);
+
+  const decoded = decodeSystemParameters(data, ids);
+  assert.equal(decoded.serviceState, 3, 'service state must survive decoding');
+  assert.equal(decoded.userIsSitting, false);
+});

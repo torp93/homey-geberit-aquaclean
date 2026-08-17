@@ -131,7 +131,10 @@
       }
       // Print the raw acknowledgement: this is the only evidence that the
       // command reached the toilet and was understood.
-      write(step + ': code ' + result.code + ' → ' + JSON.stringify(result.response));
+      // Parameter 7 is the service state: 0 is normal operation, anything else
+      // means the toilet is still in the routine.
+      write(step + ': code ' + result.code + ' → ' + JSON.stringify(result.response)
+        + '  [service ' + (result.serviceState === null ? '?' : result.serviceState) + ']');
       if (step === 'start') { started = true; write(t('repair.calibrate.started')); }
       if (step === 'save') { write(t('repair.calibrate.saved')); }
       setBusy(false);

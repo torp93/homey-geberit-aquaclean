@@ -112,5 +112,9 @@
   "1.6.1": {
     "en": "Corrects the release notes for 1.5.3: recovering from the service mode did not require cycling mains power.",
     "no": "Retter utgivelsesnotatet for 1.5.3: det krevdes ikke strømbrudd for å komme ut av servicemodusen."
+  },
+  "1.7.0": {
+    "en": "The toilet reports a service state that the app was reading and discarding. The lid calibration screen now shows it after every step, so it is visible whether the routine actually started and whether saving actually ended it.",
+    "no": "Toalettet melder en servicetilstand som appen leste og kastet. Kalibreringsskjermen viser den nå etter hvert steg, slik at det er synlig om rutinen faktisk startet og om lagring faktisk avsluttet den."
   }
 }

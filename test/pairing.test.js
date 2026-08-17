@@ -67,7 +67,7 @@ test('every repair view in app.json exists on disk', () => {
 test('the repair view sends each calibration step to the device', async () => {
   const session = fakeSession();
   const sent = [];
-  const device = { runLidCalibrationStep: async step => { sent.push(step); return { step, code: 33, response: 'ok' }; } };
+  const device = { runLidCalibrationStep: async step => { sent.push(step); return { step, code: 33, response: 'ok', serviceState: 0 }; } };
 
   await MeraComfortDriver.prototype.onRepair.call(fakeDriver(), session, device);
 
@@ -79,12 +79,12 @@ test('the repair view sends each calibration step to the device', async () => {
   assert.equal(result.response, 'ok');
 });
 
-// Leaving the routine open cost a real toilet its remote control until the
-// fuse was pulled. These three pin the way out.
+// Leaving the routine open cost a real toilet its remote control for several
+// minutes. These three pin the way out.
 test('closing the view mid-calibration finishes the routine on the toilet', async () => {
   const session = fakeSession();
   const sent = [];
-  const device = { runLidCalibrationStep: async step => { sent.push(step); return { step, code: 0, response: 'ok' }; } };
+  const device = { runLidCalibrationStep: async step => { sent.push(step); return { step, code: 0, response: 'ok', serviceState: 0 }; } };
 
   await MeraComfortDriver.prototype.onRepair.call(fakeDriver(), session, device);
   await session.handlers.calibrationStep({ step: 'start' });
@@ -98,7 +98,7 @@ test('closing the view mid-calibration finishes the routine on the toilet', asyn
 test('closing after saving does not save twice', async () => {
   const session = fakeSession();
   const sent = [];
-  const device = { runLidCalibrationStep: async step => { sent.push(step); return { step, code: 0, response: 'ok' }; } };
+  const device = { runLidCalibrationStep: async step => { sent.push(step); return { step, code: 0, response: 'ok', serviceState: 0 }; } };
 
   await MeraComfortDriver.prototype.onRepair.call(fakeDriver(), session, device);
   await session.handlers.calibrationStep({ step: 'start' });
@@ -111,7 +111,7 @@ test('closing after saving does not save twice', async () => {
 test('closing without ever starting touches nothing', async () => {
   const session = fakeSession();
   const sent = [];
-  const device = { runLidCalibrationStep: async step => { sent.push(step); return { step, code: 0, response: 'ok' }; } };
+  const device = { runLidCalibrationStep: async step => { sent.push(step); return { step, code: 0, response: 'ok', serviceState: 0 }; } };
 
   await MeraComfortDriver.prototype.onRepair.call(fakeDriver(), session, device);
   await session.handlers.disconnect();

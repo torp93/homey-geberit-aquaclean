@@ -783,12 +783,26 @@ class MeraComfortDevice extends Homey.Device {
     if (code === undefined) throw new Error(`Unknown lid calibration step "${step}".`);
 
     this.log('AquaClean lid calibration step', { step, code });
-    const response = await this.runProtocolOperation({
-      task: protocol => protocol.executeCommand(code),
+    const result = await this.runProtocolOperation({
+      // System parameter 7 is the service state, so the routine can be watched
+      // rather than assumed: it says whether the toilet actually entered the
+      // mode on start, and whether saving actually got it out again.
+      task: async protocol => {
+        const response = await protocol.executeCommand(code);
+        let serviceState = null;
+        try {
+          ({ state: { serviceState = null } = {} } = await protocol.getSystemState([7]));
+        } catch (error) {
+          this.error('Service-state read after a calibration step failed', error);
+        }
+        return { response, serviceState };
+      },
       taskLabel: `lid calibration ${step}`
     });
-    this.log('AquaClean lid calibration acknowledged', { step, code, response });
-    return { step, code, response: response ?? null };
+
+    const { response = null, serviceState = null } = result || {};
+    this.log('AquaClean lid calibration acknowledged', { step, code, response, serviceState });
+    return { step, code, response, serviceState };
   }
 
   async pollSettingsAndMaintenance() {

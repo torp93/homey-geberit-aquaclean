@@ -82,7 +82,12 @@ class MeraComfortDriver extends Homey.Driver {
       const result = await device.runLidCalibrationStep(step);
       if (step === 'start') started = true;
       if (step === 'save') finished = true;
-      return { step: result.step, code: result.code, response: result.response };
+      return {
+        step: result.step,
+        code: result.code,
+        response: result.response,
+        serviceState: result.serviceState
+      };
     });
 
     session.setHandler('disconnect', async () => {
@@ -92,9 +97,18 @@ class MeraComfortDriver extends Homey.Driver {
       // this writes nothing new — and it is in any case the lesser harm next to
       // leaving the toilet unusable until someone finds the fuse.
       this.log('Repair view closed mid-calibration; closing the routine on the toilet');
-      await device.runLidCalibrationStep('save').catch(error => {
+      const result = await device.runLidCalibrationStep('save').catch(error => {
         this.error('Could not close the calibration routine; the toilet may stay in service mode', error);
+        return null;
       });
+      // Whether saving is what ends the mode is still unproven. Parameter 7
+      // answers it: a non-zero reading here means the toilet is still in
+      // service mode after the routine was closed, and that belongs in the log
+      // rather than being discovered by someone reaching for the remote.
+      if (result && result.serviceState) {
+        this.error('Toilet still reports a service state after closing the calibration',
+          { serviceState: result.serviceState });
+      }
     });
   }
 

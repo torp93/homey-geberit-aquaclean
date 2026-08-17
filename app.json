@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -2264,11 +2264,6 @@
         {
           "id": "add_devices",
           "template": "add_devices"
-        }
-      ],
-      "repair": [
-        {
-          "id": "calibrate_lid"
         }
       ],
       "images": {

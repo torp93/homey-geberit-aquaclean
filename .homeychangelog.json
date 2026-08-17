@@ -100,5 +100,9 @@
   "1.5.2": {
     "en": "Fixes the buttons on the lid calibration screen running past the right edge.",
     "no": "Retter at knappene på kalibreringsskjermen gikk utenfor høyre kant."
+  },
+  "1.5.3": {
+    "en": "Removes the lid calibration screen. Starting the routine put the toilet into a service mode it did not leave on its own, which locked out the remote control and suspended normal operation until the power was cycled.",
+    "no": "Fjerner kalibreringsskjermen for lokket. Å starte rutinen satte toalettet i en servicemodus det ikke gikk ut av selv, som låste fjernkontrollen og satte normal drift på pause til strømmen ble brutt."
   }
 }

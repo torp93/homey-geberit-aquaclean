@@ -67,7 +67,10 @@ class MeraComfortDriver extends Homey.Driver {
     // Command 33 opens a service mode on the toilet and there is no command
     // that merely leaves it: while it is open, user detection stops, odour
     // extraction and system flush stop responding, and the toilet's own remote
-    // is locked out. It stayed that way until mains power was cycled.
+    // is locked out. Observed on a Mera Comfort after the view was closed
+    // without saving; it stayed that way for several minutes and then came
+    // back on its own. What ended it is not known — power was never cut, so
+    // either the mode times out or something the driver sent cleared it.
     //
     // Homey's close button is always there, so the view cannot prevent someone
     // walking away mid-routine. The session tracks it instead and finishes the
@@ -90,7 +93,7 @@ class MeraComfortDriver extends Homey.Driver {
       // leaving the toilet unusable until someone finds the fuse.
       this.log('Repair view closed mid-calibration; closing the routine on the toilet');
       await device.runLidCalibrationStep('save').catch(error => {
-        this.error('Could not close the calibration routine — power-cycle the toilet', error);
+        this.error('Could not close the calibration routine; the toilet may stay in service mode', error);
       });
     });
   }

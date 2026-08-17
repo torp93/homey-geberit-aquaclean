@@ -102,11 +102,15 @@
     "no": "Retter at knappene på kalibreringsskjermen gikk utenfor høyre kant."
   },
   "1.5.3": {
-    "en": "Removes the lid calibration screen. Starting the routine put the toilet into a service mode it did not leave on its own, which locked out the remote control and suspended normal operation until the power was cycled.",
-    "no": "Fjerner kalibreringsskjermen for lokket. Å starte rutinen satte toalettet i en servicemodus det ikke gikk ut av selv, som låste fjernkontrollen og satte normal drift på pause til strømmen ble brutt."
+    "en": "Removes the lid calibration screen. Starting the routine put the toilet into a service mode it did not leave when the screen was closed, which locked out the remote control and suspended normal operation for several minutes.",
+    "no": "Fjerner kalibreringsskjermen for lokket. Å starte rutinen satte toalettet i en servicemodus det ikke gikk ut av da skjermen ble lukket, som låste fjernkontrollen og satte normal drift på pause i flere minutter."
   },
   "1.6.0": {
     "en": "The lid calibration screen is back. Closing it mid-routine now finishes the calibration on the toilet instead of leaving it in service mode with its remote control locked out.",
     "no": "Kalibreringsskjermen for lokket er tilbake. Lukker du den midt i rutinen, avsluttes kalibreringen nå på toalettet i stedet for at det blir stående i servicemodus med fjernkontrollen låst."
+  },
+  "1.6.1": {
+    "en": "Corrects the release notes for 1.5.3: recovering from the service mode did not require cycling mains power.",
+    "no": "Retter utgivelsesnotatet for 1.5.3: det krevdes ikke strømbrudd for å komme ut av servicemodusen."
   }
 }

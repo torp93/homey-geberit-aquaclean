@@ -60,6 +60,16 @@ class MeraComfortDriver extends Homey.Driver {
     session.setHandler('list_devices', () => this.onPairListDevices());
   }
 
+  // Unlike onPair, this one is handed the paired device, so the calibration
+  // buttons reach the existing protocol machinery directly. Homey labels the
+  // entry point "Repair"; the view sets its own title.
+  async onRepair(session, device) {
+    session.setHandler('calibrationStep', async ({ step }) => {
+      const result = await device.runLidCalibrationStep(step);
+      return { step: result.step, code: result.code, response: result.response };
+    });
+  }
+
   // Returns what the scan saw, without deciding what to do about it — probe()
   // reports it inside the pairing step, onPairListDevices() throws.
   async scanForAquaCleans() {

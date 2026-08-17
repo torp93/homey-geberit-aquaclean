@@ -82,5 +82,23 @@
       "none_advertising": "The proxy is working and sees {{count}} Bluetooth devices, but none of them is an AquaClean. Close the Geberit Home app on your phone, press a button on the toilet to wake it, and try again.",
       "proxy_silent": "The Bluetooth proxy reported no devices at all. Check that the ESP32 is powered on, reachable at the address you entered, and running bluetooth_proxy."
     }
+  },
+  "repair": {
+    "calibrate": {
+      "title": "Calibrate lid position",
+      "intro": "Adjusts the resting position of the lid and seat. Watch the toilet while you do this — nothing here is reported back by the device.",
+      "warning": "These commands are taken from published protocol documentation and are not verified against this model. Saving writes a new offset to the toilet. Leave without saving to change nothing.",
+      "step1": "Step 1 — start",
+      "step2": "Step 2 — adjust while watching the lid",
+      "step3": "Step 3 — keep the position",
+      "start": "Start calibration",
+      "up": "Raise",
+      "down": "Lower",
+      "save": "Save position",
+      "sending": "Sending…",
+      "started": "Calibration started. Use Raise and Lower, then save.",
+      "saved": "Position saved.",
+      "failed": "Failed"
+    }
   }
 }

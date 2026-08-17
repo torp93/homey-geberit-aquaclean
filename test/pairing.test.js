@@ -51,6 +51,48 @@ test('every pair view in app.json exists on disk', () => {
   }
 });
 
+// Repair views live in the same pair/ folder as the pairing views, and nothing
+// in `homey app validate` looks at the repair array at all — a typo in the id
+// would surface only as a blank screen on the phone.
+test('every repair view in app.json exists on disk', () => {
+  for (const view of driverManifest.repair || []) {
+    if (view.template) continue;
+    const file = path.join(__dirname, '..', 'drivers', 'mera_comfort', 'pair', `${view.id}.html`);
+    assert.ok(fs.existsSync(file), `repair view "${view.id}" has no pair/${view.id}.html`);
+  }
+});
+
+test('the repair view sends each calibration step to the device', async () => {
+  const session = fakeSession();
+  const sent = [];
+  const device = { runLidCalibrationStep: async step => { sent.push(step); return { step, code: 33, response: 'ok' }; } };
+
+  await MeraComfortDriver.prototype.onRepair.call(fakeDriver(), session, device);
+
+  assert.ok(session.handlers.calibrationStep, 'the buttons have nothing to call');
+  const result = await session.handlers.calibrationStep({ step: 'start' });
+  assert.deepEqual(sent, ['start']);
+  // The view prints code and response as the only evidence the toilet answered.
+  assert.equal(result.code, 33);
+  assert.equal(result.response, 'ok');
+});
+
+test('the four calibration steps map to the documented command codes', async () => {
+  const { AQUACLEAN_COMMANDS } = require('../lib/aquaclean-protocol');
+  assert.equal(AQUACLEAN_COMMANDS.START_LID_CALIBRATION, 33);
+  assert.equal(AQUACLEAN_COMMANDS.LID_OFFSET_SAVE, 34);
+  assert.equal(AQUACLEAN_COMMANDS.LID_OFFSET_INCREMENT, 35);
+  assert.equal(AQUACLEAN_COMMANDS.LID_OFFSET_DECREMENT, 36);
+
+  // Every button in the view must name a step the device recognises.
+  const html = fs.readFileSync(
+    path.join(__dirname, '..', 'drivers', 'mera_comfort', 'pair', 'calibrate_lid.html'), 'utf8',
+  );
+  for (const step of ['start', 'up', 'down', 'save']) {
+    assert.match(html, new RegExp(`id="${step}"`), `the view has no ${step} button`);
+  }
+});
+
 test('the pair flow reaches the device list', () => {
   const ids = driverManifest.pair.map(view => view.id);
   assert.ok(ids.includes('list_devices'), 'no device list in the pair flow');

@@ -1,0 +1,139 @@
+<!--
+  Lid position calibration, the routine that otherwise sits behind the service
+  menu on the toilet itself. It lives in the repair flow rather than on the
+  settings page because it is a sequence — start, nudge while watching, save —
+  and the settings page cannot step through anything.
+
+  The four command codes come from the reference implementation and have never
+  been observed on the wire here, so every press prints what the toilet
+  answered. If a step does nothing, that shows up immediately rather than being
+  hidden behind an optimistic "done".
+
+  English text sits in the markup so a failing translation call degrades to
+  readable English rather than a blank screen.
+-->
+<style>
+  .aq { padding: 0 24px; line-height: 1.5; }
+  .aq p { margin: 0 0 12px; }
+  .aq .warn { padding: 10px 12px; border-radius: 6px; font-size: 0.88em;
+              border: 1px solid rgba(192, 57, 43, 0.45); color: #c0392b; }
+  .aq .step { margin-top: 20px; }
+  .aq .step-label { font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.05em;
+                    opacity: 0.6; margin-bottom: 6px; }
+  .aq button { width: 100%; padding: 12px; font-size: 0.95em; border-radius: 6px;
+               cursor: pointer; border: 1px solid rgba(128,128,128,0.4);
+               background: transparent; color: inherit; }
+  .aq button.primary { background: #0072BA; border-color: #0072BA; color: #fff; }
+  .aq button[disabled] { opacity: 0.4; cursor: default; }
+  .aq .nudge { display: flex; gap: 10px; }
+  .aq #log { margin-top: 18px; white-space: pre-wrap; font-size: 0.82em; line-height: 1.5;
+             font-family: ui-monospace, Menlo, Consolas, monospace; opacity: 0.85;
+             max-height: 9em; overflow-y: auto; }
+  .aq #log.bad { color: #c0392b; }
+</style>
+
+<div class="aq">
+  <p data-i18n="repair.calibrate.intro">Adjusts the resting position of the lid and seat. Watch the toilet while you do this — nothing here is reported back by the device.</p>
+
+  <p class="warn" data-i18n="repair.calibrate.warning">These commands are taken from published protocol documentation and are not verified against this model. Saving writes a new offset to the toilet. Leave without saving to change nothing.</p>
+
+  <div class="step">
+    <div class="step-label" data-i18n="repair.calibrate.step1">Step 1 — start</div>
+    <button id="start" class="primary" data-i18n="repair.calibrate.start">Start calibration</button>
+  </div>
+
+  <div class="step">
+    <div class="step-label" data-i18n="repair.calibrate.step2">Step 2 — adjust while watching the lid</div>
+    <div class="nudge">
+      <button id="up" disabled data-i18n="repair.calibrate.up">Raise</button>
+      <button id="down" disabled data-i18n="repair.calibrate.down">Lower</button>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-label" data-i18n="repair.calibrate.step3">Step 3 — keep the position</div>
+    <button id="save" class="primary" disabled data-i18n="repair.calibrate.save">Save position</button>
+  </div>
+
+  <div id="log"></div>
+</div>
+
+<script type="application/javascript">
+  const FALLBACK = {
+    'repair.calibrate.title': 'Calibrate lid position',
+    'repair.calibrate.sending': 'Sending…',
+    'repair.calibrate.saved': 'Position saved.',
+    'repair.calibrate.started': 'Calibration started. Use Raise and Lower, then save.',
+    'repair.calibrate.failed': 'Failed'
+  };
+
+  // A missing key comes back as the key itself, which would read as
+  // "repair.calibrate.failed" on screen.
+  function t(key) {
+    try {
+      const text = Homey.__(key);
+      if (text && text !== key) return text;
+    } catch (error) { /* fall through */ }
+    return FALLBACK[key] || key;
+  }
+
+  const buttons = {
+    start: document.getElementById('start'),
+    up: document.getElementById('up'),
+    down: document.getElementById('down'),
+    save: document.getElementById('save')
+  };
+  const logEl = document.getElementById('log');
+
+  for (const element of document.querySelectorAll('[data-i18n]')) {
+    const key = element.getAttribute('data-i18n');
+    let text = null;
+    try {
+      const value = Homey.__(key);
+      if (value && value !== key) text = value;
+    } catch (error) { /* keep the markup */ }
+    if (text) element.textContent = text;
+  }
+
+  try { Homey.setTitle(t('repair.calibrate.title')); } catch (error) { /* Homey's own header */ }
+
+  function write(line, bad) {
+    logEl.textContent = (logEl.textContent ? logEl.textContent + '\n' : '') + line;
+    logEl.className = bad ? 'bad' : '';
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function setBusy(busy) {
+    buttons.start.disabled = busy;
+    // The adjust and save buttons stay locked until the routine has been
+    // started, so a stray press cannot write an offset on its own.
+    const locked = busy || !started;
+    buttons.up.disabled = locked;
+    buttons.down.disabled = locked;
+    buttons.save.disabled = locked;
+  }
+
+  let started = false;
+
+  function send(step) {
+    setBusy(true);
+    write(step + ': ' + t('repair.calibrate.sending'));
+    Homey.emit('calibrationStep', { step: step }, (error, result) => {
+      if (error) {
+        write(step + ': ' + t('repair.calibrate.failed') + ' — ' + (error.message || error), true);
+        setBusy(false);
+        return;
+      }
+      // Print the raw acknowledgement: this is the only evidence that the
+      // command reached the toilet and was understood.
+      write(step + ': code ' + result.code + ' → ' + JSON.stringify(result.response));
+      if (step === 'start') { started = true; write(t('repair.calibrate.started')); }
+      if (step === 'save') { write(t('repair.calibrate.saved')); }
+      setBusy(false);
+    });
+  }
+
+  for (const step of Object.keys(buttons)) {
+    buttons[step].addEventListener('click', () => send(step));
+  }
+</script>

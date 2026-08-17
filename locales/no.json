@@ -82,5 +82,23 @@
       "none_advertising": "Proxyen fungerer og ser {{count}} Bluetooth-enheter, men ingen av dem er en AquaClean. Lukk Geberit Home-appen på telefonen, trykk på en knapp på toalettet for å vekke det, og prøv igjen.",
       "proxy_silent": "Bluetooth-proxyen meldte ingen enheter i det hele tatt. Sjekk at ESP32-en har strøm, er tilgjengelig på adressen du skrev inn, og kjører bluetooth_proxy."
     }
+  },
+  "repair": {
+    "calibrate": {
+      "title": "Kalibrer lokkposisjon",
+      "intro": "Justerer hvileposisjonen til lokk og sete. Se på toalettet mens du gjør dette — ingenting her meldes tilbake fra enheten.",
+      "warning": "Disse kommandoene er hentet fra publisert protokolldokumentasjon og er ikke verifisert mot denne modellen. Å lagre skriver en ny posisjon til toalettet. Går du ut uten å lagre, endres ingenting.",
+      "step1": "Steg 1 — start",
+      "step2": "Steg 2 — juster mens du ser på lokket",
+      "step3": "Steg 3 — behold posisjonen",
+      "start": "Start kalibrering",
+      "up": "Hev",
+      "down": "Senk",
+      "save": "Lagre posisjon",
+      "sending": "Sender…",
+      "started": "Kalibrering startet. Bruk Hev og Senk, og lagre til slutt.",
+      "saved": "Posisjonen er lagret.",
+      "failed": "Mislyktes"
+    }
   }
 }

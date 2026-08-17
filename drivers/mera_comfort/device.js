@@ -153,6 +153,15 @@ const PROXY_BUTTON_SETTINGS = Object.freeze({
   clear_ble_cache: { pattern: 'clear', label: 'clear the proxy Bluetooth cache' }
 });
 
+// The four steps of the lid position calibration, in the order the repair view
+// walks the user through them.
+const LID_CALIBRATION_STEPS = Object.freeze({
+  start: AQUACLEAN_COMMANDS.START_LID_CALIBRATION,
+  up: AQUACLEAN_COMMANDS.LID_OFFSET_INCREMENT,
+  down: AQUACLEAN_COMMANDS.LID_OFFSET_DECREMENT,
+  save: AQUACLEAN_COMMANDS.LID_OFFSET_SAVE
+});
+
 // Device-wide settings that are editable from the device settings page.
 // `kind` says how Homey hands the value over: a dropdown gives a string, a
 // checkbox a boolean, a number the number itself. The device wants 0-N either way.
@@ -759,6 +768,27 @@ class MeraComfortDevice extends Homey.Device {
     await this.refreshSettingsAndMaintenance().catch(error => {
       this.error('Filter status read after reset failed', error);
     });
+  }
+
+  // The lid calibration behind the toilet's own service menu, driven from the
+  // repair view. Sent as a task rather than a command so the raw acknowledgement
+  // comes back to the caller: these four codes come from the reference
+  // implementation and have never been observed on the wire here, so the repair
+  // view shows what the toilet actually answered instead of claiming success.
+  //
+  // Deliberately not a Flow card and not a capability. A saved lid offset is
+  // not something an automation should be able to change by accident.
+  async runLidCalibrationStep(step) {
+    const code = LID_CALIBRATION_STEPS[step];
+    if (code === undefined) throw new Error(`Unknown lid calibration step "${step}".`);
+
+    this.log('AquaClean lid calibration step', { step, code });
+    const response = await this.runProtocolOperation({
+      task: protocol => protocol.executeCommand(code),
+      taskLabel: `lid calibration ${step}`
+    });
+    this.log('AquaClean lid calibration acknowledged', { step, code, response });
+    return { step, code, response: response ?? null };
   }
 
   async pollSettingsAndMaintenance() {

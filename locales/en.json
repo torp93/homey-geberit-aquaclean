@@ -87,7 +87,7 @@
     "calibrate": {
       "title": "Calibrate lid position",
       "intro": "Adjusts the resting position of the lid and seat. Watch the toilet while you do this — nothing here is reported back by the device.",
-      "warning": "These commands are taken from published protocol documentation and are not verified against this model. Saving writes a new offset to the toilet. Leave without saving to change nothing.",
+      "warning": "Starting this puts the toilet into a service mode: normal operation stops and its own remote is locked out until the routine finishes. Close this screen and the app finishes it for you, keeping the position currently shown.",
       "step1": "Step 1 — start",
       "step2": "Step 2 — adjust while watching the lid",
       "step3": "Step 3 — keep the position",
@@ -97,7 +97,7 @@
       "save": "Save position",
       "sending": "Sending…",
       "started": "Calibration started. Use Raise and Lower, then save.",
-      "saved": "Position saved.",
+      "saved": "Position saved. The toilet is back to normal operation.",
       "failed": "Failed"
     }
   }

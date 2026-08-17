@@ -64,9 +64,34 @@ class MeraComfortDriver extends Homey.Driver {
   // buttons reach the existing protocol machinery directly. Homey labels the
   // entry point "Repair"; the view sets its own title.
   async onRepair(session, device) {
+    // Command 33 opens a service mode on the toilet and there is no command
+    // that merely leaves it: while it is open, user detection stops, odour
+    // extraction and system flush stop responding, and the toilet's own remote
+    // is locked out. It stayed that way until mains power was cycled.
+    //
+    // Homey's close button is always there, so the view cannot prevent someone
+    // walking away mid-routine. The session tracks it instead and finishes the
+    // routine on the way out.
+    let started = false;
+    let finished = false;
+
     session.setHandler('calibrationStep', async ({ step }) => {
       const result = await device.runLidCalibrationStep(step);
+      if (step === 'start') started = true;
+      if (step === 'save') finished = true;
       return { step: result.step, code: result.code, response: result.response };
+    });
+
+    session.setHandler('disconnect', async () => {
+      if (!started || finished) return;
+      // Saving commits the position currently shown on the toilet. If the user
+      // never pressed Raise or Lower that is the position it already had, so
+      // this writes nothing new — and it is in any case the lesser harm next to
+      // leaving the toilet unusable until someone finds the fuse.
+      this.log('Repair view closed mid-calibration; closing the routine on the toilet');
+      await device.runLidCalibrationStep('save').catch(error => {
+        this.error('Could not close the calibration routine — power-cycle the toilet', error);
+      });
     });
   }
 

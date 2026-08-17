@@ -40,7 +40,7 @@
 <div class="aq">
   <p data-i18n="repair.calibrate.intro">Adjusts the resting position of the lid and seat. Watch the toilet while you do this — nothing here is reported back by the device.</p>
 
-  <p class="warn" data-i18n="repair.calibrate.warning">These commands are taken from published protocol documentation and are not verified against this model. Saving writes a new offset to the toilet. Leave without saving to change nothing.</p>
+  <p class="warn" data-i18n="repair.calibrate.warning">Starting this puts the toilet into a service mode: normal operation stops and its own remote is locked out until the routine finishes. Close this screen and the app finishes it for you, keeping the position currently shown.</p>
 
   <div class="step">
     <div class="step-label" data-i18n="repair.calibrate.step1">Step 1 — start</div>
@@ -67,7 +67,7 @@
   const FALLBACK = {
     'repair.calibrate.title': 'Calibrate lid position',
     'repair.calibrate.sending': 'Sending…',
-    'repair.calibrate.saved': 'Position saved.',
+    'repair.calibrate.saved': 'Position saved. The toilet is back to normal operation.',
     'repair.calibrate.started': 'Calibration started. Use Raise and Lower, then save.',
     'repair.calibrate.failed': 'Failed'
   };

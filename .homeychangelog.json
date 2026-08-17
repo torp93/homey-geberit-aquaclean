@@ -96,5 +96,9 @@
   "1.5.1": {
     "en": "Fixes the lid calibration screen failing to open with \"unknown_error_getting_file\".",
     "no": "Retter at kalibreringsskjermen for lokket ikke åpnet seg, men ga «unknown_error_getting_file»."
+  },
+  "1.5.2": {
+    "en": "Fixes the buttons on the lid calibration screen running past the right edge.",
+    "no": "Retter at knappene på kalibreringsskjermen gikk utenfor høyre kant."
   }
 }

@@ -20,12 +20,17 @@
   .aq .step { margin-top: 20px; }
   .aq .step-label { font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.05em;
                     opacity: 0.6; margin-bottom: 6px; }
-  .aq button { width: 100%; padding: 12px; font-size: 0.95em; border-radius: 6px;
-               cursor: pointer; border: 1px solid rgba(128,128,128,0.4);
+  /* box-sizing matters: without it the padding and border are added on top of
+     the 100% width, and every button runs past the right edge of the page. */
+  .aq button { width: 100%; box-sizing: border-box; padding: 12px; font-size: 0.95em;
+               border-radius: 6px; cursor: pointer; border: 1px solid rgba(128,128,128,0.4);
                background: transparent; color: inherit; }
   .aq button.primary { background: #0072BA; border-color: #0072BA; color: #fff; }
   .aq button[disabled] { opacity: 0.4; cursor: default; }
+  /* Two buttons sharing one row each want 100% of it, so they are told to split
+     the space instead. min-width:0 lets them shrink below their label width. */
   .aq .nudge { display: flex; gap: 10px; }
+  .aq .nudge button { flex: 1 1 0; width: auto; min-width: 0; }
   .aq #log { margin-top: 18px; white-space: pre-wrap; font-size: 0.82em; line-height: 1.5;
              font-family: ui-monospace, Menlo, Consolas, monospace; opacity: 0.85;
              max-height: 9em; overflow-y: auto; }

@@ -1078,3 +1078,46 @@ test('connection is lost after 3 failures; the breaker presses proxy buttons aft
   assert.equal(pressed[pressed.length - 1], 'clear_ble_cache',
     'after a recovery the breaker starts from the cheap action again');
 });
+
+// --- Regressions from the pre-certification audit --------------------------
+
+test('an inferred capability must not drive the poll rate', () => {
+  // The toilet never reports odour extraction, so the capability is the app's
+  // own guess. Toggling it on sets it true with no off-timer; with
+  // odour_auto_tracking disabled nothing ever clears it. While it counted as
+  // "activity" that pinned the poll to the 2.5 s active interval permanently,
+  // and past the keep-warm window every poll is a fresh connect and teardown -
+  // during which the toilet's own remote is dead.
+  const source = require('node:fs').readFileSync(
+    require('node:path').join(__dirname, '..', 'drivers', 'mera_comfort', 'device.js'), 'utf8',
+  );
+  const block = source.match(/ACTIVE_STATUS_CAPABILITY_IDS = Object\.freeze\(\[([^\]]*)\]/);
+  assert.ok(block, 'the active-poll capability list must exist');
+  assert.doesNotMatch(block[1], /odour/,
+    'only capabilities the toilet actually reports may raise the poll rate');
+});
+
+test('a command that may already have been carried out says so', () => {
+  const messages = [];
+  const device = Object.create(MeraComfortDevice.prototype);
+  device.homey = { __: key => { messages.push(key); return key; } };
+
+  // Set when the toggle byte was written but the answer never came back.
+  const attempted = Object.assign(new Error('timed out'), {
+    code: 'AQUACLEAN_TIMEOUT',
+    aquacleanCommandAttempted: true
+  });
+  assert.equal(
+    MeraComfortDevice.prototype.getUserErrorMessage.call(device, attempted),
+    'error.command_uncertain',
+    'telling the user the toilet was unreachable invites a second press, '
+    + 'and a second press on a toggle undoes the first',
+  );
+
+  // A failure before the write is still an ordinary timeout.
+  const notAttempted = Object.assign(new Error('timed out'), { code: 'AQUACLEAN_TIMEOUT' });
+  assert.equal(
+    MeraComfortDevice.prototype.getUserErrorMessage.call(device, notAttempted),
+    'error.timeout',
+  );
+});

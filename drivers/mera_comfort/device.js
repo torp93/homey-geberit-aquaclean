@@ -274,11 +274,17 @@ const STATUS_INSIGHTS_CAPABILITY_IDS = Object.freeze({
   aquaclean_odour_extraction_running: 'measure_aquaclean_odour_extraction',
   aquaclean_dryer_running: 'measure_aquaclean_dryer'
 });
+// Only capabilities the toilet actually reports may raise the poll rate.
+// Odour extraction is deliberately absent: the toilet never reports it, so the
+// value is the app's own inference and nothing can ever contradict it. Toggling
+// it on sets it true with no off-timer, and with odour_auto_tracking disabled
+// nothing clears it — which used to pin the poll to the 2.5 s active interval
+// for good. Past the keep-warm window that is a cold connect and teardown every
+// 2.5 s forever, and the toilet's own remote is dead while anyone is connected.
 const ACTIVE_STATUS_CAPABILITY_IDS = Object.freeze([
   'aquaclean_user_sitting',
   'aquaclean_anal_shower_running',
-  'aquaclean_lady_shower_running',
-  'aquaclean_odour_extraction_running'
+  'aquaclean_lady_shower_running'
 ]);
 const DESCALING_STATES = Object.freeze({
   0: 'idle',
@@ -498,6 +504,15 @@ class MeraComfortDevice extends Homey.Device {
   // the app log, where it is worth having; the UI gets something actionable.
   getUserErrorMessage(error) {
     if (isBleInProgressError(error)) return this.homey.__('error.busy_homey');
+    // Checked before the timeout case, which it usually arrives as. The toggle
+    // byte was written and the link dropped before the answer came back, so the
+    // toilet has very likely already acted. "Could not reach the AquaClean"
+    // invites a second press — and a second press on a toggle undoes the first.
+    // This is the one error where the user needs to look at the toilet rather
+    // than at Homey.
+    if (error && error.aquacleanCommandAttempted) {
+      return this.homey.__('error.command_uncertain');
+    }
     if (error && error.code === 'AQUACLEAN_BUSY') return this.homey.__('error.busy_device');
     if (error && error.code === 'AQUACLEAN_TIMEOUT') return this.homey.__('error.timeout');
     return this.homey.__('error.unreachable');

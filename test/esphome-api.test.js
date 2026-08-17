@@ -170,3 +170,52 @@ test('message type constants match the ESPHome native API', () => {
   assert.strictEqual(MSG.GATT_WRITE_RES, 83);
   assert.strictEqual(MSG.GATT_NOTIFY_RES, 84);
 });
+
+// --- Robustness against a hostile or corrupted peer ------------------------
+// Everything below is reachable from the network. A throw on any of these
+// paths reaches the socket's 'data' handler, where nothing catches it.
+
+test('a malformed notify frame does not crash the client', () => {
+  const { EsphomeApiClient } = require('../lib/esphome-api');
+  const client = new EsphomeApiClient({ host: '127.0.0.1' });
+  client.on('error', () => {});
+
+  // Field 1 arrives as a length-delimited buffer instead of a varint address.
+  // addressToMac() calls BigInt() on it, which throws TypeError.
+  assert.doesNotThrow(() => client._onData(Buffer.concat([
+    Buffer.from([0x00]),
+    Buffer.from([0x04]),          // payload length
+    Buffer.from([79]),            // GATT_NOTIFY_DATA
+    Buffer.from([0x0a, 0x02, 0x01, 0x02]), // field 1, wire type 2
+  ])), 'a bad frame must not travel up through the socket data handler');
+});
+
+test('an absurd frame length is refused instead of buffered forever', () => {
+  const { EsphomeApiClient } = require('../lib/esphome-api');
+  const client = new EsphomeApiClient({ host: '127.0.0.1' });
+  const errors = [];
+  client.on('error', error => errors.push(error));
+
+  // 0xFFFFFF07 as a varint length: ~14 MB. Without a ceiling the receive
+  // buffer grows with every later chunk and never resynchronises.
+  client._onData(Buffer.from([0x00, 0xff, 0xff, 0xff, 0x07, 0x01]));
+  client._onData(Buffer.alloc(1024));
+
+  assert.equal(errors.length >= 1, true, 'the oversized frame must be reported');
+  assert.match(errors[0].message, /refusing to buffer/);
+  assert.ok(client._rx.length < 64 * 1024,
+    'the receive buffer must not keep growing after a bogus length');
+});
+
+test('internal transport errors are English, not Norwegian', () => {
+  const source = require('node:fs').readFileSync(
+    require('node:path').join(__dirname, '..', 'lib', 'esphome-api.js'), 'utf8',
+  );
+  // These messages reach the user through the aquaclean_connection_error
+  // capability and the settings test button, so they must not be Norwegian.
+  const thrown = source.match(/new (?:Type|Range)?Error\((?:'[^']*'|`[^`]*`)/g) || [];
+  for (const line of thrown) {
+    assert.doesNotMatch(line, /[æøåÆØÅ]|tidsavbrudd|ikke tilkoblet|avvist/,
+      `Norwegian reaches the English UI: ${line}`);
+  }
+});

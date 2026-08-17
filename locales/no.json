@@ -3,6 +3,7 @@
     "busy_homey": "Homeys Bluetooth er opptatt. Kommandoen ble ikke sendt — prøv igjen om litt.",
     "busy_device": "AquaClean holder på med noe annet. Prøv igjen om litt.",
     "timeout": "AquaClean koblet til, men svarte ikke. Lukk Geberit Home-appen, flytt proxyen nærmere, og prøv igjen.",
+    "command_uncertain": "Kommandoen ble sendt, men AquaClean bekreftet den ikke. Den er trolig utført — se på toalettet før du trykker igjen, for et nytt trykk reverserer den.",
     "unreachable": "Fikk ikke kontakt med AquaClean.",
     "no_proxy": "Ingen Bluetooth-proxy er satt opp. Åpne appinnstillingene og skriv inn adressen til ESPHome-proxyen.",
     "unsupported_control": "Denne funksjonen er ikke tilgjengelig på AquaClean.",

@@ -187,13 +187,155 @@ test('an unknown function key is refused rather than toggling something else', a
   );
 });
 
-test('the deprecated toggle cards still map to real capabilities', () => {
+test('every deprecated card still has a working handler', () => {
   const deprecated = (appJson.flow.actions || []).filter(card => card.deprecated);
   assert.ok(deprecated.length > 0, 'the old toggle cards must survive for existing Flows');
+  // Deprecation hides a card from the Add Card list; it does not unregister it.
+  // A deprecated card with no handler is worse than a removed one, because the
+  // Flow still looks valid and fails only when it runs. Both backings count:
+  // the original toggles are capability-backed, the retired deterministic
+  // odour actions are function-backed.
   for (const card of deprecated) {
     assert.ok(
-      CAPABILITY_BACKED_ACTIONS[card.id],
+      CAPABILITY_BACKED_ACTIONS[card.id] || FUNCTION_BACKED_ACTIONS[card.id],
       `deprecated card "${card.id}" lost its handler — existing Flows would break`,
     );
   }
+});
+
+// ---------------------------------------------------------------------------
+// CHARACTERISATION: the odour ON/OFF cards decide from occupancy, not the fan.
+//
+// These tests assert what the code does TODAY, not what it should do. The
+// toilet never reports odour extraction and the only command available is a
+// toggle, so the deterministic contract the two cards advertise cannot be
+// honoured. If either assertion below starts failing, the semantics changed
+// deliberately and the card hints must be revisited with it.
+
+test('KNOWN DEFECT: sitting down makes "turn odour extraction on" a no-op', async () => {
+  const toggles = [];
+  const state = { aquaclean_odour_extraction_running: null };
+  const device = {
+    homey: { __: key => key },
+    getCapabilityValue: id => state[id],
+    setStatusCapabilityValue: async (id, value) => { state[id] = value; },
+    executeControlCapability: async id => toggles.push(id),
+    hasCapability: () => true,
+    isAutomaticOdourTrackingEnabled: () => true,
+    clearOdourRunOnTimer: () => {},
+    scheduleOdourExtractionOff: async () => {},
+    getOdourRunOnMilliseconds: () => 60000,
+    refreshStatus: async () => {},
+    log: () => {},
+    error: () => {}
+  };
+
+  // Nobody has touched odour extraction. Someone simply sits down.
+  await MeraComfortDevice.prototype.applyAutomaticOdourState.call(device, true, false);
+  assert.equal(state.aquaclean_odour_extraction_running, true,
+    'occupancy alone flips the capability, with no evidence about the fan');
+
+  // A Flow now asks for the fan. It is refused as "already on".
+  await MeraComfortDevice.prototype.setFunctionState.call(device, 'odour_extraction', true);
+  assert.deepEqual(toggles, [],
+    'the fan may well be off — the toilet ships with profile_odour_extraction '
+    + 'disabled — yet the action sends nothing because someone is seated');
+});
+
+test('KNOWN DEFECT: "turn odour extraction on" sends a toggle that can stop a running fan', async () => {
+  const toggles = [];
+  // Run-on expired, nobody seated, so the app believes extraction is off.
+  // The fan can still be running: started at the toilet's own panel, which the
+  // app has no way to observe.
+  const state = { aquaclean_odour_extraction_running: false };
+  const device = {
+    homey: { __: key => key },
+    getCapabilityValue: id => state[id],
+    executeControlCapability: async id => toggles.push(id),
+    refreshStatus: async () => { throw new Error('never called: reported === false'); },
+    log: () => {},
+    error: () => {}
+  };
+
+  await MeraComfortDevice.prototype.setFunctionState.call(device, 'odour_extraction', true);
+  assert.deepEqual(toggles, ['aquaclean_button_odour_extraction'],
+    'the only command available is TOGGLE_ODOUR_EXTRACTION (code 12) — sent '
+    + 'against a belief, it turns a running fan off');
+});
+
+// ---------------------------------------------------------------------------
+// The odour Flow cards, after the product decision of the certification audit.
+//
+// WHY: the AquaClean protocol exposes exactly one odour operation — command 12,
+// TOGGLE_ODOUR_EXTRACTION — and reports no fan state back. decodeSystemParameters
+// returns odourExtractionIsRunning: null because there is no such parameter, not
+// because a read failed. A card promising "turn odour extraction on" therefore
+// cannot keep its promise: asked to turn the fan on while the app's inferred
+// value happens to disagree with reality, the only command it can send is the
+// one that turns a running fan off.
+//
+// So the two deterministic cards are hidden from new Flows and the honest
+// toggle is offered instead. Nothing is removed: every Flow built on the old
+// cards keeps loading and running exactly as before.
+
+const odourCard = id => (appJson.flow.actions || []).find(card => card.id === id);
+
+test('the deterministic odour actions are retired but still present', () => {
+  for (const id of [
+    'aquaclean_action_odour_extraction_on',
+    'aquaclean_action_odour_extraction_off'
+  ]) {
+    const card = odourCard(id);
+    assert.ok(card, `"${id}" must not be removed — existing Flows reference it`);
+    assert.equal(card.deprecated, true,
+      `"${id}" promises determinism the toggle-only protocol cannot deliver, `
+      + 'so it must not be offered for new Flows');
+    assert.ok(FUNCTION_BACKED_ACTIONS[id],
+      `"${id}" must keep its handler so existing Flows still execute`);
+  }
+});
+
+test('the truthful toggle card is offered for new Flows', () => {
+  const card = odourCard('aquaclean_action_odour_extraction');
+  assert.ok(card, 'the toggle card must exist');
+  assert.ok(!card.deprecated,
+    'this is the operation the protocol actually has, so it must be available');
+  assert.equal(CAPABILITY_BACKED_ACTIONS['aquaclean_action_odour_extraction'],
+    'aquaclean_button_odour_extraction');
+});
+
+test('the toggle card sends exactly one toggle and reads no fan state', () => {
+  const { AQUACLEAN_COMMANDS } = require('../lib/aquaclean-protocol');
+  const deviceSource = fs.readFileSync(
+    path.join(__dirname, '..', 'drivers', 'mera_comfort', 'device.js'), 'utf8',
+  );
+
+  assert.equal(AQUACLEAN_COMMANDS.TOGGLE_ODOUR_EXTRACTION, 12);
+  assert.match(
+    deviceSource,
+    /aquaclean_button_odour_extraction: \{\s*\n\s*code: AQUACLEAN_COMMANDS\.TOGGLE_ODOUR_EXTRACTION/,
+    'the toggle card must stay bound to command 12',
+  );
+
+  // executeControlCapability looks the command up and sends it. If it ever
+  // starts consulting a capability value, the card has quietly become
+  // deterministic again against a state nobody can verify.
+  const body = deviceSource.slice(
+    deviceSource.indexOf('async executeControlCapability('),
+    deviceSource.indexOf('async setFunctionState('),
+  );
+  assert.doesNotMatch(body, /getCapabilityValue/,
+    'the toggle must not pretend to know whether the fan is running');
+});
+
+test('the toilet reports no odour state to decide from', () => {
+  const { decodeSystemParameters, SYSTEM_PARAMETER_IDS } = require('../lib/aquaclean-protocol');
+  const ids = Array.from(SYSTEM_PARAMETER_IDS);
+  const data = Buffer.alloc(1 + (ids.length * 5));
+  ids.forEach((id, index) => { data[1 + (index * 5)] = id; });
+
+  const decoded = decodeSystemParameters(data, ids);
+  assert.equal(decoded.odourExtractionIsRunning, null,
+    'this is the reason deterministic on/off cannot be honoured: there is no '
+    + 'fan parameter to read, so any on/off decision rests on a guess');
 });

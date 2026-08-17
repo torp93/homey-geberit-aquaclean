@@ -1078,8 +1078,7 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ],
-        "deprecated": true
+        ]
       },
       {
         "id": "aquaclean_action_odour_run_on",
@@ -1241,7 +1240,8 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "deprecated": true
       },
       {
         "id": "aquaclean_action_odour_extraction_off",
@@ -1259,7 +1259,8 @@
             "type": "device",
             "filter": "driver_id=mera_comfort"
           }
-        ]
+        ],
+        "deprecated": true
       }
     ]
   },
@@ -1271,6 +1272,9 @@
         "no": "AquaClean Mera Comfort"
       },
       "class": "other",
+      "platforms": [
+        "local"
+      ],
       "capabilities": [
         "measure_signal_strength",
         "aquaclean_connection_state",

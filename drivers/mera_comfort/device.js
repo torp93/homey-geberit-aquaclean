@@ -251,6 +251,7 @@ const DETERMINISTIC_FUNCTIONS = Object.freeze({
   }
 });
 const STATUS_CAPABILITIES = Object.freeze([
+  'measure_signal_strength',
   'aquaclean_connection_state',
   'aquaclean_connection_error',
   'aquaclean_last_status_update',
@@ -264,6 +265,7 @@ const STATUS_CAPABILITIES = Object.freeze([
   'measure_aquaclean_odour_extraction',
   'aquaclean_descaling_state',
   'aquaclean_error_code',
+  'aquaclean_error_text',
   'aquaclean_raw_status',
   'aquaclean_dryer_running',
   'measure_aquaclean_dryer'

@@ -1341,3 +1341,33 @@ test('the text capability and trigger tokens are declared in the manifest', () =
       `${id} must carry hex and description tokens`);
   }
 });
+
+test('every manifest capability is reachable by the add lists', () => {
+  // ensureCapabilities adds from hand-maintained lists; the manifest sweep
+  // only removes. A capability declared in the manifest but absent from the
+  // lists reaches fresh pairings and silently never appears on devices paired
+  // before it existed — exactly how aquaclean_error_text went missing.
+  const appJson = JSON.parse(require('node:fs').readFileSync(
+    require('node:path').join(__dirname, '..', 'app.json'), 'utf8',
+  ));
+  const manifestCaps = appJson.drivers.find(d => d.id === 'mera_comfort').capabilities;
+
+  const capabilities = new Set();
+  const device = {
+    hasCapability: id => capabilities.has(id),
+    addCapability: async id => capabilities.add(id),
+    removeCapability: async id => capabilities.delete(id),
+    getCapabilities: () => [...capabilities],
+    driver: { manifest: { capabilities: manifestCaps } },
+    removeCapabilitiesMissingFromManifest:
+      MeraComfortDevice.prototype.removeCapabilitiesMissingFromManifest,
+    log: () => {},
+    error: () => {}
+  };
+
+  return MeraComfortDevice.prototype.ensureCapabilities.call(device).then(() => {
+    const missing = manifestCaps.filter(id => !capabilities.has(id));
+    assert.deepEqual(missing, [],
+      'these capabilities would never appear on an already-paired device');
+  });
+});

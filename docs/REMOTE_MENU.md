@@ -1,13 +1,13 @@
-# The remote control's service menus
+# The remote control's menus
 
-How to reach the AquaClean's own settings from the remote control — including
-the lid calibration and the error-code display, the two that matter most when
-something is wrong.
+How to reach the AquaClean's own settings from the remote control: the three
+everyday menus, the service menu behind them, the error-code display and the
+seat and lid adjustments.
 
-**Sources:** Geberit AquaClean Mera Comfort user manual `966.732.00.0(05)`,
-sections "How to program the device" and "Care and maintenance main menu" —
-for everything except the service menu, which appears in no manual and is
-recorded here from a Mera Comfort in the field.
+**Sources:** Geberit AquaClean Mera Comfort user manual `966.732.00.0(05)`
+for the three everyday menus, and the Geberit AquaClean Mera service manual
+`967.008.00.0(04)` page 72–74 for the service menu. Verified on a Mera
+Comfort.
 
 ---
 
@@ -66,36 +66,62 @@ lost its position reference.
 What each code means is in [`ERROR_CODES.md`](ERROR_CODES.md) — all 149 of
 them, with the cause and the repair measure from the service manual.
 
-## The hidden service menu
+## The service menu
 
-**Not in any manual — reported from the device by the app's author.** Beyond
-the three documented menus there is a service menu that Geberit does not
-describe in the user manual.
+Documented, but only in the **service** manual — `967.008.00.0(04)` page 72.
+It is absent from the user manual, which is why it looks hidden.
 
-To reach it:
+**To open it:**
 
-1. Navigate to the **`[Care and maintenance]` main menu** on the rear of the
-   remote, as above.
-2. **Hold the `<Lady shower>` and `<Odour extraction>` (fan) buttons together**
-   until the display reads **`Service`**.
+1. Go to the **`[Care and maintenance]`** main menu with the `<left>` /
+   `<right>` arrows on the rear of the remote.
+2. **Hold the `<Lady shower>` and `<Odour extraction>` buttons together for
+   2 seconds.** The display changes to **`Service`**.
+3. Step through the items with `<up>` / `<down>`.
 
-This is a service-technician entry point. Its contents are not documented
-here because they have not been catalogued — see the note under the lid
-calibration below.
+**Settings here save themselves.** The manual is explicit: *"Les réglages sont
+automatiquement enregistrés quand on change de menu"* — a change is stored as
+soon as you move to the next item. This is the opposite of the everyday menus,
+where you must run the menu to the end or lose the change. There is no
+confirmation step and no way to back out.
 
-Treat it accordingly: it exposes settings the normal menus deliberately hide,
-and nothing in it is covered by the user manual.
+### What is in it
+
+| Display (FR) | What it does |
+|---|---|
+| `Afficher info appar. ?` | Model, article number, serial number, commissioning date, **manufacturing date**, **firmware version**, **operating hours**, descaling cycles, days since last descaling and last descaling prompt |
+| `Message d'erreur` | The fault code — same value as in `[Care and maintenance]` |
+| **`Calibrer abattant ?`** ¹ | **Calibrates the seat** |
+| **`Régler abattant ?`** → `Position abattant` ¹ | Sets the seat position |
+| `Régler bras douch. ?` → `Décalage bras douch.` | Shifts the spray arm's rest position |
+| `Régler bras séchoir ?` → `Décalage bras séchoir` | Shifts the dryer arm's rest position |
+
+¹ Marked *"Modèle: Geberit AquaClean Mera Comfort"*.
+
+The two arm offsets exist for a specific reason, given on page 71: after
+reassembly both arms should sit **slightly retracted into the ceramic bowl**
+so the nozzles stay clean. If a nozzle looks like it protrudes further than it
+used to after service work, this is the adjustment for it — not a fault.
+
+The device info page is the fuller one: operating hours, firmware version and
+manufacturing date appear here and nowhere else on the remote.
 
 ## Calibrating the WC lid
 
-**Two routines share this name and they may not be the same thing.** The user
-manual documents `Set WC lid?` as item 8 of `[Care and maintenance]`,
-described as *"Safety query for setting the opening angle of the WC lid"*.
-The hidden service menu also carries an entry called *"kalibrer toalettlokk"*
-(calibrate WC lid), reported to behave differently. Which of the two the
-protocol's commands 33–36 correspond to is **UNVERIFIED**.
+**There are two different adjustments, for two different parts.** The service
+menu calibrates the **seat** (`Calibrer abattant` / `Régler abattant`); this
+one sets the opening angle of the **lid**. They are not the same routine and
+not the same hardware.
 
-What follows describes the documented `[Care and maintenance]` route.
+Which of them the protocol's commands 33–36 drive is **UNVERIFIED**. The
+reference implementation names them `START_LID_CALIBRATION`,
+`LID_OFFSET_INCREMENT`, `LID_OFFSET_DECREMENT` and `LID_OFFSET_SAVE`, which
+reads like a stepwise offset adjustment rather than this menu's single
+`Set WC lid?` prompt — but the naming is inherited from another project and
+has been wrong before.
+
+What follows describes the `[Care and maintenance]` route from the user
+manual.
 
 1. Page down to **`Set WC lid?`**
 2. Answer **`yes`**
@@ -147,5 +173,6 @@ where the remote is not to hand.
 
 - [`ERROR_CODES.md`](ERROR_CODES.md) — every fault code, cause and measure
 - Geberit AquaClean Mera Comfort user manual `966.732.00.0(05)`
-- Geberit AquaClean Mera service manual `967.008.00.0(04)` — for the fault
-  tables and repair procedures behind the codes
+- Geberit AquaClean Mera service manual `967.008.00.0(04)` — the service menu
+  (page 72–74), the arm-offset rationale (page 71), and the fault tables and
+  repair procedures behind the codes

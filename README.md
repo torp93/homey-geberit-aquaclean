@@ -102,8 +102,9 @@ Comfort:
 - [Error codes](docs/ERROR_CODES.md) — every fault code the toilet can report,
   with the cause and the repair measure from Geberit's service manual, plus
   what the app can and cannot see over Bluetooth.
-- [The remote's service menus](docs/REMOTE_MENU.md) — how to reach the error
-  display and the lid calibration from the back of the remote control.
+- [The remote's menus](docs/REMOTE_MENU.md) — the everyday menus and the
+  service menu behind them: error display, device info, and the seat, lid and
+  arm adjustments.
 
 ## Credits
 

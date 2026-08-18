@@ -1,9 +1,11 @@
 {
   "0.10.6": {
-    "en": "Beta Test"
+    "en": "Beta Test",
+    "no": "Betatest"
   },
   "0.10.7": {
-    "en": "Fixed BLE connections hanging indefinitely on a stuck operation, causing the app to silently stop responding until restarted. Button presses now queue instead of being dropped when one is already in progress. Reconnects are faster via cached advertisement lookups. Added a tunable keep-warm window so quick repeated commands reuse the existing connection. Removed the unused Flush button."
+    "en": "Fixed BLE connections hanging indefinitely on a stuck operation, causing the app to silently stop responding until restarted. Button presses now queue instead of being dropped when one is already in progress. Reconnects are faster via cached advertisement lookups. Added a tunable keep-warm window so quick repeated commands reuse the existing connection. Removed the unused Flush button.",
+    "no": "Rettet at BLE-tilkoblinger kunne henge for alltid på en fastlåst operasjon, slik at appen stille sluttet å svare til den ble startet på nytt. Knappetrykk køes nå i stedet for å bli forkastet når en operasjon allerede pågår. Gjenoppkobling går raskere via hurtiglagrede annonseringer. Lagt til et justerbart keep-warm-vindu, slik at raske gjentatte kommandoer gjenbruker den eksisterende forbindelsen. Fjernet den ubrukte spyleknappen."
   },
   "0.11.0": {
     "en": "The app now talks to the toilet through an ESP32 running ESPHome with bluetooth_proxy instead of Homey's own Bluetooth radio. Place the ESP32 near the toilet and the connection becomes both faster and far more reliable, and Homey's Bluetooth stays free for other apps. Enter the proxy address under app settings, where a test button confirms it before you save. The dryer status is now reported correctly instead of always being blank.",

@@ -1168,6 +1168,39 @@ class MeraComfortDevice extends Homey.Device {
     }
   }
 
+  // What the repair screen shows: the current fault, read fresh where possible.
+  // A failed read is reported as such rather than silently downgraded to the
+  // cached value — "no error" and "could not ask" are different answers, and
+  // only one of them means the toilet is fine.
+  async getErrorStatus({ refresh = true } = {}) {
+    let stale = false;
+    if (refresh) {
+      try {
+        if (this._busy) await this.waitForIdle();
+        await this.refreshStatus({ keepWarm: true });
+      } catch (error) {
+        stale = true;
+        this.error('Could not refresh the AquaClean status for the repair view', error.message);
+      }
+    }
+
+    const raw = this.hasCapability('aquaclean_error_code')
+      ? this.getCapabilityValue('aquaclean_error_code')
+      : null;
+    const described = formatErrorCode(raw, this._language);
+
+    return {
+      known: described !== null,
+      stale,
+      code: described ? Number(raw) : null,
+      hex: described ? described.hex : null,
+      description: described ? described.description : null,
+      updatedAt: this.hasCapability('aquaclean_last_status_update')
+        ? this.getCapabilityValue('aquaclean_last_status_update')
+        : null
+    };
+  }
+
   async executeStatusRefresh() {
     this.log('Manual AquaClean status refresh requested');
     try {

@@ -291,3 +291,65 @@ test('probe separates a sleeping toilet from a silent proxy', async () => {
   const silent = scanningDriver([]);
   assert.equal((await silent.scanForAquaCleans()).outcome, 'proxy_silent');
 });
+
+// The repair screen opens on the fault status, because that is why someone
+// opens repair. Two rules matter more than the layout: a failed read must not
+// read as "no error", and an unknown code must keep its number.
+test('the repair status reports a fault, health and a failed read apart', async () => {
+  const { formatErrorCode } = require('../lib/aquaclean-error-codes');
+  const MeraComfortDevice = (() => {
+    const load = Module._load;
+    Module._load = (request, parent, isMain) =>
+      (request === 'homey' ? { Device: class Device {} } : load.call(Module, request, parent, isMain));
+    const mod = require('../drivers/mera_comfort/device');
+    Module._load = load;
+    return mod;
+  })();
+
+  const make = (code, refreshFails) => {
+    const caps = { aquaclean_error_code: code, aquaclean_last_status_update: '18.08.2026, 22:31' };
+    const device = Object.create(MeraComfortDevice.prototype);
+    Object.assign(device, {
+      _busy: false,
+      _language: 'en',
+      hasCapability: id => id in caps,
+      getCapabilityValue: id => caps[id],
+      refreshStatus: async () => { if (refreshFails) throw new Error('unreachable'); },
+      waitForIdle: async () => {},
+      log: () => {},
+      error: () => {}
+    });
+    return device;
+  };
+
+  const healthy = await MeraComfortDevice.prototype.getErrorStatus.call(make(0, false));
+  assert.equal(healthy.stale, false);
+  assert.equal(healthy.code, 0, 'zero is a real answer: no fault');
+
+  const faulty = await MeraComfortDevice.prototype.getErrorStatus.call(make(1035, false));
+  assert.equal(faulty.hex, '040B', 'the manual notation, quotable to Geberit as-is');
+  assert.match(faulty.description, /spray arm drive/);
+
+  // A read that failed must say so. Reporting the cached zero as fresh would
+  // tell the user the toilet is fine when nobody asked it.
+  const unreachable = await MeraComfortDevice.prototype.getErrorStatus.call(make(0, true));
+  assert.equal(unreachable.stale, true);
+
+  // An unknown code keeps its number rather than being dropped.
+  const unknown = await MeraComfortDevice.prototype.getErrorStatus.call(make(9999, false));
+  assert.equal(unknown.hex, '270F');
+  assert.match(unknown.description, /Unknown error/);
+  assert.equal(formatErrorCode(9999, 'en').hex, '270F');
+});
+
+test('the repair views exist and the status view comes first', () => {
+  const views = driverManifest.repair.map(view => view.id);
+  assert.deepEqual(views, ['error_status', 'calibrate_lid'],
+    'the fault status is the reason repair gets opened, so it opens on it');
+  for (const id of views) {
+    assert.ok(
+      fs.existsSync(path.join(__dirname, '..', 'drivers', 'mera_comfort', 'repair', `${id}.html`)),
+      `repair view "${id}" has no repair/${id}.html`,
+    );
+  }
+});

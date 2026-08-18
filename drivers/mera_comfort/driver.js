@@ -78,6 +78,21 @@ class MeraComfortDriver extends Homey.Driver {
     let started = false;
     let finished = false;
 
+    // The repair screen opens on the fault status: what is wrong right now,
+    // in words, without looking a code up in a table.
+    session.setHandler('getErrorStatus', async ({ refresh = true } = {}) =>
+      device.getErrorStatus({ refresh }));
+
+    // What a user means by "restart the app": drop the BLE session and the
+    // proxy client, clear the backoff, and start over. An app cannot restart
+    // itself through the SDK, but this is the part a restart actually fixes —
+    // the same reset the circuit breaker reaches for after repeated failures.
+    session.setHandler('resetConnection', async () => {
+      this.log('Connection reset requested from the repair view');
+      await device.resetTransport();
+      return device.getErrorStatus({ refresh: true });
+    });
+
     session.setHandler('calibrationStep', async ({ step }) => {
       const result = await device.runLidCalibrationStep(step);
       if (step === 'start') started = true;

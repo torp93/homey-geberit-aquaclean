@@ -86,7 +86,7 @@
   },
   "repair": {
     "calibrate": {
-      "title": "Calibrate lid position",
+      "title": "Calibrate seat and lid position",
       "intro": "Adjusts the resting position of the lid and seat. Watch the toilet while you do this — nothing here is reported back by the device.",
       "warning": "Starting this puts the toilet into a service mode: normal operation stops and its own remote is locked out until the routine finishes. Close this screen and the app finishes it for you, keeping the position currently shown.",
       "step1": "Step 1 — start",
@@ -100,6 +100,21 @@
       "started": "Calibration started. Use Raise and Lower, then save.",
       "saved": "Position saved. The toilet is back to normal operation.",
       "failed": "Failed"
+    },
+    "status": {
+      "title": "Status",
+      "reading": "Reading the status from the toilet…",
+      "ok": "No error",
+      "okWhat": "The toilet reports no fault.",
+      "unreachable": "Could not reach the toilet",
+      "unreachableWhat": "This is not the same as \"no error\" — the status below may be out of date.",
+      "unknownCode": "Unknown code — quote it to Geberit service.",
+      "updated": "Updated",
+      "refresh": "Check again",
+      "reset": "Reconnect",
+      "resetting": "Reconnecting…",
+      "calibrate": "Calibrate seat and lid",
+      "note": "The toilet reports only the most recent fault, with no history. Homey records every change under Insights."
     }
   }
 }

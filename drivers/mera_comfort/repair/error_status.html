@@ -1,0 +1,164 @@
+<!--
+  The fault status, in words. The toilet reports one number and Geberit's own
+  interfaces show it as four hex digits; neither says what is wrong. This view
+  answers that without a lookup, and is the first thing the repair screen
+  shows because it is the reason someone opens repair at all.
+
+  A failed read is reported as a failed read. "No error" and "could not ask"
+  are different answers and only one of them means the toilet is fine.
+
+  English text sits in the markup so a failing translation call degrades to
+  readable English rather than a blank screen.
+-->
+<style>
+  .aq { padding: 0 24px; line-height: 1.5; }
+  .aq .status { text-align: center; padding: 26px 16px; border-radius: 10px;
+                border: 1px solid rgba(128,128,128,0.35); margin: 4px 0 18px; }
+  .aq .status.ok { border-color: rgba(26,138,60,0.5); }
+  .aq .status.fault { border-color: rgba(192,57,43,0.55); }
+  .aq .status.unknown { border-color: rgba(128,128,128,0.45); }
+  .aq .code { font-size: 1.9em; font-weight: 600; letter-spacing: 0.04em;
+              font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .aq .status.ok .code { font-size: 1.35em; font-family: inherit; letter-spacing: 0; }
+  .aq .status.fault .code { color: #c0392b; }
+  .aq .what { margin-top: 12px; font-size: 0.95em; }
+  .aq .when { margin-top: 14px; font-size: 0.8em; opacity: 0.6; }
+  .aq .buttons { display: flex; gap: 10px; }
+  .aq button { flex: 1 1 0; min-width: 0; box-sizing: border-box; padding: 12px;
+               font-size: 0.95em; border-radius: 6px; cursor: pointer;
+               border: 1px solid rgba(128,128,128,0.4); background: transparent;
+               color: inherit; }
+  .aq button.primary { background: #0072BA; border-color: #0072BA; color: #fff; }
+  .aq button[disabled] { opacity: 0.4; cursor: default; }
+  .aq .note { margin-top: 16px; font-size: 0.82em; opacity: 0.7; }
+</style>
+
+<div class="aq">
+  <div id="status" class="status unknown">
+    <div class="code" id="code">…</div>
+    <div class="what" id="what" data-i18n="repair.status.reading">Reading the status from the toilet…</div>
+    <div class="when" id="when"></div>
+  </div>
+
+  <div class="buttons">
+    <button id="refresh" data-i18n="repair.status.refresh">Check again</button>
+    <button id="reset" data-i18n="repair.status.reset">Reconnect</button>
+  </div>
+  <div class="buttons" style="margin-top:10px">
+    <button id="calibrate" class="primary" data-i18n="repair.status.calibrate">Calibrate seat and lid</button>
+  </div>
+
+  <p class="note" id="note" data-i18n="repair.status.note">The toilet reports only the most recent fault, with no history. Homey records every change under Insights.</p>
+</div>
+
+<script type="application/javascript">
+  const FALLBACK = {
+    'repair.status.title': 'Status',
+    'repair.status.reading': 'Reading the status from the toilet…',
+    'repair.status.ok': 'No error',
+    'repair.status.okWhat': 'The toilet reports no fault.',
+    'repair.status.unreachable': 'Could not reach the toilet',
+    'repair.status.unreachableWhat': 'This is not the same as "no error" — the status below may be out of date.',
+    'repair.status.unknownCode': 'Unknown code — quote it to Geberit service.',
+    'repair.status.updated': 'Updated',
+    'repair.status.refresh': 'Check again',
+    'repair.status.reset': 'Reconnect',
+    'repair.status.resetting': 'Reconnecting…',
+    'repair.status.calibrate': 'Calibrate seat and lid'
+  };
+
+  // A missing key comes back as the key itself, which would read as
+  // "repair.status.ok" on screen.
+  function t(key) {
+    try {
+      const text = Homey.__(key);
+      if (text && text !== key) return text;
+    } catch (error) { /* fall through */ }
+    return FALLBACK[key] || key;
+  }
+
+  for (const element of document.querySelectorAll('[data-i18n]')) {
+    const key = element.getAttribute('data-i18n');
+    let text = null;
+    try {
+      const value = Homey.__(key);
+      if (value && value !== key) text = value;
+    } catch (error) { /* keep the markup */ }
+    if (text) element.textContent = text;
+  }
+
+  try { Homey.setTitle(t('repair.status.title')); } catch (error) { /* Homey's own header */ }
+
+  const statusEl = document.getElementById('status');
+  const codeEl = document.getElementById('code');
+  const whatEl = document.getElementById('what');
+  const whenEl = document.getElementById('when');
+  const refreshBtn = document.getElementById('refresh');
+  const resetBtn = document.getElementById('reset');
+  const calibrateBtn = document.getElementById('calibrate');
+
+  function render(result) {
+    statusEl.className = 'status ' + (result.stale ? 'unknown' : (result.code ? 'fault' : 'ok'));
+
+    if (result.stale) {
+      codeEl.textContent = t('repair.status.unreachable');
+      whatEl.textContent = t('repair.status.unreachableWhat');
+    } else if (!result.known) {
+      codeEl.textContent = '—';
+      whatEl.textContent = t('repair.status.unreachableWhat');
+    } else if (!result.code) {
+      codeEl.textContent = t('repair.status.ok');
+      whatEl.textContent = t('repair.status.okWhat');
+    } else {
+      // The manual's own notation, so it can be quoted to Geberit as-is.
+      codeEl.textContent = result.hex;
+      whatEl.textContent = result.description || t('repair.status.unknownCode');
+    }
+
+    whenEl.textContent = result.updatedAt
+      ? t('repair.status.updated') + ' ' + result.updatedAt
+      : '';
+  }
+
+  function load(refresh) {
+    refreshBtn.disabled = true;
+    if (refresh) {
+      codeEl.textContent = '…';
+      whatEl.textContent = t('repair.status.reading');
+      whenEl.textContent = '';
+      statusEl.className = 'status unknown';
+    }
+    Homey.emit('getErrorStatus', { refresh: refresh }, (error, result) => {
+      refreshBtn.disabled = false;
+      if (error || !result) {
+        render({ known: false, stale: true, code: null, hex: null, description: null, updatedAt: null });
+        return;
+      }
+      render(result);
+    });
+  }
+
+  refreshBtn.addEventListener('click', () => load(true));
+
+  // Reconnecting takes a few seconds; say so rather than looking frozen.
+  resetBtn.addEventListener('click', () => {
+    resetBtn.disabled = true;
+    refreshBtn.disabled = true;
+    codeEl.textContent = '…';
+    whatEl.textContent = t('repair.status.resetting');
+    whenEl.textContent = '';
+    statusEl.className = 'status unknown';
+    Homey.emit('resetConnection', null, (error, result) => {
+      resetBtn.disabled = false;
+      refreshBtn.disabled = false;
+      if (error || !result) {
+        render({ known: false, stale: true, code: null, hex: null, description: null, updatedAt: null });
+        return;
+      }
+      render(result);
+    });
+  });
+  calibrateBtn.addEventListener('click', () => Homey.showView('calibrate_lid'));
+
+  load(true);
+</script>

@@ -86,7 +86,7 @@
   },
   "repair": {
     "calibrate": {
-      "title": "Kalibrer lokkposisjon",
+      "title": "Kalibrer sete- og lokkposisjon",
       "intro": "Justerer hvileposisjonen til lokk og sete. Se på toalettet mens du gjør dette — ingenting her meldes tilbake fra enheten.",
       "warning": "Å starte dette setter toalettet i servicemodus: normal drift stopper og toalettets egen fjernkontroll er låst til rutinen er avsluttet. Lukker du denne skjermen, avslutter appen den for deg og beholder posisjonen som vises nå.",
       "step1": "Steg 1 — start",
@@ -100,6 +100,21 @@
       "started": "Kalibrering startet. Bruk Hev og Senk, og lagre til slutt.",
       "saved": "Posisjonen er lagret. Toalettet er tilbake i normal drift.",
       "failed": "Mislyktes"
+    },
+    "status": {
+      "title": "Status",
+      "reading": "Leser status fra toalettet …",
+      "ok": "Ingen feil",
+      "okWhat": "Toalettet melder ingen feil.",
+      "unreachable": "Fikk ikke kontakt",
+      "unreachableWhat": "Dette er ikke det samme som «ingen feil» — statusen kan være utdatert.",
+      "unknownCode": "Ukjent kode — oppgi den til Geberit service.",
+      "updated": "Oppdatert",
+      "refresh": "Sjekk på nytt",
+      "reset": "Koble til på nytt",
+      "resetting": "Kobler til på nytt …",
+      "calibrate": "Kalibrer sete og lokk",
+      "note": "Toalettet melder kun siste feil, uten historikk. Homey lagrer hver endring under Innsikt."
     }
   }
 }

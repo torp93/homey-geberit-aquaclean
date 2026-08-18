@@ -551,6 +551,8 @@ class MeraComfortDevice extends Homey.Device {
     // anything the manifest no longer declares is removed, whatever it was.
     await this.removeCapabilitiesMissingFromManifest();
 
+    await this.alignCapabilityOrderToManifest();
+
     // The order below is the device's own, not the manifest's. Homey fixes it
     // when a capability is added and never reshuffles it, so this is the only
     // way to see what the page will actually look like.
@@ -559,6 +561,69 @@ class MeraComfortDevice extends Homey.Device {
       device: this.getCapabilities(),
       manifest: manifest ? manifest.capabilities : null
     });
+  }
+
+  // addCapability always appends, so a capability introduced after pairing
+  // lands at the bottom of the device page however the manifest lists it —
+  // aquaclean_error_text ended up below the dryer instead of beside the error
+  // code. There is no reorder API; the only lever is remove-then-add, which
+  // re-appends. So the tail is rebuilt: everything from the first position
+  // where the device disagrees with the manifest is removed and added back in
+  // manifest order.
+  //
+  // Deliberately minimal. Only the diverging tail moves, so capabilities
+  // earlier in the list keep their Insights history untouched — on the device
+  // this was written for, that spared aquaclean_error_code and the fault
+  // window recorded in it.
+  async alignCapabilityOrderToManifest() {
+    if (typeof this.removeCapability !== 'function') return;
+
+    const manifest = this.driver && this.driver.manifest;
+    const declared = manifest && manifest.capabilities;
+    if (!Array.isArray(declared)) return;
+
+    const current = this.getCapabilities();
+    const wanted = declared.filter(capabilityId => current.includes(capabilityId));
+    // ensureCapabilities has already reconciled membership; if the two still
+    // disagree on content, reordering is not the problem to solve here.
+    if (wanted.length !== current.length) return;
+
+    const firstDifference = wanted.findIndex((capabilityId, index) =>
+      current[index] !== capabilityId);
+    if (firstDifference === -1) return;
+
+    // A rebuild that does not take is worth one attempt, not one per restart:
+    // without this guard a Homey that ignores the re-add order would remove
+    // and re-add the same capabilities on every single init.
+    const signature = wanted.join(',');
+    if (this.getStoreValue('capabilityOrderAttempt') === signature) {
+      this.log('AquaClean capability order still differs from the manifest; not retrying');
+      return;
+    }
+    await this.setStoreValue('capabilityOrderAttempt', signature);
+
+    const tail = wanted.slice(firstDifference);
+    this.log('Rebuilding the AquaClean capability order', {
+      from: firstDifference,
+      capabilities: tail
+    });
+
+    for (const capabilityId of current.slice(firstDifference)) {
+      await this.removeCapability(capabilityId).catch(error => {
+        this.error('Could not remove a capability while reordering', {
+          capabilityId,
+          message: error.message
+        });
+      });
+    }
+    for (const capabilityId of tail) {
+      await this.addCapability(capabilityId).catch(error => {
+        this.error('Could not re-add a capability while reordering', {
+          capabilityId,
+          message: error.message
+        });
+      });
+    }
   }
 
   // Homey fixes a device's capability list when the device is created and never

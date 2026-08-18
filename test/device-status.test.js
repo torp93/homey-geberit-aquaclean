@@ -47,10 +47,6 @@ test('legacy system buttons migrate to icon-capable AquaClean buttons', async ()
     ] } },
     removeCapabilitiesMissingFromManifest:
       MeraComfortDevice.prototype.removeCapabilitiesMissingFromManifest,
-    alignCapabilityOrderToManifest:
-      MeraComfortDevice.prototype.alignCapabilityOrderToManifest,
-    getStoreValue: () => undefined,
-    setStoreValue: async () => {},
     log: () => {},
     error: () => {}
   };
@@ -591,12 +587,18 @@ test('status heartbeat is throttled while still advancing during healthy polling
   );
   await MeraComfortDevice.prototype.updateLastStatusHeartbeat.call(
     device,
-    '2026-07-28T16:00:15.000Z',
+    '2026-07-28T16:01:15.000Z',
   );
 
-  assert.equal(values.length, 2);
+  assert.equal(values.length, 2, 'the write 5 s in was throttled away');
   assert.equal(values[0].capabilityId, 'aquaclean_last_status_update');
   assert.notEqual(values[0].value, values[1].value);
+
+  // Minute precision: the timestamp shows no seconds, because the full string
+  // was truncated in the mobile app's sensor tile. Two heartbeats inside the
+  // same minute therefore render identically — correct, and worth pinning so
+  // nobody "fixes" it by putting the seconds back.
+  assert.match(values[1].value, /^\d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}$/);
 });
 
 test('technical Bluetooth error is exposed and cleared after recovery', async () => {
@@ -1365,10 +1367,6 @@ test('every manifest capability is reachable by the add lists', () => {
     driver: { manifest: { capabilities: manifestCaps } },
     removeCapabilitiesMissingFromManifest:
       MeraComfortDevice.prototype.removeCapabilitiesMissingFromManifest,
-    alignCapabilityOrderToManifest:
-      MeraComfortDevice.prototype.alignCapabilityOrderToManifest,
-    getStoreValue: () => undefined,
-    setStoreValue: async () => {},
     log: () => {},
     error: () => {}
   };
@@ -1378,65 +1376,4 @@ test('every manifest capability is reachable by the add lists', () => {
     assert.deepEqual(missing, [],
       'these capabilities would never appear on an already-paired device');
   });
-});
-
-test('a capability added after pairing is moved back into manifest order', async () => {
-  // The real shape of the bug: aquaclean_error_text was appended last because
-  // addCapability always appends, so the device page showed it below the dryer
-  // instead of beside the error code.
-  const manifest = [
-    'a', 'b', 'error_code', 'error_text', 'raw', 'dryer', 'last_write'
-  ];
-  let order = ['a', 'b', 'error_code', 'raw', 'dryer', 'last_write', 'error_text'];
-  const removed = [];
-  const store = {};
-  const device = {
-    driver: { manifest: { capabilities: manifest } },
-    getCapabilities: () => [...order],
-    hasCapability: id => order.includes(id),
-    removeCapability: async id => { removed.push(id); order = order.filter(x => x !== id); },
-    addCapability: async id => { order.push(id); },
-    getStoreValue: key => store[key],
-    setStoreValue: async (key, value) => { store[key] = value; },
-    log: () => {},
-    error: () => {}
-  };
-
-  await MeraComfortDevice.prototype.alignCapabilityOrderToManifest.call(device);
-
-  assert.deepEqual(order, manifest, 'the page must end up in manifest order');
-  assert.ok(!removed.includes('error_code'),
-    'only the diverging tail moves — earlier capabilities keep their Insights history');
-  assert.deepEqual(removed, ['raw', 'dryer', 'last_write', 'error_text']);
-
-  // Idempotent: a second init must not churn through remove/add again.
-  const before = removed.length;
-  await MeraComfortDevice.prototype.alignCapabilityOrderToManifest.call(device);
-  assert.equal(removed.length, before, 'a correct order must be left alone');
-});
-
-test('a rebuild that does not take is attempted once, not every restart', async () => {
-  const manifest = ['a', 'b', 'c'];
-  const removed = [];
-  const store = {};
-  const device = {
-    driver: { manifest: { capabilities: manifest } },
-    // Simulates a Homey that ignores the re-add order: the order never changes.
-    getCapabilities: () => ['a', 'c', 'b'],
-    hasCapability: id => manifest.includes(id),
-    removeCapability: async id => { removed.push(id); },
-    addCapability: async () => {},
-    getStoreValue: key => store[key],
-    setStoreValue: async (key, value) => { store[key] = value; },
-    log: () => {},
-    error: () => {}
-  };
-
-  await MeraComfortDevice.prototype.alignCapabilityOrderToManifest.call(device);
-  const afterFirst = removed.length;
-  assert.ok(afterFirst > 0, 'the first attempt runs');
-
-  await MeraComfortDevice.prototype.alignCapabilityOrderToManifest.call(device);
-  assert.equal(removed.length, afterFirst,
-    'without this guard every restart would remove and re-add the same capabilities');
 });

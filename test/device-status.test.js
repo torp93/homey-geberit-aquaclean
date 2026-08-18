@@ -1244,6 +1244,40 @@ test('the first reading after pairing fires no error trigger', async () => {
     'unknown -> known is not a transition worth waking a Flow for');
 });
 
+// Retiring a capability takes two steps, and doing both at once bricks the
+// device page. Homey validates the whole capability list on every write, so a
+// capability still on a paired device whose definition has been deleted makes
+// removeCapability itself fail with "Invalid Capability" -- the device is then
+// stuck with a list it cannot edit, and renders as an empty skeleton.
+// Step one: drop it from the driver but KEEP its definition, so the removal
+// can run. Step two, a later version: drop the definition.
+test('retired capabilities keep their definitions until every device is clean', () => {
+  const appJson = JSON.parse(require('node:fs').readFileSync(
+    require('node:path').join(__dirname, '..', 'app.json'), 'utf8',
+  ));
+  const driver = appJson.drivers.find(item => item.id === 'mera_comfort');
+  const retired = [
+    'measure_aquaclean_user_sitting',
+    'measure_aquaclean_anal_shower',
+    'measure_aquaclean_lady_shower',
+    'measure_aquaclean_odour_extraction',
+    'measure_aquaclean_dryer'
+  ];
+
+  for (const capabilityId of retired) {
+    assert.equal(driver.capabilities.includes(capabilityId), false,
+      `${capabilityId} is retired and must not come back to the device page`);
+    assert.ok(appJson.capabilities[capabilityId],
+      `${capabilityId} still needs its definition, or removeCapability throws`);
+  }
+
+  // Every capability the driver does carry must be defined, retired or not.
+  for (const capabilityId of driver.capabilities) {
+    if (capabilityId.startsWith('measure_signal_strength')) continue;
+    assert.ok(appJson.capabilities[capabilityId], `${capabilityId} has no definition`);
+  }
+});
+
 test('the error capability records Insights history', () => {
   const appJson = JSON.parse(require('node:fs').readFileSync(
     require('node:path').join(__dirname, '..', 'app.json'), 'utf8',

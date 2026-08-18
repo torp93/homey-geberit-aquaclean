@@ -142,5 +142,9 @@
   "1.10.1": {
     "en": "The on/off timelines were still suppressed by a leftover setting, so they never appeared. Fixed, and the old numeric 0/1 graphs are removed along with their history — zoomed out they averaged into fractions and they shared their names with the new timelines.",
     "no": "Av/på-tidslinjene ble fortsatt undertrykt av en gammel innstilling og dukket derfor aldri opp. Rettet, og de gamle 0/1-tallgrafene fjernes sammen med historikken sin — utzoomet ble de til gjennomsnittsbrøker, og de delte navn med de nye tidslinjene."
+  },
+  "1.10.2": {
+    "en": "Fixes a broken device page: 1.10.1 deleted the retired capability definitions in the same version that dropped them from the driver, which left paired devices unable to edit their own capability list.",
+    "no": "Retter en ødelagt enhetsside: 1.10.1 slettet definisjonene til de utgåtte kapabilitetene i samme versjon som de ble tatt ut av driveren, og da klarte ikke parede enheter å redigere sin egen kapabilitetsliste."
   }
 }

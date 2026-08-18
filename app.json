@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.10.1",
+  "version": "1.10.2",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -433,6 +433,87 @@
       "min": 0,
       "uiComponent": null,
       "icon": "/assets/capability-icons/user-seat.svg"
+    },
+    "measure_aquaclean_user_sitting": {
+      "type": "number",
+      "title": {
+        "en": "User sitting",
+        "no": "Bruker sitter"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "max": 1,
+      "uiComponent": null,
+      "icon": "/assets/capability-icons/user-seat.svg"
+    },
+    "measure_aquaclean_anal_shower": {
+      "type": "number",
+      "title": {
+        "en": "Anal shower",
+        "no": "Analdusj"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "max": 1,
+      "uiComponent": null,
+      "icon": "/assets/capability-icons/anal-shower.svg"
+    },
+    "measure_aquaclean_lady_shower": {
+      "type": "number",
+      "title": {
+        "en": "Lady shower",
+        "no": "Ladydusj"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "max": 1,
+      "uiComponent": null,
+      "icon": "/assets/capability-icons/lady-shower.svg"
+    },
+    "measure_aquaclean_odour_extraction": {
+      "type": "number",
+      "title": {
+        "en": "Odour extraction",
+        "no": "Luktavsug"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "max": 1,
+      "uiComponent": null,
+      "icon": "/assets/capability-icons/odour.svg"
+    },
+    "measure_aquaclean_dryer": {
+      "type": "number",
+      "title": {
+        "en": "Dryer",
+        "no": "Tørker"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": null,
+      "icon": "/assets/capability-icons/dryer.svg",
+      "min": 0,
+      "max": 1,
+      "step": 1,
+      "decimals": 0,
+      "insights": true,
+      "chartType": "stepLine"
     }
   },
   "images": {

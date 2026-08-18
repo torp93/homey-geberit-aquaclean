@@ -1333,10 +1333,6 @@
         "local"
       ],
       "capabilities": [
-        "measure_signal_strength",
-        "aquaclean_connection_state",
-        "aquaclean_last_status_update",
-        "aquaclean_connection_error",
         "aquaclean_button_anal_shower",
         "aquaclean_button_lady_shower",
         "aquaclean_button_dryer",
@@ -1349,19 +1345,23 @@
         "aquaclean_anal_shower_running",
         "aquaclean_lady_shower_running",
         "aquaclean_odour_extraction_running",
+        "aquaclean_descaling_state",
+        "aquaclean_dryer_running",
+        "aquaclean_days_until_descaling",
+        "aquaclean_days_until_filter",
+        "measure_signal_strength",
+        "aquaclean_connection_state",
+        "aquaclean_last_status_update",
+        "aquaclean_connection_error",
+        "aquaclean_raw_status",
+        "aquaclean_last_setting_write",
+        "aquaclean_error_code",
+        "aquaclean_error_text",
         "measure_aquaclean_user_sitting",
         "measure_aquaclean_anal_shower",
         "measure_aquaclean_lady_shower",
         "measure_aquaclean_odour_extraction",
-        "aquaclean_descaling_state",
-        "aquaclean_error_code",
-        "aquaclean_error_text",
-        "aquaclean_raw_status",
-        "aquaclean_days_until_descaling",
-        "aquaclean_days_until_filter",
-        "aquaclean_dryer_running",
-        "measure_aquaclean_dryer",
-        "aquaclean_last_setting_write"
+        "measure_aquaclean_dryer"
       ],
       "capabilitiesOptions": {
         "aquaclean_connection_state": {

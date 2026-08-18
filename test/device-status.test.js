@@ -47,6 +47,10 @@ test('legacy system buttons migrate to icon-capable AquaClean buttons', async ()
     ] } },
     removeCapabilitiesMissingFromManifest:
       MeraComfortDevice.prototype.removeCapabilitiesMissingFromManifest,
+    alignCapabilityOrderToManifest:
+      MeraComfortDevice.prototype.alignCapabilityOrderToManifest,
+    getStoreValue: () => undefined,
+    setStoreValue: async () => {},
     log: () => {},
     error: () => {}
   };
@@ -1367,6 +1371,10 @@ test('every manifest capability is reachable by the add lists', () => {
     driver: { manifest: { capabilities: manifestCaps } },
     removeCapabilitiesMissingFromManifest:
       MeraComfortDevice.prototype.removeCapabilitiesMissingFromManifest,
+    alignCapabilityOrderToManifest:
+      MeraComfortDevice.prototype.alignCapabilityOrderToManifest,
+    getStoreValue: () => undefined,
+    setStoreValue: async () => {},
     log: () => {},
     error: () => {}
   };
@@ -1376,4 +1384,60 @@ test('every manifest capability is reachable by the add lists', () => {
     assert.deepEqual(missing, [],
       'these capabilities would never appear on an already-paired device');
   });
+});
+
+test('a capability added after pairing is moved back into manifest order', async () => {
+  // Rebuilding only the diverging tail was tried on real hardware and did
+  // nothing — the array changed, the device page did not. The LINAK app hit
+  // the same wall, and the fix there was a full rebuild: remove every
+  // capability, add them all back in order. This pins that behaviour.
+  const manifest = ['a', 'b', 'error_code', 'error_text', 'raw'];
+  let order = ['a', 'b', 'error_code', 'raw', 'error_text'];
+  const removed = [];
+  const store = {};
+  const device = {
+    driver: { manifest: { capabilities: manifest } },
+    getCapabilities: () => [...order],
+    removeCapability: async id => { removed.push(id); order = order.filter(x => x !== id); },
+    addCapability: async id => { order.push(id); },
+    getStoreValue: key => store[key],
+    setStoreValue: async (key, value) => { store[key] = value; },
+    log: () => {},
+    error: () => {}
+  };
+
+  await MeraComfortDevice.prototype.alignCapabilityOrderToManifest.call(device);
+
+  assert.deepEqual(order, manifest, 'the list must end up in manifest order');
+  assert.equal(removed.length, manifest.length,
+    'a partial rebuild does not move the page — everything is rebuilt');
+
+  const before = removed.length;
+  await MeraComfortDevice.prototype.alignCapabilityOrderToManifest.call(device);
+  assert.equal(removed.length, before, 'a correct order must be left alone');
+});
+
+test('a rebuild that does not take is attempted once, not every restart', async () => {
+  const manifest = ['a', 'b', 'c'];
+  const removed = [];
+  const store = {};
+  const device = {
+    driver: { manifest: { capabilities: manifest } },
+    // Simulates a Homey that ignores the re-add order.
+    getCapabilities: () => ['a', 'c', 'b'],
+    removeCapability: async id => { removed.push(id); },
+    addCapability: async () => {},
+    getStoreValue: key => store[key],
+    setStoreValue: async (key, value) => { store[key] = value; },
+    log: () => {},
+    error: () => {}
+  };
+
+  await MeraComfortDevice.prototype.alignCapabilityOrderToManifest.call(device);
+  const afterFirst = removed.length;
+  assert.ok(afterFirst > 0, 'the first attempt runs');
+
+  await MeraComfortDevice.prototype.alignCapabilityOrderToManifest.call(device);
+  assert.equal(removed.length, afterFirst,
+    'without this guard every restart would rebuild the whole list');
 });

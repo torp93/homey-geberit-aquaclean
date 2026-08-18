@@ -1,222 +1,344 @@
 # Geberit AquaClean Error Diagnostics
 
-What error information an AquaClean Mera Comfort actually exposes over
-Bluetooth, what this app records of it, and what the various register lists
-floating around in reference material really are. Compiled 2026-08-17 against
-a Mera Comfort (RS30.0 TS206, `Geberit AC PRO`) through an ESPHome
-bluetooth_proxy.
+What error information an AquaClean Mera Comfort exposes over Bluetooth, what
+this app records of it, and the complete fault-code table from Geberit's own
+service manual.
 
-Every claim below is marked **CONFIRMED** (verified on this device or in two
-independent sources), **PROBABLE** (single credible source, not verified
-here), or **UNVERIFIED**.
+**Primary source:** Geberit AquaClean Mera, *Manuel d'entretien*
+`967.008.00.0(04)`, 05-2023 — sections "Dépannage en fonction du code erreur".
+The manual exists in French; no English edition of the service manual was
+found (the English *user* manuals contain no code table). Descriptions below
+are translated from the French, with the original terms kept where they are
+the clearest identifier.
+
+Claims are marked **CONFIRMED** (verified on this device or in two independent
+sources), **PROBABLE** (single credible source), or **UNVERIFIED**.
 
 ---
 
-## LAST_ERROR
+## LAST_ERROR — how the code reaches Homey
 
-**CONFIRMED.** The one error datum this device exposes over BLE is *system
-parameter 6* of `GetSystemParameterList` (procedure `0x0D`, context `0x01`)
-— named `lastErrorCode` in the original C# protocol work and
-`AC_STATUS_LAST_ERROR` in the jens62 register enumeration. The app reads it
-on every full status refresh and shows it as the **Error code** capability
-(`aquaclean_error_code`).
+**CONFIRMED.** The one error datum the device exposes over BLE is *system
+parameter 6* of `GetSystemParameterList` (procedure `0x0D`, context `0x01`),
+named `lastErrorCode` in the original C# protocol work and
+`AC_STATUS_LAST_ERROR` in the jens62 register enumeration.
 
-It is a single scalar: the most recent error, with `0` meaning no error.
-Nothing in the protocol indicates when it was set or what preceded it.
+It is a single scalar — the most recent error, `0` meaning none. The protocol
+carries no timestamp and no history.
 
-## Confirmed LAST_ERROR codes
+**Wire format, verified live 2026-08-18:** the toilet reports the code as a
+plain integer while Geberit's own interfaces show it as four hex digits.
+Parameter 6 read **1035** at the same moment the Geberit app displayed
+**040B**, for one fault: `0x040B = 1035`. The app therefore displays the hex
+form, so a code can be compared against the remote control's display, the
+Geberit app and this manual without converting anything by hand.
 
-**The complete table exists — in the official Geberit service manual for the
-AquaClean Mera, document 967.008.00.0(04) (05-2023), sections "Tableaux des
-codes erreur".** The manual displays every code as four hex digits and groups
-them by functional module:
+The remote control shows the code under **Care and maintenance → Error
+message**; the user manual notes "An error code is displayed only in the event
+of an error."
 
-| Range | Module | Range | Module |
+---
+
+## How to read the tables
+
+Every module repeats the same four generic faults. They are listed once here
+rather than 14 times below:
+
+| Code | Fault | Cause | Measure |
 |---|---|---|---|
-| 01xx | Main control | 09xx | Lateral control panel |
-| 03xx | Odour extraction | 0Axx | User detection |
-| 04xx | Shower unit | 0Bxx | Proximity sensor¹ |
-| 05xx | Lid lever¹ | 0Cxx | Orientation light¹ |
-| 06xx | Dryer module | 0Dxx | Interface module |
-| 07xx | Hot water production | 0Exx | Dryer assembly (2020) |
-| 08xx | Seat heating¹ | 0Fxx | Instantaneous water heater |
+| `x00` | Factory data — write failed | Faulty read/write operation | Restart the device. If it recurs, replace the functional unit/module. |
+| `x01` | Operating data — write failed | Faulty read/write operation | Restart the device. If it recurs, replace the functional unit/module. |
+| `x08` | 24 V DC — no voltage | Faulty plug connection · Cable break | Check the wiring. |
+| `x09` | 24 V DC — overcurrent | Functional unit/module defective | Replace the functional module. |
+| `x0A` | 24 V DC — leakage current | Functional unit/module defective | Replace the functional module. |
 
-¹ Marked "Modèle: Geberit AquaClean Mera Comfort" in the manual.
+Where a module deviates from this pattern it is spelled out in its own table.
 
-**Wire format confirmed live (2026-08-18):** the toilet reports the code as a
-plain number — parameter 6 read **1035** while the Geberit app showed
-**040B** for the same fault (0x040B = 1035: shower unit, spray arm drive lost
-its reference). The 19-hour fault window is preserved in Homey Insights.
+**Module overview** (manual Tableau 7 — *"Ne pas remplacer un module
+fonctionnel sans une recherche de pannes exhaustive"*: do not replace a module
+without exhaustive fault-finding):
 
-The full catalog — every code with English and Norwegian descriptions — is
-implemented in `lib/aquaclean-error-codes.js` and shown by the app as e.g.
-`040B — Shower unit: spray arm drive lost its reference`. Unknown codes stay
-visible as their hex value; nothing maps unknown values to "no error".
+| Range | Module | Scope |
+|---|---|---|
+| 01xx | Main control | Bus communication, remote/app pairing, fault memory, firmware update |
+| 03xx | Odour extraction | Fan control |
+| 04xx | Shower unit | Spray arm drive, multi-way valve, position monitoring |
+| 05xx | Lid lever ¹ | Lid drive and lid position monitoring |
+| 06xx | Dryer module | Fan, dryer heating, temperature regulation |
+| 07xx | Hot water production | Level control, solenoid valve, pumps, heating, temperature |
+| 08xx | Seat heating ¹ | Seat heating temperature regulation |
+| 09xx | Lateral control panel | Status LED, key input, interface module link |
+| 0Axx | User detection | Weight sensor in the WC seat |
+| 0Bxx | Proximity sensor ¹ | Radar proximity detection |
+| 0Cxx | Orientation light ¹ | — |
+| 0Dxx | Interface module | Link to the WC control |
+| 0Exx | Dryer assembly (2020) | Dryer arm drive |
+| 0Fxx | Instantaneous water heater | Inlet/outlet temperature |
 
-Notes on other sources:
-- The jens62 bridge passes the raw value through unmapped, and its
-  `ErrorCodes.py` are the *bridge's own* E-codes — unrelated to the toilet.
-- One manual anomaly: the 0Axx table prints two rows numbered 0A01; the
-  second ("sensor: permanent detection") follows the x08 pattern every other
-  module uses and is mapped to 0A08 in the catalog, with a comment.
+¹ Marked *"Modèle: Geberit AquaClean Mera Comfort"* — present on this model.
 
-## Error-status datapoints (DP IDs) — and why this app cannot read them
+02xx exists in the overview with no module assigned and no codes.
 
-**CONFIRMED not applicable to Mera Comfort.** The `DP_*` constants in
-`dp_ids.py` (jens62) describe the **BLE 2.0 / "Alba" protocol**: an
-inventory-based API where each register is individually readable by DP ID.
-The project's own `mera-comfort-alba-mapping.md` states the two device
-families expose the same logical features "via entirely different
-mechanisms" — Mera Comfort speaks structured RPC procedures (what this app
-implements); Alba-family devices speak DP reads/writes.
+---
 
-There is no procedure in the Mera Comfort protocol that takes a DP ID. The
-DP list is therefore a *firmware register catalogue*, useful for
-understanding what the machine tracks internally, but unreachable from here.
+## 01xx — Main control
 
-These are **datapoint IDs, not error codes**. `DP_SERVO_ERROR_STATUS = 166`
-means "register number 166 holds servo error status" — it says nothing about
-what values that register holds, and nothing connects the number 166 to the
-LAST_ERROR namespace.
+31 codes. Beyond the generic set:
 
-### Global error datapoints (UNVERIFIED on this model, from `dp_ids.py`)
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `0108` | Sequence control — no feedback | Shower unit / dryer assembly / hot water production defective | Follow the codes of the module concerned. |
+| `0109` | Power supply — current interrupted | Faulty plug connection | Restart (reset). Check the wiring. |
+| `010A` | Power supply — leakage current | Faulty plug connection · Cable break | Check the wiring. |
+| `010B` | 24 V DC — no voltage | Faulty plug connection · Cable break | Check the wiring. |
+| `010C` | 24 V DC — leakage current | Power supply unit defective | Replace the component. |
+| `010D` | 230 V AC — no voltage | Control defective | Replace the functional module. |
+| `010E` | 230 V AC — leakage current | Control defective | Replace the functional module. |
+| `010F` | 230 V AC — continuous overcurrent | Control defective | Replace the functional module. |
+| `0110` | 230 V AC — brief overcurrent | Control defective | Switch off. Disconnect the 230 V bus cable from the control and switch on. If it recurs, replace the unit/module. |
+| `0111` | 230 V AC — current interrupted | Control defective | As `0110`. |
+| `0128`–`0133` | *Controller not found* — odour extraction, shower unit, lid lever, dryer module, hot water, seat heating, lateral panel, user detection, proximity sensor, orientation light, dryer assembly, instantaneous heater | Faulty plug connection · Cable break · Control defective | Check the wiring. Replace the component. |
+| `0134`–`0139` | *No feedback* — shower unit, lid lever, hot water, user detection, proximity sensor, dryer assembly | Faulty plug connection · Cable break · Control defective | Check the wiring. Replace the component. |
+| `013A` | Descaling process failed | Error during the descaling process | Restart the device. Wait for the rinse. Run descaling again without descaling agent. |
 
-| DP | Name |
-|---|---|
-| 87 | `DP_FATAL_ERROR_COUNT` |
-| 358 | `DP_GLOBAL_FATAL_ERROR` |
-| 359 | `DP_GLOBAL_ERROR` |
-| 360 | `DP_GLOBAL_WARNING` |
-| 759 | `DP_ERROR_MONITORING_DISABLE_STATUS` |
+`0136` (hot water, no feedback) additionally lists **no water supply** → check
+the water supply, and **fill level sensor scaled/dirty** → clean or replace.
 
-### Subsystem error datapoints (UNVERIFIED on this model, from `dp_ids.py`)
+## 03xx — Odour extraction
 
-| DP | Subsystem | | DP | Subsystem |
-|---|---|---|---|---|
-| 88 | Odour extraction | | 604 | Temp flush |
-| 93 | Power supply | | 713–716 | Interval/time/remote flush, user interface |
-| 166 | Servo | | 764 | Water heater |
-| 224 | Valve | | 765 | Level control |
-| 226 | Sensor | | 766 | User detection |
-| 354 | IDC | | 789 | Water pump |
-| 377 | Control unit | | 790 | Spray-arm drive |
-| 378 | Lighting | | 819 | Seat heater |
-| 478 | Temperature sensor | | 982 | Descaling |
-| 480 | Flow sensor | | 1063 | Manifold valve |
-| 512 | Level sensor | | 1064 | Dryer fan |
-| 532/537/541/546 | GBus/Ethernet/WiFi/Join | | 1065 | Dryer heater |
-| 594/598/602 | System app/Move device/IoT | | | |
+6 codes: `0300`, `0301`, `0308`, `0309`, `030A` generic, plus:
 
-Encodings, value ranges and model applicability are unknown for all of the
-above. None of them is readable on a Mera Comfort.
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `030B` | Fan — current interrupted | Faulty plug connection · Functional unit/module defective | Check the wiring. Replace the functional module. |
 
-## Fatal error counter
+## 04xx — Shower unit
 
-`DP_FATAL_ERROR_COUNT` (DP 87) exists in the register catalogue.
-**UNVERIFIED**: datatype, persistence across power loss, reset behaviour and
-whether it pairs with any per-error storage are all unknown — and it is not
-readable on a Mera Comfort for the transport reason above. It was not read.
+9 codes. `0400`, `0401`, `0408`, `0409`, `040A` generic, plus the four that
+describe real mechanics:
 
-## Lid-lifter diagnostics
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `040B` | **Spray arm drive — wrong reference** | Functional unit/module defective · Faulty plug connection · **Magnet missing/corroded** | Replace the functional module. Check the wiring. **Replace the spray arm.** |
+| `040C` | Multi-way valve — wrong reference | Mechanical blockage | Check freedom of movement. |
+| `040D` | Spray arm drive — step loss | Faulty plug connection · Spray arm blocked/obstructed/dirty | Check the wiring. Clean the spindle drive. Check freedom of movement inside the WC bowl. Replace the functional module. |
+| `040E` | Multi-way valve — step loss | Multi-way valve blocked or defective | Replace the multi-way valve. |
 
-The register catalogue contains a full lid-lifter telemetry block —
-position (DP 1008), setpoint (32594), angle (32570), motor current (32569),
-motor voltage (32572), angle limits (1058–1060), plus `DP_SERVO_ERROR_STATUS`
-(166) and `DP_MOVE_DEVICE_ERROR` (598). Exactly the measurements one would
-want for a failing lid sensor.
+## 05xx — Lid lever (Mera Comfort)
 
-**All of it is Alba/firmware-internal. None of it is reachable over the Mera
-Comfort BLE protocol** (see the live readout below). The only lid-related
-data this protocol carries are *settings*
-(sensor range, auto open/close — common settings 4/6/7) and the calibration
-command family (33–36), none of which report sensor health.
+10 codes. `0500`, `0501`, `0508`, `0509`, `050A` generic, plus:
 
-Consequence for the physical fault: over BLE, a lid sensor failure can only
-ever surface as a nonzero LAST_ERROR. That is why the Insights history on
-that single value matters.
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `050B` | **Angle sensor — short circuit to supply voltage** | Faulty plug connection · Functional unit/module defective | Check the wiring. Replace the functional module. |
+| `050C` | **Angle sensor — short circuit to ground** | Faulty plug connection · Functional unit/module defective | Check the wiring. Replace the functional module. |
+| `050D` | Motor — overload | Constant opening and closing | Protection circuit. Operation resumes after 15 minutes. |
+| `050E` | WC lid — blocked | Lid opening force too high · Functional unit/module defective | Check mechanical resistance. Replace the functional module. |
+| `050F` | WC lid — wrong reference | Mechanical blockage · Motor defective | Check mechanical resistance. Replace the functional module. |
+
+## 06xx — Dryer module
+
+17 codes. Generic set plus:
+
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `060B` | Fan — current interrupted | Faulty plug connection · Mechanical blockage | Check the wiring. Check freedom of movement. |
+| `060C` | Fan — current out of tolerance | Mechanical blockage · Unit/module defective | Check freedom of movement. Replace the ventilation unit/module. |
+| `060D` | Fan — speed out of tolerance | Mechanical blockage · Unit/module defective | Check freedom of movement. Replace the ventilation unit/module. |
+| `0610` | Mains voltage missing | Faulty plug connection · Cable break | Check the wiring. |
+| `0611` | 230 V AC — continuous overcurrent | Unit/module defective | Replace the ventilation unit/module. |
+| `0612` | 230 V AC — brief overcurrent | Unit/module defective | Replace the ventilation unit/module. |
+| `0613` | 230 V AC — leakage current | Heating element defective | Replace the heating element/module. |
+| `0614` | Heating — current interrupted | Heating element defective · Faulty plug connection · Cable break | Check the wiring. Replace the heating element/module. |
+| `0615` | Heating — overheated | Heating element defective | Replace the heating element/module. |
+| `0616` | Temperature sensor — open circuit | Unit/module defective | Replace the heating element/module. |
+| `0617` | Temperature sensor — short circuit | Unit/module defective | Replace the heating element/module. |
+| `0618` | Temperature sensor — error | Unit/module defective | Replace the heating element / ventilation unit / module. |
+
+## 07xx — Hot water production
+
+30 codes — the largest table. Generic set plus:
+
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `0709` | Solenoid valve — current interrupted | Cable break · Control defective | Check the wiring. Replace the hot water control. |
+| `070A` | Solenoid valve — overcurrent | Faulty plug connection · Cable break · Solenoid valve defective | Check the wiring. Replace the component. |
+| `070B` | Solenoid valve — leakage current | Solenoid valve defective · Control defective | Replace the component / the hot water control. |
+| `070C` | Boiler temperature sensor — open circuit | Faulty plug connection · Sensor defective | Check the wiring. Replace the component. |
+| `070D` | Boiler temperature sensor — short circuit | Sensor defective · Control defective | Replace the component / the hot water control. |
+| `070E` | Outlet temperature sensor — open circuit | Faulty plug connection · Sensor defective | Check the wiring. Replace the component. |
+| `070F` | Outlet temperature sensor — short circuit | Sensor defective · Control defective | Replace the component / the hot water control. |
+| `0710` | Boiler temperature sensor — overheating | Sensor defective · Control defective | Replace the component / the hot water control. |
+| `0711` | Outlet temperature sensor — overheating | Sensor defective · Control defective | Replace the component / the hot water control. |
+| `0712` | Temperature regulation — error | Sensor defective · Control defective | Replace the component / the hot water control. |
+| `0713` | 230 V AC — no voltage | Faulty plug connection · Cable break | Check the wiring. |
+| `0714` | Heating element — current interrupted | Unit/module defective · **Thermal cutout has tripped** | Replace the module. **Reset.** |
+| `0715` | Heating element — continuous overcurrent | Faulty plug connection · Cable break · Heating element defective | Check the wiring. Replace the module. |
+| `0716` | Heating element — brief overcurrent | Heating element defective | Replace the module. |
+| `0717` | Heating element — leakage current | Heating element defective | Replace the module. |
+| `0718` | Instantaneous heater pump — current interrupted | Control defective · Faulty plug connection · Cable break · Water pump defective | Check the wiring. Replace the component / the hot water control. |
+| `0719` | Instantaneous heater pump — overcurrent | Water pump defective · Control defective | Replace the component / the hot water control. |
+| `071A` | Instantaneous heater pump — leakage current | Water pump defective · Control defective | Replace the component / the hot water control. |
+| `071B` | Boiler pump — current interrupted | Faulty plug connection · Cable break · Water pump defective | Check the wiring. Replace the component. |
+| `071C` | Boiler pump — overcurrent | Water pump defective · Control defective | Replace the component / the hot water control. |
+| `071D` | Boiler pump — leakage current | Control defective | Replace the hot water control. |
+| `071E` | Cold water fill level sensor — error | Faulty plug connection · Cable break · **Sensor scaled/dirty** · Control defective | Check the wiring. **Clean or replace.** Replace the hot water control. |
+| `071F` | Hot water fill level sensor — error | As `071E` | As `071E`. |
+| `0728` | Cold water level rises too slowly | **No water supply** · Faulty plug connection · Cable break · Sensor scaled/dirty | **Check the water supply.** Check the wiring. Clean or replace. |
+| `0729` | Hot water level rises too slowly | As `0728` | As `0728`. |
+| `072A` | Cold water level falls too slowly | Faulty plug connection · Sensor scaled/dirty · Control defective | Check the wiring. Clean or replace. Replace the hot water control. |
+| `072B` | Hot water level falls too slowly | As `072A` | As `072A`. |
+
+## 08xx — Seat heating (Mera Comfort)
+
+11 codes: `0800`, `0801` generic, then `0810`–`0818`:
+
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `0810` | 230 V AC — no voltage | Faulty plug connection · Cable break | Check the wiring. |
+| `0811` | 230 V AC — continuous overcurrent | Unit/module defective | Replace the seat heating control. |
+| `0812` | 230 V AC — brief overcurrent | Seat heating defective | Replace the module / the seat heating control. |
+| `0813` | 230 V AC — leakage current | Seat heating defective | Replace the module / the seat heating control. |
+| `0814` | Heating foil — current interrupted | Control defective | Replace the seat heating control. |
+| `0815` | Heating foil — overheated | Faulty plug connection · Cable break | Check the wiring. |
+| `0816` | Temperature sensor — open circuit | Seat heating defective | Replace the functional module. |
+| `0817` | Temperature sensor — short circuit | Temperature sensor defective | Replace the functional module. |
+| `0818` | Temperature regulation — error | Temperature sensor defective | Replace the module / the seat heating control. |
+
+## 09xx — Lateral control panel
+
+3 codes: `0900`, `0901` generic, plus:
+
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `0908` | Key — permanent detection | Key pressed for more than 60 seconds · Mechanical blockage · Unit/module defective | **Inform the customer.** Check the left design cover. Replace the functional module. |
+
+## 0Axx — User detection
+
+5 codes.
+
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `0A00` | Factory data — write failed | Faulty read/write operation | Restart. If it recurs, replace the unit/module. |
+| `0A01` | Operating data — write failed | Faulty read/write operation | Restart. If it recurs, replace the unit/module. |
+| `0A08` ² | Sensor — permanent detection | **User seated for more than 1 hour** · **Heavy object on the seat or lid** · Mechanical obstruction · Unit/module defective | **Inform the customer.** Check freedom of movement. Replace the functional module. |
+| `0A09` | Sensor — open circuit | Unit/module defective | Replace the functional module. |
+| `0A0A` | Sensor — negative weight detected | **Heavy object on the seat or lid** | Inform the customer. |
+
+² The manual prints this row's code as a second `0A01`. Every other module
+numbers its first non-data fault `x08`, so the catalog maps it to `0A08` and
+says so in a comment. **UNVERIFIED** — if the device ever reports either
+number, both resolve to a sensible description.
+
+## 0Bxx — Proximity sensor (Mera Comfort)
+
+3 codes: `0B00`, `0B01` generic, plus:
+
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `0B09` | Measured-value preparation — error | Unit/module defective | Replace the functional module. |
+
+## 0Cxx — Orientation light (Mera Comfort)
+
+3 codes: `0C00`, `0C01` generic, plus:
+
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `0C09` | Brightness sensor — error | Unit/module defective | Replace the functional module. |
+
+## 0Dxx — Interface module
+
+7 codes: `0D00`, `0D01`, `0D08` generic, plus:
+
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `0D09` | WC control supply — wrong voltage | Connected WC control incompatible or defective · Unit/module defective | Check the WC control. Replace the functional module. |
+| `0D0A` | WC control supply — overcurrent | Faulty plug connection · **Short circuit** · WC control incompatible or defective | Check the wiring. Check the WC control. |
+| `0D0B` | Balance regulator — error | Unit/module defective | Replace the functional module. |
+| `0D0C` | Communication with the WC control — error | Faulty plug connection · Cable break · WC control incompatible or defective | Check the wiring. Check the WC control. Replace the functional module. |
+
+## 0Exx — Dryer assembly (2020)
+
+7 codes: `0E00`, `0E01`, `0E08`, `0E09`, `0E0A` generic, plus:
+
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `0E0B` | **Dryer arm drive — wrong reference** | Faulty plug connection · **Magnet missing/corroded** · Mechanical obstruction | Check the wiring. **Replace the dryer nozzle.** Check freedom of movement. Replace the functional module. |
+| `0E0D` | Dryer arm drive — step loss | Dryer arm blocked/stiff/dirty | Clean the spindle drive. Check freedom of movement inside the WC bowl. Replace the functional module. |
+
+Note the symmetry with `040B`/`040D`: both arms use a magnet as position
+reference, and both fail the same way when it corrodes.
+
+## 0Fxx — Instantaneous water heater
+
+7 codes, no `x00`/`x01` pair:
+
+| Code | Fault | Cause | Measure |
+|---|---|---|---|
+| `0F08` | 230 V AC — no voltage | **Thermal cutout** · Cable break | **Reset.** Check the wiring. |
+| `0F09` | Inlet temperature sensor — open circuit | Faulty plug connection · Unit/module defective | Check the wiring. Replace the functional module. |
+| `0F0A` | Inlet temperature sensor — short circuit | Cable break · Faulty plug connection | Check the wiring. |
+| `0F0B` | Outlet temperature sensor — open circuit | Unit/module defective | Replace the functional module. |
+| `0F0C` | Outlet temperature sensor — short circuit | Temperature sensor defective | Replace the functional module. |
+| `0F0D` | Outlet temperature sensor — overheating | Temperature sensor defective | Replace the functional module. |
+| `0F0E` | Temperature regulation — error | Temperature sensor defective | Replace the functional module. |
+
+---
+
+## Faults without an error code
+
+The manual carries eight further sections — *"Défauts sans code erreur"* — for
+symptoms the firmware does not encode: odour extraction, shower unit, lid
+lever, hot water production, seat heating, lateral control panel, orientation
+light and dryer assembly. These are diagnosed by symptom, not by code, and are
+therefore invisible to this app: a lid that moves sluggishly without tripping
+`050D`/`050E`/`050F` leaves `LAST_ERROR` at 0. Consult the manual directly.
 
 ## Historical error storage
 
-**CONFIRMED absent, to the limit of available evidence.** A dedicated search
-of the complete jens62 corpus (all protocol docs, both mock servers built
-from real-device captures, the console app, the HA integration) found no
+**CONFIRMED absent over BLE.** A dedicated search of the complete jens62
+corpus — protocol documents, both mock servers built from real-device
+captures, the console app and the Home Assistant integration — found no
 procedure, register or behaviour resembling an error history, fault memory,
-event log or per-error timestamps for the Mera protocol. The Mera Comfort
-exposes the current/last error scalar — nothing historical.
+event log or per-error timestamps in the Mera protocol.
 
-The toilet may well store more internally for Geberit's service tooling, but
-it is not reachable over this BLE interface.
+The main control's scope in Tableau 7 does list *"Mémoire des défauts"* (fault
+memory), so the device keeps one internally — but it is reachable through
+Geberit's ServiceApp, not through this BLE interface.
 
-Consequence: **the only error history that exists for this device is the one
-Homey records itself**, which starts when app version 1.7.1 first observes a
-value — see `README` section on Insights. Homey cannot backfill faults it
-never saw.
+Consequence: **the only error history available is the one Homey records
+itself**, from the moment app version 1.7.1 first observed a value. Homey
+cannot backfill faults it never saw.
 
-## System parameter mapping — proven vs. positional guessing
+## What the app records
 
-Confirmed on this device (RS30) unless noted:
+- `aquaclean_error_code` — the raw number from parameter 6, with **Insights
+  history** (step chart). Every change is a timestamped entry.
+- `aquaclean_error_text` — the manual's notation plus the description, in
+  English or Norwegian: `040B — Shower unit: spray arm drive lost its
+  reference (missing/corroded magnet, wiring or defective module)`.
+- Only a read that actually carried parameter 6 may change either value. A
+  missing parameter, malformed frame, timeout or unreachable toilet keeps the
+  last known value, so a failed read can never fabricate an "error cleared".
+- An unchanged value is not rewritten: a standing fault is one step in the
+  chart, and `42 → 0 → 42` is three entries and two occurrences.
+- Flow triggers `aquaclean_error_occurred` and `aquaclean_error_cleared` carry
+  the code, the hex form and the description as tokens. "Cleared" describes
+  the fault that went away, not the zero that replaced it.
+- Unknown codes stay visible as their hex value with a quote-this-to-service
+  hint. Nothing maps an unknown value to "no error".
 
-| Index | Meaning | Status |
-|---|---|---|
-| 0 | User present | **CONFIRMED** (live, both projects agree) |
-| 1 | Anal shower running¹ | **CONFIRMED here**; jens62 hardware disagrees¹ |
-| 2 | Lady shower running | **CONFIRMED** (both) |
-| 3 | Dryer running¹ | **CONFIRMED here, live-flipped via command**; jens62 hardware disagrees¹ |
-| 4 | Descaling state | **CONFIRMED** (both) |
-| 5 | Descaling minutes | **CONFIRMED** (both) |
-| 6 | **LAST_ERROR** | **CONFIRMED** (C# labels + jens62 BLE log + this app) |
-| 7 | Service state | **CONFIRMED** (named in two sources; sat 0 through a live service-menu calibration here, so it does *not* flag that routine) |
-| 8–10 | — | **Rejected (status 0x80) on this device.** On jens62's device they echo 0. Model/firmware variance is real. |
-| 11–14 | Readable, values 0/varies/13/10 | **UNKNOWN.** The `AC_STATUS_*` enumeration would suggest names, but this device's rejection of 8–10 breaks positional alignment, and the suggestion for index 13 ("days until descale") contradicts the device's own statistics (13 ≠ 58). Do not map these positionally. |
+Implementation: `lib/aquaclean-error-codes.js` — 149 entries, each with an
+English and a Norwegian description.
 
-¹ On jens62's hardware (`HB2304EU298413`), index 3 tracks the *anal shower*
-and index 1 never changes; on this Mera Comfort, index 3 verifiably tracks
-the *dryer* (flipped live via command 2 on 2026-08-09) and index 1 the anal
-shower. SPL index semantics differ between models/firmware. Nothing in this
-app relies on indices beyond 0–7.
-
-An earlier hypothesis that parameter 12 tracked lid position is **withdrawn**:
-the value did not follow the lid (identical fully open and fully closed) and
-the positional name suggestion is unreliable per the above.
-
-## Mera vs Mera Comfort vs Alba notes
-
-- "Mera" and "Mera Comfort" both speak the RPC procedure protocol; observed
-  SPL index support differs by firmware (this RS30 rejects 8–10; another
-  device echoes them as 0).
-- Alba-family devices speak the DP protocol; their inventory *lacks* lady
-  shower, dryer, odour extraction, seat heating and orientation light — and
-  gains per-register reads including error statuses. The two worlds do not
-  mix on one device.
-
-## Unknown / unverified registers
-
-Everything in the DP catalogue, on this model. SPL indices 11–14. The
-LAST_ERROR value namespace. The `AC_STATUS_*` constants above 65607 as they
-would apply to this device.
-
-## What the app records (v1.7.1)
-
-- `aquaclean_error_code` mirrors SPL parameter 6 on every full refresh, with
-  **Insights history enabled** (step chart) — every change of value is a
-  timestamped entry.
-- Only a read that actually carried parameter 6 can change the value. A
-  missing parameter, malformed frame, timeout or unreachable toilet keeps
-  the last known value; a failed read can never fabricate an
-  "error cleared" (0) entry.
-- An unchanged value is not rewritten, so a long-standing error is one step
-  in the chart, not a flood of entries. `42 → 0 → 42` is three entries and
-  two `error occurred` Flow triggers.
-- Flow triggers: `aquaclean_error_occurred` (0 → nonzero, with the code as
-  token), `aquaclean_error_cleared` (nonzero → 0),
-  `aquaclean_error_code_changed` (any change).
+---
 
 ## Live readout — 2026-08-17, this device
 
-Read-only, one connection, script `read-error-diagnostics.js` (kept next to
-the repo). Full output in `error-diagnostics-readout.json`.
+Read-only, one connection. Full output in `error-diagnostics-readout.json`
+next to the repository.
 
-**GATT services (complete list):**
+**GATT services (complete):**
 
 | Service | Content |
 |---|---|
@@ -224,38 +346,84 @@ the repo). Full output in `error-diagnostics-readout.json`.
 | `1800` / `1801` | Generic Access / Generic Attribute |
 | `180a` | Device Information: manufacturer `Geberit`, firmware `BLD 01 1`, model and serial literally `n/a` |
 
-No other service exists — **the Alba/BLE 2.0 DP service is absent**, so every
-`DP_*` register above is confirmed unreachable on this hardware, by
+No other service exists — **the Alba/BLE 2.0 datapoint service is absent**, by
 enumeration rather than inference.
 
 **System parameters:**
 
 | Index | Result | | Index | Result |
 |---|---|---|---|---|
-| 0–5 | 0 (idle, no shower/dryer) | | 8–10 | rejected, status 0x80 |
-| **6 LAST_ERROR** | **0 — no current error** | | 11 | 0 |
+| 0–5 | 0 (idle) | | 8–10 | rejected, status `0x80` |
+| **6 LAST_ERROR** | **0** | | 11 | 0 |
 | 7 service state | 0 | | 12 / 13 / 14 | 11 / 13 / 10 |
 
-**Same-connection production reads:** descale statistics said
+**Same-connection production reads:** descale statistics gave
 `daysUntilNextDescale = 58` and `daysUntilShowerRestricted = 14` while SPL 13
-read 13 and SPL 14 read 10 — fresh, simultaneous proof that the positional
-name guesses for SPL 11–14 do not hold on this firmware.
+read 13 and SPL 14 read 10 — simultaneous proof that positional name guesses
+for SPL 11–14 do not hold on this firmware.
 
-Note on the physical lid fault: LAST_ERROR reads 0 *now*, after the fault was
-diagnosed by a technician. Whether it was nonzero while the lid misbehaved is
-unknowable — there was no history recording at the time. That is precisely
-what v1.7.1 fixes for the next occurrence.
+**Observed fault, 2026-08-17/18:** `LAST_ERROR` stood at **1035 (`040B`)** for
+roughly 19 hours before returning to 0, recorded in Homey Insights. Per the
+04xx table that is the spray arm drive losing its position reference, most
+commonly a missing or corroded magnet on the spray arm.
+
+## Datapoint registers — and why this app cannot read them
+
+**CONFIRMED not applicable to Mera Comfort.** The `DP_*` constants in
+`dp_ids.py` (jens62) describe the **BLE 2.0 / "Alba" protocol**, where each
+register is individually readable by datapoint id. That project's own
+`mera-comfort-alba-mapping.md` states the two families expose the same logical
+features "via entirely different mechanisms": Mera Comfort speaks structured
+RPC procedures, Alba speaks datapoint reads/writes.
+
+These are **datapoint ids, not error codes**. `DP_SERVO_ERROR_STATUS = 166`
+means "register 166 holds servo error status" — it says nothing about the
+values that register holds, and nothing connects 166 to the LAST_ERROR
+namespace.
+
+The register catalogue also contains a full lid-lifter telemetry block —
+position (1008), setpoint (32594), angle (32570), motor current (32569), motor
+voltage (32572), angle limits (1058–1060) — exactly what one would want for a
+failing lid sensor, and all of it unreachable here. Over BLE on this model a
+lid fault can only surface as a non-zero LAST_ERROR in the 05xx range.
+
+## System parameter mapping — proven vs. guessed
+
+| Index | Meaning | Status |
+|---|---|---|
+| 0 | User present | **CONFIRMED** (both projects) |
+| 1 | Anal shower running ³ | **CONFIRMED here** |
+| 2 | Lady shower running | **CONFIRMED** (both) |
+| 3 | Dryer running ³ | **CONFIRMED here**, flipped live via command 2 |
+| 4 | Descaling state | **CONFIRMED** (both) |
+| 5 | Descaling minutes | **CONFIRMED** (both) |
+| 6 | **LAST_ERROR** | **CONFIRMED** (C# labels, jens62 BLE log, this app) |
+| 7 | Service state | **CONFIRMED** by name; sat at 0 through a live service-menu calibration, so it does **not** flag that routine |
+| 8–10 | — | **Rejected (`0x80`) on this device** |
+| 11–14 | 0 / 11 / 13 / 10 | **UNKNOWN.** Positional alignment breaks because 8–10 are absent, and the `AC_STATUS_*` suggestion for index 13 contradicts the device's own statistics. Do not map positionally. |
+
+³ On jens62's hardware index 3 tracks the anal shower and index 1 never
+changes; on this Mera Comfort index 3 verifiably tracks the dryer. SPL index
+semantics differ between models and firmware. Nothing in this app relies on
+indices beyond 0–7.
+
+An earlier hypothesis that parameter 12 tracked lid position is **withdrawn**:
+the value did not follow the lid, reading identically fully open and fully
+closed.
+
+---
 
 ## Sources
 
+- **Geberit AquaClean Mera, Manuel d'entretien `967.008.00.0(04)`, 05-2023** —
+  the fault code tables, module overview and repair measures.
+- Geberit AquaClean Mera Comfort user manual `966.732.00.0(05)` — the remote
+  control's error-message menu and the symptom tables.
 - [jens62/geberit-aquaclean](https://github.com/jens62/geberit-aquaclean) —
-  `bluetooth_le/LE/dp_ids.py` (register catalogue),
-  `docs/developer/mera-comfort-alba-mapping.md` (protocol split),
-  `docs/developer/unknown-procedures.md` (SPL index evidence),
-  `docs/developer/mock-geberit-mera.md` (real-Mera capture: LastError=0),
-  `custom_components/geberit_aquaclean/coordinator.py` (raw pass-through),
-  `aquaclean_console_app/.../GetSystemParameterList.py` (SPL semantics).
+  `bluetooth_le/LE/dp_ids.py`, `docs/developer/mera-comfort-alba-mapping.md`,
+  `docs/developer/unknown-procedures.md`, `docs/developer/mock-geberit-mera.md`,
+  `custom_components/geberit_aquaclean/coordinator.py`,
+  `aquaclean_console_app/.../GetSystemParameterList.py`.
 - [thomas-bingel/geberit-aquaclean](https://github.com/thomas-bingel/geberit-aquaclean)
-  — original C# labels for SPL indices.
-- Live readings from this device: `../..//lid-calibration-snapshots.jsonl`
-  and the audit sweeps of 2026-08-16/17.
+  — original C# labels for the SPL indices.
+- Live readings from this device, 2026-08-16 to 2026-08-18.

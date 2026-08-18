@@ -512,6 +512,58 @@ class MeraComfortDevice extends Homey.Device {
     }, POLL_SCHEDULER_INTERVAL_MS);
   }
 
+  // addCapability always appends, so a capability introduced after pairing
+  // keeps the position it was added in, not the one the manifest gives it.
+  // There is no reorder API.
+  //
+  // Rebuilding only the diverging tail was tried first and did nothing: the
+  // array changed, the device page did not. The LINAK app hit the same wall
+  // and the answer there was to remove EVERY capability and add them all back
+  // in order — a partial rebuild is not enough. Same approach here.
+  //
+  // Expensive and not atomic, so it runs only when the order is actually
+  // wrong, and only once per target order.
+  async alignCapabilityOrderToManifest() {
+    if (typeof this.removeCapability !== 'function') return;
+
+    const manifest = this.driver && this.driver.manifest;
+    const declared = manifest && manifest.capabilities;
+    if (!Array.isArray(declared)) return;
+
+    const current = this.getCapabilities();
+    const wanted = declared.filter(capabilityId => current.includes(capabilityId));
+    // ensureCapabilities has already reconciled membership; if the two still
+    // disagree on content, reordering is not the problem to solve here.
+    if (wanted.length !== current.length) return;
+    if (wanted.join('|') === current.join('|')) return;
+
+    // A rebuild that does not take is worth one attempt, not one per restart.
+    const signature = wanted.join(',');
+    if (this.getStoreValue('capabilityOrderAttempt') === signature) {
+      this.log('AquaClean capability order still differs from the manifest; not retrying');
+      return;
+    }
+    await this.setStoreValue('capabilityOrderAttempt', signature);
+
+    this.log('Rebuilding the AquaClean capability order', { capabilities: wanted });
+    for (const capabilityId of current) {
+      await this.removeCapability(capabilityId).catch(error => {
+        this.error('Could not remove a capability while reordering', {
+          capabilityId,
+          message: error.message
+        });
+      });
+    }
+    for (const capabilityId of wanted) {
+      await this.addCapability(capabilityId).catch(error => {
+        this.error('Could not re-add a capability while reordering', {
+          capabilityId,
+          message: error.message
+        });
+      });
+    }
+  }
+
   // Everything the user can see is localized. The raw error keeps flowing to
   // the app log, where it is worth having; the UI gets something actionable.
   getUserErrorMessage(error) {
@@ -550,6 +602,8 @@ class MeraComfortDevice extends Homey.Device {
     // removal lists (legacy button.* aliases and per-version retired ids):
     // anything the manifest no longer declares is removed, whatever it was.
     await this.removeCapabilitiesMissingFromManifest();
+
+    await this.alignCapabilityOrderToManifest();
 
     // The order below is the device's own, not the manifest's. Homey fixes it
     // when a capability is added and never reshuffles it, so this is the only

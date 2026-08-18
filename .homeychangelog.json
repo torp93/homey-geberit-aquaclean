@@ -134,5 +134,9 @@
   "1.9.1": {
     "en": "Clarifies the odour extraction run-on setting: it controls how long the app counts the extraction as running, not the toilet, whose own run-on is fixed at 2 minutes.",
     "no": "Presiserer innstillingen for luktavsugets etterløp: den styrer hvor lenge appen regner avsuget som aktivt, ikke toalettet, som har fast etterløp på 2 minutter."
+  },
+  "1.10.0": {
+    "en": "Insights now show user detected, anal shower, lady shower, dryer and odour extraction as on/off timelines instead of averaged numbers, and record how long each visit lasted.",
+    "no": "Innsikt viser nå bruker registrert, analdusj, ladydusj, tørker og luktavsug som av/på-tidslinjer i stedet for gjennomsnittstall, og registrerer hvor lenge hvert besøk varte."
   }
 }

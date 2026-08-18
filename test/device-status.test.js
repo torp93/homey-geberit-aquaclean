@@ -68,7 +68,7 @@ test('legacy system buttons migrate to icon-capable AquaClean buttons', async ()
   assert.equal(capabilities.has('button.refresh_status'), false);
 });
 
-test('boolean event Insights are disabled once for all duration statuses', async () => {
+test('boolean event Insights are enabled once for all duration statuses', async () => {
   const capabilities = new Set([
     'aquaclean_user_sitting',
     'aquaclean_anal_shower_running',
@@ -102,8 +102,46 @@ test('boolean event Insights are disabled once for all duration statuses', async
       'aquaclean_odour_extraction_running'
     ],
   );
-  assert.equal(applied.every(item => item.options.preventInsights === true), true);
+  // The numeric 0/1 mirrors average to fractions over a coarse Insights
+  // bucket, which reads as nonsense. The booleans render as a state
+  // timeline instead, which is what the values actually are.
+  assert.equal(applied.every(item => item.options.insights === true), true);
+  assert.equal(applied.some(item => 'preventInsights' in item.options), false);
   assert.equal(applied.every(item => item.options.titleTrue.no === 'Pågår'), true);
+});
+
+test('a visit is timed from the transitions, and only when it is complete', async () => {
+  const written = [];
+  const device = {
+    hasCapability: () => true,
+    setCapabilityValue: async (capabilityId, value) => {
+      written.push({ capabilityId, value });
+    },
+    error: () => {}
+  };
+  const track = MeraComfortDevice.prototype.trackSittingDuration;
+
+  // Sitting down starts the clock but records nothing on its own.
+  await track.call(device, false, true);
+  assert.equal(written.length, 0);
+  assert.equal(typeof device._sittingSince, 'number');
+
+  device._sittingSince -= 320_000;
+  await track.call(device, true, false);
+  assert.equal(written.length, 1);
+  assert.equal(written[0].capabilityId, 'measure_aquaclean_sitting_duration');
+  // Rounded from the transition timestamps, so allow the test's own runtime.
+  assert.ok(Math.abs(written[0].value - 320) <= 1, written[0].value);
+
+  // Standing up twice must not write the same visit again.
+  await track.call(device, true, false);
+  assert.equal(written.length, 1);
+
+  // A visit already under way when the app started has no start timestamp.
+  // Inventing one would read as a measurement, so nothing is written.
+  const fresh = { ...device, _sittingSince: null };
+  await track.call(fresh, true, false);
+  assert.equal(written.length, 1);
 });
 
 test('boolean statuses are mirrored to numeric 0/1 Insights graphs', async () => {

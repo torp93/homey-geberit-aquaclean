@@ -90,6 +90,24 @@ The app carries a device setting for exactly this (`anal_status_parameter`,
 choice of 1 or 3). The measurements above are why that setting exists and why
 its default is 1.
 
+### Eight parameters per request is the safe limit
+
+A `GetSystemParameterList` request whose parameter IDs run past the end of the
+first BLE frame and into a continuation frame answers normally — and then
+leaves the toilet unable to answer `GetFilterStatus` (`0x59`) at all. The
+state survives reconnecting, a different client, and restarting the proxy.
+Only cycling mains power on the WC clears it.
+
+Reported by Flachzange against this same firmware in
+[jens62/geberit-aquaclean#44](https://github.com/jens62/geberit-aquaclean/pull/44),
+with `[0,1,2,3,4,5,6,7,12,13]` as the request that triggers it.
+
+This app asks for `[0,1,2,3,4,5,6,7]` — eight — and `[0,1,2,3]` for the live
+poll, so it stays inside the first frame and has never provoked this. That is
+worth stating explicitly, because the obvious way to add a parameter is to
+append it to the existing list, and that is exactly the change that breaks it.
+Read anything past index 7 in a **separate request**.
+
 ### Indices 11–14 are not what a positional reading suggests
 
 The `AC_STATUS_*` enumeration in the jens62 register catalogue would name

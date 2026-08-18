@@ -73,7 +73,7 @@ const OPTIMISTIC_FUNCTION_STATE_HOLD_MS = 12 * 1000;
 // Anything slower is a person pressing again, and must be sent.
 const DUPLICATE_COMMAND_WINDOW_MS = 750;
 const DEFAULT_ODOUR_RUN_ON_SECONDS = 120;
-const INSIGHTS_OPTIONS_VERSION = 8;
+const INSIGHTS_OPTIONS_VERSION = 9;
 
 const CONTROL_CAPABILITY_COMMANDS = Object.freeze({
   aquaclean_button_anal_shower: {
@@ -250,6 +250,10 @@ const DETERMINISTIC_FUNCTIONS = Object.freeze({
     reported: false
   }
 });
+// The toilet reports whether someone is sitting, never for how long. The
+// duration is measured here from the transitions, so it is only as precise
+// as the poll interval -- 2.5 s while a status is active.
+const SITTING_DURATION_CAPABILITY = 'measure_aquaclean_sitting_duration';
 const STATUS_CAPABILITIES = Object.freeze([
   'measure_signal_strength',
   'aquaclean_connection_state',
@@ -268,7 +272,8 @@ const STATUS_CAPABILITIES = Object.freeze([
   'aquaclean_error_text',
   'aquaclean_raw_status',
   'aquaclean_dryer_running',
-  'measure_aquaclean_dryer'
+  'measure_aquaclean_dryer',
+  SITTING_DURATION_CAPABILITY
 ]);
 const STATUS_INSIGHTS_CAPABILITY_IDS = Object.freeze({
   aquaclean_user_sitting: 'measure_aquaclean_user_sitting',
@@ -323,7 +328,7 @@ const VALUE_STATUS_TRIGGER_IDS = Object.freeze({
 });
 const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
   aquaclean_user_sitting: {
-    preventInsights: true,
+    insights: true,
     insightsTitleTrue: {
       en: 'User sitting',
       no: 'Bruker sitter'
@@ -334,7 +339,7 @@ const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
     }
   },
   aquaclean_anal_shower_running: {
-    preventInsights: true,
+    insights: true,
     insightsTitleTrue: {
       en: 'Anal shower running',
       no: 'Analdusj pågår'
@@ -345,7 +350,7 @@ const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
     }
   },
   aquaclean_lady_shower_running: {
-    preventInsights: true,
+    insights: true,
     insightsTitleTrue: {
       en: 'Lady shower running',
       no: 'Ladydusj pågår'
@@ -356,7 +361,7 @@ const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
     }
   },
   aquaclean_odour_extraction_running: {
-    preventInsights: true,
+    insights: true,
     insightsTitleTrue: {
       en: 'Odour extraction running',
       no: 'Luktavsug pågår'
@@ -367,7 +372,7 @@ const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
     }
   },
   aquaclean_dryer_running: {
-    preventInsights: true,
+    insights: true,
     insightsTitleTrue: {
       en: 'Dryer running',
       no: 'Tørker pågår'
@@ -2098,12 +2103,31 @@ class MeraComfortDevice extends Homey.Device {
     await this.setCapabilityValue(capabilityId, formatted);
   }
 
+  // Only a complete visit is recorded: a session already running when the app
+  // started has no start timestamp, and a guessed one would read as a real
+  // measurement. Nothing is written in that case.
+  async trackSittingDuration(previousValue, value) {
+    if (value === true) {
+      this._sittingSince = Date.now();
+      return;
+    }
+    if (value !== false || previousValue !== true || !this._sittingSince) return;
+    const seconds = Math.round((Date.now() - this._sittingSince) / 1000);
+    this._sittingSince = null;
+    if (!this.hasCapability(SITTING_DURATION_CAPABILITY)) return;
+    await this.setCapabilityValue(SITTING_DURATION_CAPABILITY, seconds)
+      .catch(error => this.error('Could not record the visit duration', error.message));
+  }
+
   async setStatusCapabilityValue(capabilityId, value) {
     await this.syncStatusInsightsCapability(capabilityId, value);
     const previousValue = this.getCapabilityValue(capabilityId);
     if (previousValue === value) return;
 
     await this.setCapabilityValue(capabilityId, value);
+    if (capabilityId === 'aquaclean_user_sitting') {
+      await this.trackSittingDuration(previousValue, value);
+    }
     if (previousValue === null || previousValue === undefined) return;
 
     // An error appearing and an error clearing are the two moments worth a

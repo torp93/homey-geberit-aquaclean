@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -97,7 +97,7 @@
       },
       "getable": true,
       "setable": false,
-      "insights": false,
+      "insights": true,
       "uiComponent": "sensor",
       "icon": "/assets/capability-icons/user-seat.svg",
       "insightsTitleTrue": {
@@ -117,7 +117,7 @@
       },
       "getable": true,
       "setable": false,
-      "insights": false,
+      "insights": true,
       "uiComponent": "sensor",
       "icon": "/assets/capability-icons/anal-shower.svg",
       "insightsTitleTrue": {
@@ -137,7 +137,7 @@
       },
       "getable": true,
       "setable": false,
-      "insights": false,
+      "insights": true,
       "uiComponent": "sensor",
       "icon": "/assets/capability-icons/lady-shower.svg",
       "insightsTitleTrue": {
@@ -157,7 +157,7 @@
       },
       "getable": true,
       "setable": false,
-      "insights": false,
+      "insights": true,
       "uiComponent": "sensor",
       "icon": "/assets/capability-icons/odour.svg",
       "insightsTitleTrue": {
@@ -445,7 +445,7 @@
       },
       "getable": true,
       "setable": false,
-      "insights": false,
+      "insights": true,
       "uiComponent": "sensor",
       "icon": "/assets/capability-icons/dryer.svg",
       "insightsTitleTrue": {
@@ -496,6 +496,24 @@
       "setable": false,
       "uiComponent": "sensor",
       "icon": "/assets/capability-icons/error.svg"
+    },
+    "measure_aquaclean_sitting_duration": {
+      "type": "number",
+      "title": {
+        "en": "Last visit duration",
+        "no": "Siste besøk, varighet"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "units": {
+        "en": "s"
+      },
+      "decimals": 0,
+      "min": 0,
+      "uiComponent": null,
+      "icon": "/assets/capability-icons/user-seat.svg"
     }
   },
   "images": {
@@ -1361,7 +1379,8 @@
         "measure_aquaclean_anal_shower",
         "measure_aquaclean_lady_shower",
         "measure_aquaclean_odour_extraction",
-        "measure_aquaclean_dryer"
+        "measure_aquaclean_dryer",
+        "measure_aquaclean_sitting_duration"
       ],
       "capabilitiesOptions": {
         "aquaclean_connection_state": {

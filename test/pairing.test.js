@@ -307,7 +307,7 @@ test('the repair status reports a fault, health and a failed read apart', async 
   })();
 
   const make = (code, refreshFails) => {
-    const caps = { aquaclean_error_code: code, aquaclean_last_status_update: '18.08.2026, 22:31' };
+    const caps = { aquaclean_error_code: code, aquaclean_last_status_update: '18. aug, 22:31' };
     const device = Object.create(MeraComfortDevice.prototype);
     Object.assign(device, {
       _busy: false,

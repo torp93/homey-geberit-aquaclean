@@ -608,7 +608,10 @@ test('status heartbeat is throttled while still advancing during healthy polling
   // was truncated in the mobile app's sensor tile. Two heartbeats inside the
   // same minute therefore render identically — correct, and worth pinning so
   // nobody "fixes" it by putting the seconds back.
-  assert.match(values[1].value, /^\d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}$/);
+  // No year, and the month as a word: "18. aug, 20:32". Same reason as the
+  // seconds — every character saved is one the tile does not truncate. The
+  // abbreviation dot Intl puts before the comma is stripped, so no dot here.
+  assert.match(values[1].value, /^\d{1,2}\. \p{L}+, \d{2}:\d{2}$/u, values[1].value);
 });
 
 test('technical Bluetooth error is exposed and cleared after recovery', async () => {

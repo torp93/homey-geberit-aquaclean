@@ -2068,14 +2068,20 @@ class MeraComfortDevice extends Homey.Device {
     // No seconds: the full string was too wide for the sensor tile in the
     // mobile app and got truncated. The heartbeat is throttled to 15 s
     // anyway, so the second was never meaningful precision.
+    // No year either: this reads "18. aug., 20:32". A status update is from
+    // today or it is a sign something is wrong, so the year was four characters
+    // spent on the one part of the date nobody reads. The dates in the settings
+    // keep theirs -- a descaling really can be from another year.
+    // Intl abbreviates the month with a trailing dot, which lands right against
+    // the comma: "18. aug., 20:32". Only that pair is collapsed, so the dot
+    // after the day number stays where it belongs.
     const formatted = this.formatLocalTime(capturedDate, {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
+      month: 'short',
+      day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
       hour12: false
-    });
+    }).replace('., ', ', ');
     await this.setCapabilityValue(capabilityId, formatted);
   }
 

@@ -128,5 +128,9 @@
   "1.9.0": {
     "en": "The device repair screen now opens on the fault status: the error code in Geberit's own notation with a plain-language explanation, or \"No error\". A failed read says so rather than reporting health nobody asked about. Adds a Reset connection button that drops the Bluetooth session and the proxy client and starts over.",
     "no": "Reparasjonsskjermen åpner nå på feilstatus: feilkoden i Geberits eget format med forklaring i klartekst, eller «Ingen feil». En mislykket avlesning sier fra i stedet for å melde en helsetilstand ingen har spurt om. Ny knapp for å nullstille forbindelsen, som kobler ned Bluetooth-økten og proxy-klienten og starter på nytt."
+  },
+  "1.9.1": {
+    "en": "Clarifies the odour extraction run-on setting: it controls how long the app counts the extraction as running, not the toilet, whose own run-on is fixed at 2 minutes.",
+    "no": "Presiserer innstillingen for luktavsugets etterløp: den styrer hvor lenge appen regner avsuget som aktivt, ikke toalettet, som har fast etterløp på 2 minutter."
   }
 }

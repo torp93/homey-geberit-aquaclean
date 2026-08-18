@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -1618,8 +1618,8 @@
             "no": "Etterløp for luktavsug"
           },
           "hint": {
-            "en": "How long odour extraction remains active after the user leaves.",
-            "no": "Hvor lenge luktavsuget regnes som aktivt etter at brukeren reiser seg."
+            "en": "How long the app counts odour extraction as running after the user gets up. This does not change the toilet: its own run-on is fixed at 2 minutes and is only switched on or off from the remote control, under Profile settings.",
+            "no": "Hvor lenge appen regner luktavsuget som aktivt etter at brukeren reiser seg. Endrer ikke toalettet: firmwarens eget etterløp er fast på 2 minutter og slås kun av eller på fra fjernkontrollen, under Profilinnstillinger."
           },
           "value": 120,
           "min": 0,

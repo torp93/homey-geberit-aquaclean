@@ -26,21 +26,39 @@ Nothing in the protocol indicates when it was set or what preceded it.
 
 ## Confirmed LAST_ERROR codes
 
-**None.** No public source maps the numeric values this parameter can take.
+**The complete table exists — in the official Geberit service manual for the
+AquaClean Mera, document 967.008.00.0(04) (05-2023), sections "Tableaux des
+codes erreur".** The manual displays every code as four hex digits and groups
+them by functional module:
 
-- The jens62 bridge passes the raw value through unmapped
-  (`coordinator.py`: `"last_error_code": state.data_array[6]`).
-- Its `ErrorCodes.py` / `docs/error-codes.md` are the *bridge's own* E-codes
-  (E0001 = BLE device not found, …) — they describe the bridge software, not
-  the toilet. Do not confuse the two.
-- Every observation of parameter 6 on record — this device across all
-  sessions, and the jens62 capture of a healthy Mera — reads `0`.
-- Geberit's service tooling evidently decodes these values (a technician
-  quoted a code around 50 for a lid sensor fault on this very device), but
-  that table is not public.
+| Range | Module | Range | Module |
+|---|---|---|---|
+| 01xx | Main control | 09xx | Lateral control panel |
+| 03xx | Odour extraction | 0Axx | User detection |
+| 04xx | Shower unit | 0Bxx | Proximity sensor¹ |
+| 05xx | Lid lever¹ | 0Cxx | Orientation light¹ |
+| 06xx | Dryer module | 0Dxx | Interface module |
+| 07xx | Hot water production | 0Exx | Dryer assembly (2020) |
+| 08xx | Seat heating¹ | 0Fxx | Instantaneous water heater |
 
-Consequence: the app must preserve the raw number, and does. An unknown code
-stays visible as its number; nothing maps unknown values to "no error".
+¹ Marked "Modèle: Geberit AquaClean Mera Comfort" in the manual.
+
+**Wire format confirmed live (2026-08-18):** the toilet reports the code as a
+plain number — parameter 6 read **1035** while the Geberit app showed
+**040B** for the same fault (0x040B = 1035: shower unit, spray arm drive lost
+its reference). The 19-hour fault window is preserved in Homey Insights.
+
+The full catalog — every code with English and Norwegian descriptions — is
+implemented in `lib/aquaclean-error-codes.js` and shown by the app as e.g.
+`040B — Shower unit: spray arm drive lost its reference`. Unknown codes stay
+visible as their hex value; nothing maps unknown values to "no error".
+
+Notes on other sources:
+- The jens62 bridge passes the raw value through unmapped, and its
+  `ErrorCodes.py` are the *bridge's own* E-codes — unrelated to the toilet.
+- One manual anomaly: the 0Axx table prints two rows numbered 0A01; the
+  second ("sensor: permanent detection") follows the x08 pattern every other
+  module uses and is mapped to 0A08 in the catalog, with a comment.
 
 ## Error-status datapoints (DP IDs) — and why this app cannot read them
 

@@ -1261,3 +1261,83 @@ test('the decoder never invents parameter 6', () => {
   assert.equal(decoded.parameters[6], undefined,
     'an unrequested parameter is absent, not zero');
 });
+
+// ---------------------------------------------------------------------------
+// The error catalog from the Geberit service manual 967.008.00.0(04). The
+// display format is the manual's own: four hex digits, so a code on the
+// device page can be compared against the remote control's display and
+// Geberit's documentation without converting 1035 <-> 040B by hand.
+
+test('error codes render in the manual format, in both languages', () => {
+  const { formatErrorCode, CODES } = require('../lib/aquaclean-error-codes');
+
+  // The live-verified pair: LAST_ERROR read 1035 while the Geberit app
+  // showed 040B for the same spray arm fault.
+  assert.equal(formatErrorCode(1035, 'en').hex, '040B');
+  assert.match(formatErrorCode(1035, 'en').text, /^040B — Shower unit: spray arm drive/);
+  assert.match(formatErrorCode(1035, 'no').text, /^040B — Dusjenhet: dusjarmens drivverk/);
+
+  // Zero is a valid healthy reading, not a fault to describe.
+  assert.equal(formatErrorCode(0, 'no').text, 'Ingen feil');
+  assert.equal(formatErrorCode(0, 'en').text, 'No error');
+
+  // An unknown code keeps its raw value visible instead of pretending health.
+  assert.match(formatErrorCode(9999, 'en').text, /^270F — Unknown error/);
+  assert.match(formatErrorCode(9999, 'no').text, /^270F — Ukjent feil/);
+
+  // A non-reading never fabricates a value.
+  assert.equal(formatErrorCode(undefined, 'en'), null);
+
+  // Every catalog entry carries both languages — a missing translation would
+  // silently fall back to displaying undefined.
+  for (const [code, entry] of Object.entries(CODES)) {
+    assert.ok(entry.en && entry.no, `code ${Number(code).toString(16)} is missing a language`);
+  }
+});
+
+test('a fault reaches the device page as text, and the triggers as tokens', async () => {
+  const { device, caps, triggers } = errorDevice({
+    aquaclean_error_code: 0,
+    aquaclean_error_text: 'Ingen feil'
+  });
+  device._language = 'no';
+
+  await MeraComfortDevice.prototype.applySystemState.call(device, systemState(1035));
+  assert.match(caps.aquaclean_error_text, /^040B — Dusjenhet/,
+    'the page must answer "what is wrong" without a manual lookup');
+
+  const occurred = triggers.find(t => t.id === 'aquaclean_error_occurred');
+  assert.equal(occurred.tokens.hex, '040B');
+  assert.match(occurred.tokens.description, /dusjarmens drivverk/);
+
+  // Clearing describes the error that went away, not the zero replacing it.
+  await MeraComfortDevice.prototype.applySystemState.call(device, systemState(0));
+  assert.equal(caps.aquaclean_error_text, 'Ingen feil');
+  const cleared = triggers.find(t => t.id === 'aquaclean_error_cleared');
+  assert.equal(cleared.tokens.hex, '040B',
+    'a notification about a cleared fault must say which fault cleared');
+
+  // A read without parameter 6 leaves the text alone too.
+  await MeraComfortDevice.prototype.applySystemState.call(device, systemState(undefined));
+  assert.equal(caps.aquaclean_error_text, 'Ingen feil');
+});
+
+test('the text capability and trigger tokens are declared in the manifest', () => {
+  const appJson = JSON.parse(require('node:fs').readFileSync(
+    require('node:path').join(__dirname, '..', 'app.json'), 'utf8',
+  ));
+  const definition = appJson.capabilities.aquaclean_error_text;
+  assert.ok(definition, 'capability aquaclean_error_text must exist');
+  assert.equal(definition.type, 'string');
+  assert.ok(definition.title.en && definition.title.no);
+
+  const caps = appJson.drivers[0].capabilities;
+  assert.ok(caps.indexOf('aquaclean_error_text') === caps.indexOf('aquaclean_error_code') + 1,
+    'the text sits next to the number on the device page');
+
+  for (const id of ['aquaclean_error_occurred', 'aquaclean_error_cleared']) {
+    const tokens = appJson.flow.triggers.find(c => c.id === id).tokens.map(t => t.name);
+    assert.ok(tokens.includes('hex') && tokens.includes('description'),
+      `${id} must carry hex and description tokens`);
+  }
+});

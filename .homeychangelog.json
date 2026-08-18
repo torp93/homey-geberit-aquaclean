@@ -120,5 +120,9 @@
   "1.7.1": {
     "en": "The error code now records history in Homey Insights, so a fault can be matched to the time it happened. A failed read can no longer overwrite the last known error with zero.",
     "no": "Feilkoden lagrer nå historikk i Homey Insights, slik at en feil kan knyttes til tidspunktet den oppsto. En mislykket avlesning kan ikke lenger overskrive siste kjente feil med null."
+  },
+  "1.8.0": {
+    "en": "Error codes are now shown the way Geberit shows them: as four hex digits with a plain-language explanation of what is wrong, in English and Norwegian — e.g. 040B: spray arm drive lost its reference. The complete code table from the official service manual is built in, and the error triggers carry the code and description as tokens for notifications.",
+    "no": "Feilkoder vises nå slik Geberit selv viser dem: som fire heksadesimale tegn med en forklaring i klartekst på hva som er galt, på norsk og engelsk — f.eks. 040B: dusjarmens drivverk har mistet referansen. Hele kodetabellen fra den offisielle servicemanualen er innebygd, og feiltriggerne bærer kode og beskrivelse som tokens til varslinger."
   }
 }

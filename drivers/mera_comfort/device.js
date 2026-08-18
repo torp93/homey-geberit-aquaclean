@@ -2,6 +2,7 @@
 
 const Homey = require('homey');
 const { translate } = require('../../lib/i18n');
+const { formatErrorCode } = require('../../lib/aquaclean-error-codes');
 const {
   AQUACLEAN_COMMANDS,
   AquaCleanProtocol,
@@ -1954,7 +1955,13 @@ class MeraComfortDevice extends Homey.Device {
       // wiping the one clue a failing lid leaves behind. The Insights history
       // built on this capability is only as truthful as this guard.
       ...(Number.isFinite(state.lastErrorCode)
-        ? { aquaclean_error_code: state.lastErrorCode }
+        ? {
+          aquaclean_error_code: state.lastErrorCode,
+          // The manual's own notation (040B) plus its description of what is
+          // wrong, in the user's language. Same guard as the number: only a
+          // read that carried the parameter may change it.
+          aquaclean_error_text: formatErrorCode(state.lastErrorCode, this._language).text
+        }
         : {})
     };
 
@@ -2015,8 +2022,15 @@ class MeraComfortDevice extends Homey.Device {
       const has = Number(value) > 0;
       if (had !== has) {
         const id = has ? 'aquaclean_error_occurred' : 'aquaclean_error_cleared';
+        // "Cleared" describes the error that just went away, not the zero that
+        // replaced it — that is the code worth putting in a notification.
+        const described = formatErrorCode(has ? Number(value) : Number(previousValue), this._language);
         await this.homey.flow.getDeviceTriggerCard(id)
-          .trigger(this, { code: Number(value) || 0 }, {})
+          .trigger(this, {
+            code: Number(value) || 0,
+            hex: described ? described.hex : '0000',
+            description: described ? described.description : ''
+          }, {})
           .catch(error => this.error('AquaClean error trigger failed', error.message));
       }
     }

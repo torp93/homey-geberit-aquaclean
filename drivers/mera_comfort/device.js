@@ -73,7 +73,7 @@ const OPTIMISTIC_FUNCTION_STATE_HOLD_MS = 12 * 1000;
 // Anything slower is a person pressing again, and must be sent.
 const DUPLICATE_COMMAND_WINDOW_MS = 750;
 const DEFAULT_ODOUR_RUN_ON_SECONDS = 120;
-const INSIGHTS_OPTIONS_VERSION = 9;
+const INSIGHTS_OPTIONS_VERSION = 10;
 
 const CONTROL_CAPABILITY_COMMANDS = Object.freeze({
   aquaclean_button_anal_shower: {
@@ -263,25 +263,13 @@ const STATUS_CAPABILITIES = Object.freeze([
   'aquaclean_anal_shower_running',
   'aquaclean_lady_shower_running',
   'aquaclean_odour_extraction_running',
-  'measure_aquaclean_user_sitting',
-  'measure_aquaclean_anal_shower',
-  'measure_aquaclean_lady_shower',
-  'measure_aquaclean_odour_extraction',
   'aquaclean_descaling_state',
   'aquaclean_error_code',
   'aquaclean_error_text',
   'aquaclean_raw_status',
   'aquaclean_dryer_running',
-  'measure_aquaclean_dryer',
   SITTING_DURATION_CAPABILITY
 ]);
-const STATUS_INSIGHTS_CAPABILITY_IDS = Object.freeze({
-  aquaclean_user_sitting: 'measure_aquaclean_user_sitting',
-  aquaclean_anal_shower_running: 'measure_aquaclean_anal_shower',
-  aquaclean_lady_shower_running: 'measure_aquaclean_lady_shower',
-  aquaclean_odour_extraction_running: 'measure_aquaclean_odour_extraction',
-  aquaclean_dryer_running: 'measure_aquaclean_dryer'
-});
 // Only capabilities the toilet actually reports may raise the poll rate.
 // Odour extraction is deliberately absent: the toilet never reports it, so the
 // value is the app's own inference and nothing can ever contradict it. Toggling
@@ -328,7 +316,10 @@ const VALUE_STATUS_TRIGGER_IDS = Object.freeze({
 });
 const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
   aquaclean_user_sitting: {
+    // Explicit false, not absent: the manifest set preventInsights on these and
+    // a spread that only adds insights leaves the suppression in place.
     insights: true,
+    preventInsights: false,
     insightsTitleTrue: {
       en: 'User sitting',
       no: 'Bruker sitter'
@@ -339,7 +330,10 @@ const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
     }
   },
   aquaclean_anal_shower_running: {
+    // Explicit false, not absent: the manifest set preventInsights on these and
+    // a spread that only adds insights leaves the suppression in place.
     insights: true,
+    preventInsights: false,
     insightsTitleTrue: {
       en: 'Anal shower running',
       no: 'Analdusj pågår'
@@ -350,7 +344,10 @@ const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
     }
   },
   aquaclean_lady_shower_running: {
+    // Explicit false, not absent: the manifest set preventInsights on these and
+    // a spread that only adds insights leaves the suppression in place.
     insights: true,
+    preventInsights: false,
     insightsTitleTrue: {
       en: 'Lady shower running',
       no: 'Ladydusj pågår'
@@ -361,7 +358,10 @@ const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
     }
   },
   aquaclean_odour_extraction_running: {
+    // Explicit false, not absent: the manifest set preventInsights on these and
+    // a spread that only adds insights leaves the suppression in place.
     insights: true,
+    preventInsights: false,
     insightsTitleTrue: {
       en: 'Odour extraction running',
       no: 'Luktavsug pågår'
@@ -372,7 +372,10 @@ const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
     }
   },
   aquaclean_dryer_running: {
+    // Explicit false, not absent: the manifest set preventInsights on these and
+    // a spread that only adds insights leaves the suppression in place.
     insights: true,
+    preventInsights: false,
     insightsTitleTrue: {
       en: 'Dryer running',
       no: 'Tørker pågår'
@@ -482,7 +485,6 @@ class MeraComfortDevice extends Homey.Device {
     await this.loadHomeyTimezone();
     await this.ensureCapabilities();
     await this.ensureInsightsCapabilityOptions();
-    await this.syncAllStatusInsightsCapabilities();
     if (this.hasCapability('aquaclean_connection_state')) {
       await this.setCapabilityValue('aquaclean_connection_state', 'reconnecting');
     }
@@ -671,32 +673,6 @@ class MeraComfortDevice extends Homey.Device {
     }
 
     await this.setStoreValue('insightsOptionsVersion', INSIGHTS_OPTIONS_VERSION);
-  }
-
-  async syncAllStatusInsightsCapabilities() {
-    for (const statusCapabilityId of Object.keys(STATUS_INSIGHTS_CAPABILITY_IDS)) {
-      await this.syncStatusInsightsCapability(
-        statusCapabilityId,
-        this.getCapabilityValue(statusCapabilityId),
-      );
-    }
-  }
-
-  async syncStatusInsightsCapability(statusCapabilityId, value) {
-    const insightsCapabilityId =
-      STATUS_INSIGHTS_CAPABILITY_IDS[statusCapabilityId];
-    if (
-      !insightsCapabilityId
-      || typeof value !== 'boolean'
-      || typeof this.hasCapability !== 'function'
-      || !this.hasCapability(insightsCapabilityId)
-    ) {
-      return;
-    }
-
-    const insightsValue = value ? 1 : 0;
-    if (this.getCapabilityValue(insightsCapabilityId) === insightsValue) return;
-    await this.setCapabilityValue(insightsCapabilityId, insightsValue);
   }
 
   registerControlCapabilityListeners() {
@@ -2120,7 +2096,6 @@ class MeraComfortDevice extends Homey.Device {
   }
 
   async setStatusCapabilityValue(capabilityId, value) {
-    await this.syncStatusInsightsCapability(capabilityId, value);
     const previousValue = this.getCapabilityValue(capabilityId);
     if (previousValue === value) return;
 

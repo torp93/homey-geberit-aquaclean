@@ -138,5 +138,9 @@
   "1.10.0": {
     "en": "Insights now show user detected, anal shower, lady shower, dryer and odour extraction as on/off timelines instead of averaged numbers, and record how long each visit lasted.",
     "no": "Innsikt viser nå bruker registrert, analdusj, ladydusj, tørker og luktavsug som av/på-tidslinjer i stedet for gjennomsnittstall, og registrerer hvor lenge hvert besøk varte."
+  },
+  "1.10.1": {
+    "en": "The on/off timelines were still suppressed by a leftover setting, so they never appeared. Fixed, and the old numeric 0/1 graphs are removed along with their history — zoomed out they averaged into fractions and they shared their names with the new timelines.",
+    "no": "Av/på-tidslinjene ble fortsatt undertrykt av en gammel innstilling og dukket derfor aldri opp. Rettet, og de gamle 0/1-tallgrafene fjernes sammen med historikken sin — utzoomet ble de til gjennomsnittsbrøker, og de delte navn med de nye tidslinjene."
   }
 }

@@ -32,15 +32,13 @@ test('legacy system buttons migrate to icon-capable AquaClean buttons', async ()
     driver: { manifest: { capabilities: [
       'aquaclean_button_anal_shower', 'aquaclean_button_lady_shower',
       'aquaclean_button_lid', 'aquaclean_button_refresh_status',
-      'aquaclean_odour_extraction_running', 'measure_aquaclean_user_sitting',
-      'measure_aquaclean_anal_shower', 'aquaclean_button_dryer',
+      'aquaclean_odour_extraction_running', 'aquaclean_button_dryer',
       'aquaclean_button_stop', 'aquaclean_button_odour_extraction',
       'aquaclean_button_odour_run_on', 'aquaclean_user_sitting',
       'aquaclean_anal_shower_running', 'aquaclean_lady_shower_running',
-      'measure_aquaclean_lady_shower', 'measure_aquaclean_odour_extraction',
       'aquaclean_descaling_state', 'aquaclean_error_code', 'aquaclean_raw_status',
       'aquaclean_days_until_descaling', 'aquaclean_days_until_filter',
-      'aquaclean_dryer_running', 'measure_aquaclean_dryer',
+      'aquaclean_dryer_running',
       'aquaclean_last_setting_write', 'measure_signal_strength',
       'aquaclean_connection_state', 'aquaclean_last_status_update',
       'aquaclean_connection_error'
@@ -62,8 +60,8 @@ test('legacy system buttons migrate to icon-capable AquaClean buttons', async ()
   assert.equal(capabilities.has('aquaclean_button_lid'), true);
   assert.equal(capabilities.has('aquaclean_button_refresh_status'), true);
   assert.equal(capabilities.has('aquaclean_odour_extraction_running'), true);
-  assert.equal(capabilities.has('measure_aquaclean_user_sitting'), true);
-  assert.equal(capabilities.has('measure_aquaclean_anal_shower'), true);
+  // The numeric mirrors are gone from the manifest, so they must be pruned.
+  assert.equal(capabilities.has('measure_aquaclean_user_sitting'), false);
   assert.equal(capabilities.has('button.anal_shower'), false);
   assert.equal(capabilities.has('button.refresh_status'), false);
 });
@@ -106,7 +104,7 @@ test('boolean event Insights are enabled once for all duration statuses', async 
   // bucket, which reads as nonsense. The booleans render as a state
   // timeline instead, which is what the values actually are.
   assert.equal(applied.every(item => item.options.insights === true), true);
-  assert.equal(applied.some(item => 'preventInsights' in item.options), false);
+  assert.equal(applied.every(item => item.options.preventInsights === false), true);
   assert.equal(applied.every(item => item.options.titleTrue.no === 'Pågår'), true);
 });
 
@@ -142,34 +140,6 @@ test('a visit is timed from the transitions, and only when it is complete', asyn
   const fresh = { ...device, _sittingSince: null };
   await track.call(fresh, true, false);
   assert.equal(written.length, 1);
-});
-
-test('boolean statuses are mirrored to numeric 0/1 Insights graphs', async () => {
-  const values = new Map([
-    ['measure_aquaclean_user_sitting', null],
-    ['measure_aquaclean_anal_shower', 0]
-  ]);
-  const device = {
-    hasCapability: capabilityId => values.has(capabilityId),
-    getCapabilityValue: capabilityId => values.get(capabilityId),
-    setCapabilityValue: async (capabilityId, value) => {
-      values.set(capabilityId, value);
-    }
-  };
-
-  await MeraComfortDevice.prototype.syncStatusInsightsCapability.call(
-    device,
-    'aquaclean_user_sitting',
-    true,
-  );
-  await MeraComfortDevice.prototype.syncStatusInsightsCapability.call(
-    device,
-    'aquaclean_anal_shower_running',
-    false,
-  );
-
-  assert.equal(values.get('measure_aquaclean_user_sitting'), 1);
-  assert.equal(values.get('measure_aquaclean_anal_shower'), 0);
 });
 
 test('adaptive polling is slow while idle and fast during activity', () => {
@@ -408,7 +378,6 @@ test('anal shower status changes update Homey and fire the matching Flow trigger
   const fired = [];
   const device = {
     hasCapability: capabilityId => values.has(capabilityId),
-    syncStatusInsightsCapability: MeraComfortDevice.prototype.syncStatusInsightsCapability,
     getCapabilityValue: capabilityId => values.get(capabilityId),
     setCapabilityValue: async (capabilityId, value) => values.set(capabilityId, value),
     homey: {
@@ -439,7 +408,6 @@ test('unchanged status does not fire a duplicate Flow trigger', async () => {
   const fired = [];
   const device = {
     hasCapability: () => false,
-    syncStatusInsightsCapability: MeraComfortDevice.prototype.syncStatusInsightsCapability,
     getCapabilityValue: () => true,
     setCapabilityValue: async () => {
       throw new Error('unchanged value should not be written');
@@ -1201,7 +1169,6 @@ const errorDevice = (initial = {}) => {
     hasCapability: id => id in caps,
     getCapabilityValue: id => caps[id],
     setCapabilityValue: async (id, value) => { writes.push({ id, value }); caps[id] = value; },
-    syncStatusInsightsCapability: async () => {},
     applyRawLiveStatus: async () => {},
     applyAutomaticOdourState: async () => {},
     log: () => {},

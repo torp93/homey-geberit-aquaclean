@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -168,70 +168,6 @@
         "en": "Odour extraction off",
         "no": "Luktavsug av"
       }
-    },
-    "measure_aquaclean_user_sitting": {
-      "type": "number",
-      "title": {
-        "en": "User sitting",
-        "no": "Bruker sitter"
-      },
-      "getable": true,
-      "setable": false,
-      "insights": true,
-      "chartType": "stepLine",
-      "decimals": 0,
-      "min": 0,
-      "max": 1,
-      "uiComponent": null,
-      "icon": "/assets/capability-icons/user-seat.svg"
-    },
-    "measure_aquaclean_anal_shower": {
-      "type": "number",
-      "title": {
-        "en": "Anal shower",
-        "no": "Analdusj"
-      },
-      "getable": true,
-      "setable": false,
-      "insights": true,
-      "chartType": "stepLine",
-      "decimals": 0,
-      "min": 0,
-      "max": 1,
-      "uiComponent": null,
-      "icon": "/assets/capability-icons/anal-shower.svg"
-    },
-    "measure_aquaclean_lady_shower": {
-      "type": "number",
-      "title": {
-        "en": "Lady shower",
-        "no": "Ladydusj"
-      },
-      "getable": true,
-      "setable": false,
-      "insights": true,
-      "chartType": "stepLine",
-      "decimals": 0,
-      "min": 0,
-      "max": 1,
-      "uiComponent": null,
-      "icon": "/assets/capability-icons/lady-shower.svg"
-    },
-    "measure_aquaclean_odour_extraction": {
-      "type": "number",
-      "title": {
-        "en": "Odour extraction",
-        "no": "Luktavsug"
-      },
-      "getable": true,
-      "setable": false,
-      "insights": true,
-      "chartType": "stepLine",
-      "decimals": 0,
-      "min": 0,
-      "max": 1,
-      "uiComponent": null,
-      "icon": "/assets/capability-icons/odour.svg"
     },
     "aquaclean_descaling_state": {
       "type": "enum",
@@ -456,23 +392,6 @@
         "en": "Dryer off",
         "no": "Tørker av"
       }
-    },
-    "measure_aquaclean_dryer": {
-      "type": "number",
-      "title": {
-        "en": "Dryer",
-        "no": "Tørker"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": null,
-      "icon": "/assets/capability-icons/dryer.svg",
-      "min": 0,
-      "max": 1,
-      "step": 1,
-      "decimals": 0,
-      "insights": true,
-      "chartType": "stepLine"
     },
     "aquaclean_last_setting_write": {
       "type": "string",
@@ -1375,11 +1294,6 @@
         "aquaclean_last_setting_write",
         "aquaclean_error_code",
         "aquaclean_error_text",
-        "measure_aquaclean_user_sitting",
-        "measure_aquaclean_anal_shower",
-        "measure_aquaclean_lady_shower",
-        "measure_aquaclean_odour_extraction",
-        "measure_aquaclean_dryer",
         "measure_aquaclean_sitting_duration"
       ],
       "capabilitiesOptions": {
@@ -1402,7 +1316,7 @@
           }
         },
         "aquaclean_user_sitting": {
-          "preventInsights": true,
+          "preventInsights": false,
           "titleTrue": {
             "en": "Detected",
             "no": "Registrert"
@@ -1421,7 +1335,7 @@
           }
         },
         "aquaclean_anal_shower_running": {
-          "preventInsights": true,
+          "preventInsights": false,
           "titleTrue": {
             "en": "Running",
             "no": "Pågår"
@@ -1440,7 +1354,7 @@
           }
         },
         "aquaclean_lady_shower_running": {
-          "preventInsights": true,
+          "preventInsights": false,
           "titleTrue": {
             "en": "Running",
             "no": "Pågår"
@@ -1459,7 +1373,7 @@
           }
         },
         "aquaclean_odour_extraction_running": {
-          "preventInsights": true,
+          "preventInsights": false,
           "titleTrue": {
             "en": "Running",
             "no": "Pågår"
@@ -1475,34 +1389,6 @@
           "insightsTitleFalse": {
             "en": "Odour extraction off",
             "no": "Luktavsug av"
-          }
-        },
-        "measure_aquaclean_user_sitting": {
-          "preventInsights": false,
-          "title": {
-            "en": "User sitting",
-            "no": "Bruker sitter"
-          }
-        },
-        "measure_aquaclean_anal_shower": {
-          "preventInsights": false,
-          "title": {
-            "en": "Anal shower",
-            "no": "Analdusj"
-          }
-        },
-        "measure_aquaclean_lady_shower": {
-          "preventInsights": false,
-          "title": {
-            "en": "Lady shower",
-            "no": "Ladydusj"
-          }
-        },
-        "measure_aquaclean_odour_extraction": {
-          "preventInsights": false,
-          "title": {
-            "en": "Odour extraction",
-            "no": "Luktavsug"
           }
         },
         "aquaclean_button_anal_shower": {
@@ -1559,15 +1445,8 @@
             "no": "Rå P0-P7"
           }
         },
-        "measure_aquaclean_dryer": {
-          "preventInsights": false,
-          "title": {
-            "en": "Dryer",
-            "no": "Tørker"
-          }
-        },
         "aquaclean_dryer_running": {
-          "preventInsights": true,
+          "preventInsights": false,
           "titleTrue": {
             "en": "Running",
             "no": "Pågår"

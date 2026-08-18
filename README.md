@@ -105,6 +105,9 @@ Comfort:
 - [The remote's menus](docs/REMOTE_MENU.md) — the everyday menus and the
   service menu behind them: error display, device info, and the seat, lid and
   arm adjustments.
+- [What the toilet exposes over Bluetooth](docs/PROTOCOL.md) — the system
+  parameter map confirmed by measurement, what is deliberately absent
+  (lid position), and the two undocumented procedures resolved as static.
 
 ## Credits
 

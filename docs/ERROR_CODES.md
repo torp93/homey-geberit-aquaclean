@@ -296,10 +296,55 @@ reference, and both fail the same way when it corrodes.
 
 The manual carries eight further sections — *"Défauts sans code erreur"* — for
 symptoms the firmware does not encode: odour extraction, shower unit, lid
-lever, hot water production, seat heating, lateral control panel, orientation
+lever, hot water production, seat heating, side control panel, orientation
 light and dryer assembly. These are diagnosed by symptom, not by code, and are
-therefore invisible to this app: a lid that moves sluggishly without tripping
-`050D`/`050E`/`050F` leaves `LAST_ERROR` at 0. Consult the manual directly.
+therefore **invisible to this app**: a lid that misbehaves without tripping
+`050D`/`050E`/`050F` leaves `LAST_ERROR` at 0.
+
+That is worth stating plainly, because it is the most likely reason the app
+shows "No error" while something is visibly wrong.
+
+### Lid lever — symptoms with no code
+
+The one most likely to be met in practice, reproduced here because a lid
+fault is what sends people looking. Causes are listed per symptom in the
+manual; the measures are drawn from the same table.
+
+| Symptom | Causes the manual lists |
+|---|---|
+| Collision | Lid position incorrectly adjusted · Lid lever defective |
+| Does not open | Device switched off · Function disabled · Lid lever defective |
+| Does not open on approach | Proximity sensor misadjusted or defective · Upper design cover not detected |
+| **Does not open fully** | **Lid position incorrectly adjusted** · Lid lever defective |
+| Does not open reliably | Proximity sensor misadjusted · Upper design cover not detected |
+| Opens too slowly | Lid lever defective |
+| Opens unexpectedly | Proximity sensor incorrectly adjusted |
+| Does not close | Function disabled · User detection active |
+| Does not close from the remote | Demo mode enabled |
+| **Closes unexpectedly** | **Lid lever defective** · User detection defective · Proximity sensor misadjusted |
+
+Measures, in the order the manual gives them: correct the setting ·
+**calibrate** · check operation manually · check the electrical supply ·
+switch the device on · enable the function · check the upper design cover is
+present and closed · check its magnet · replace the component or the function
+module.
+
+Two entries deserve attention because they are cheap to check and easy to
+miss:
+
+**"Upper design cover: open/missing — check the magnet."** Several lid
+symptoms trace to the design cover not being detected, which is a magnet, not
+electronics.
+
+**Demo mode.** If the lid will not close from the remote, demonstration mode
+being left on is a listed cause — and it sits in the same
+`[Care and maintenance]` menu as the lid calibration, one item before it.
+
+There is a matching *Actuator* table: unusual noises trace to loose mounting
+or a defective lid lever, and an actuator that moves in jerks to the lid lever
+itself.
+
+For the other seven sections, consult the manual directly.
 
 ## Historical error storage
 
@@ -394,31 +439,11 @@ voltage (32572), angle limits (1058–1060) — exactly what one would want for 
 failing lid sensor, and all of it unreachable here. Over BLE on this model a
 lid fault can only surface as a non-zero LAST_ERROR in the 05xx range.
 
-## System parameter mapping — proven vs. guessed
+## System parameter mapping
 
-| Index | Meaning | Status |
-|---|---|---|
-| 0 | User present | **CONFIRMED** (both projects) |
-| 1 | Anal shower running ³ | **CONFIRMED here** |
-| 2 | Lady shower running | **CONFIRMED** (both) |
-| 3 | Dryer running ³ | **CONFIRMED here**, flipped live via command 2 |
-| 4 | Descaling state | **CONFIRMED** (both) |
-| 5 | Descaling minutes | **CONFIRMED** (both) |
-| 6 | **LAST_ERROR** | **CONFIRMED** (C# labels, jens62 BLE log, this app) |
-| 7 | Service state | **CONFIRMED** by name; sat at 0 through a live service-menu calibration, so it does **not** flag that routine |
-| 8–10 | — | **Rejected (`0x80`) on this device** |
-| 11–14 | 0 / 11 / 13 / 10 | **UNKNOWN.** Positional alignment breaks because 8–10 are absent, and the `AC_STATUS_*` suggestion for index 13 contradicts the device's own statistics. Do not map positionally. |
-
-³ On jens62's hardware index 3 tracks the anal shower and index 1 never
-changes; on this Mera Comfort index 3 verifiably tracks the dryer. SPL index
-semantics differ between models and firmware. Nothing in this app relies on
-indices beyond 0–7.
-
-An earlier hypothesis that parameter 12 tracked lid position is **withdrawn**:
-the value did not follow the lid, reading identically fully open and fully
-closed.
-
----
+Moved to [PROTOCOL.md](PROTOCOL.md), where each index is listed with how it
+was confirmed. The one that matters here is **index 6, LAST_ERROR**, confirmed
+by three independent sources and by this app.
 
 ## Sources
 

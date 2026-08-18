@@ -4,9 +4,10 @@ How to reach the AquaClean's own settings from the remote control — including
 the lid calibration and the error-code display, the two that matter most when
 something is wrong.
 
-**Source:** Geberit AquaClean Mera Comfort user manual `966.732.00.0(05)`,
-sections "How to program the device" and "Care and maintenance main menu".
-Verified on a Mera Comfort.
+**Sources:** Geberit AquaClean Mera Comfort user manual `966.732.00.0(05)`,
+sections "How to program the device" and "Care and maintenance main menu" —
+for everything except the service menu, which appears in no manual and is
+recorded here from a Mera Comfort in the field.
 
 ---
 
@@ -65,10 +66,36 @@ lost its position reference.
 What each code means is in [`ERROR_CODES.md`](ERROR_CODES.md) — all 149 of
 them, with the cause and the repair measure from the service manual.
 
+## The hidden service menu
+
+**Not in any manual — reported from the device by the app's author.** Beyond
+the three documented menus there is a service menu that Geberit does not
+describe in the user manual.
+
+To reach it:
+
+1. Navigate to the **`[Care and maintenance]` main menu** on the rear of the
+   remote, as above.
+2. **Hold the `<Lady shower>` and `<Odour extraction>` (fan) buttons together**
+   until the display reads **`Service`**.
+
+This is a service-technician entry point. Its contents are not documented
+here because they have not been catalogued — see the note under the lid
+calibration below.
+
+Treat it accordingly: it exposes settings the normal menus deliberately hide,
+and nothing in it is covered by the user manual.
+
 ## Calibrating the WC lid
 
-Item 8. The manual describes it as *"Safety query for setting the opening
-angle of the WC lid"*.
+**Two routines share this name and they may not be the same thing.** The user
+manual documents `Set WC lid?` as item 8 of `[Care and maintenance]`,
+described as *"Safety query for setting the opening angle of the WC lid"*.
+The hidden service menu also carries an entry called *"kalibrer toalettlokk"*
+(calibrate WC lid), reported to behave differently. Which of the two the
+protocol's commands 33–36 correspond to is **UNVERIFIED**.
+
+What follows describes the documented `[Care and maintenance]` route.
 
 1. Page down to **`Set WC lid?`**
 2. Answer **`yes`**
@@ -95,11 +122,14 @@ routine measures the endpoint through that sensor, so calibrating against a
 failing one stores a wrong value. Codes `050B`, `050C` and `050F` in
 `ERROR_CODES.md` cover the angle sensor and lid reference faults.
 
-## The same calibration over Bluetooth
+## A lid calibration over Bluetooth
 
-The Homey app can drive this routine too, from the device's **Repair** screen
+The Homey app can drive a lid calibration from the device's **Repair** screen
 — commands 33–36 in the AquaClean protocol (`START_LID_CALIBRATION`,
-`LID_OFFSET_INCREMENT`, `LID_OFFSET_DECREMENT`, `LID_OFFSET_SAVE`).
+`LID_OFFSET_INCREMENT`, `LID_OFFSET_DECREMENT`, `LID_OFFSET_SAVE`). Whether
+that is the `[Care and maintenance]` routine above or the service menu's is
+**UNVERIFIED**; the names in the protocol match the service menu's wording
+more closely.
 
 Two warnings from experience, both now handled by the app:
 

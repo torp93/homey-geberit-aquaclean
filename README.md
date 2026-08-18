@@ -91,9 +91,11 @@ Comfort:
   mid-shower changes nothing. The remote adjusts pressure live through a
   channel that is not exposed over this GATT service.
 - Command 37, `TriggerFlushManually`, is acknowledged with status 0 but does
-  nothing observable on a Mera Comfort — tested with the seat both empty and
-  occupied. The name is right; a Mera simply has no bowl flush of its own to
-  trigger, that being the wall plate. Not exposed in the app.
+  nothing observable — tested with the seat both empty and occupied. The name
+  is right and the command is real: it actuates the *bowl* flush through the
+  optional interface module (`147.039.00.1` / `147.049.00.1`) that wires the
+  toilet to an electronic flush plate. Without that module there is nothing to
+  actuate, which is why it is not exposed in the app.
 
 ## Documentation
 

@@ -71,11 +71,18 @@ without exhaustive fault-finding):
 | 0Axx | User detection | Weight sensor in the WC seat |
 | 0Bxx | Proximity sensor ¹ | Radar proximity detection |
 | 0Cxx | Orientation light ¹ | — |
-| 0Dxx | Interface module | Link to the WC control |
+| 0Dxx | Interface module ² | Link to the WC control (flush actuation) |
 | 0Exx | Dryer assembly (2020) | Dryer arm drive |
 | 0Fxx | Instantaneous water heater | Inlet/outlet temperature |
 
 ¹ Marked *"Modèle: Geberit AquaClean Mera Comfort"* — present on this model.
+
+² Marked *"en option"* in the manual, and listed under *"Unités fonctionnelles
+en option"*. This is the separately sold interface module that wires the
+toilet to an electronic flush plate — article `147.039.00.1` (4.1 V, plates up
+to June 2022) or `147.049.00.1` (12 V, from July 2022). Without it the 0Dxx
+codes cannot occur, the `Autom. flush actuation` menu item does not appear on
+the remote, and command 37 has nothing to actuate.
 
 02xx exists in the overview with no module assigned and no codes.
 

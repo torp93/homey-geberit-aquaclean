@@ -90,10 +90,18 @@ Comfort:
 - Stored profile values are read when a function **starts**; writing them
   mid-shower changes nothing. The remote adjusts pressure live through a
   channel that is not exposed over this GATT service.
-- Command 37, inherited as `TRIGGER_FLUSH`, is acknowledged with status 0
-  but does nothing observable on a Mera Comfort — tested with the seat both
-  empty and occupied. A Mera has no bowl flush of its own, so the name is
-  probably wrong. Not exposed in the app.
+- Command 37, `TriggerFlushManually`, is acknowledged with status 0 but does
+  nothing observable on a Mera Comfort — tested with the seat both empty and
+  occupied. The name is right; a Mera simply has no bowl flush of its own to
+  trigger, that being the wall plate. Not exposed in the app.
+
+## Documentation
+
+- [Error codes](docs/ERROR_CODES.md) — every fault code the toilet can report,
+  with the cause and the repair measure from Geberit's service manual, plus
+  what the app can and cannot see over Bluetooth.
+- [The remote's service menus](docs/REMOTE_MENU.md) — how to reach the error
+  display and the lid calibration from the back of the remote control.
 
 ## Credits
 
@@ -110,7 +118,7 @@ served as an additional protocol reference.
 ## Development
 
 ```bash
-npm test                                # 94 unit tests, no hardware needed
+npm test                                # 157 unit tests, no hardware needed
 homey app validate --level publish
 homey app install                       # deploy to your Homey
 ```

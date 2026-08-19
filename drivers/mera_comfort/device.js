@@ -255,6 +255,10 @@ const DETERMINISTIC_FUNCTIONS = Object.freeze({
 // as the poll interval -- 2.5 s while a status is active.
 const SITTING_DURATION_CAPABILITY = 'measure_aquaclean_sitting_duration';
 const SIGNAL_STRENGTH_CAPABILITY = 'aquaclean_signal_strength';
+// Capabilities whose definition changed after devices were already paired.
+// Bump the version to have them re-created once on the next start.
+const CAPABILITY_ICON_VERSION = 2;
+const REDEFINED_CAPABILITIES = Object.freeze(['aquaclean_connection_state']);
 const STATUS_CAPABILITIES = Object.freeze([
   SIGNAL_STRENGTH_CAPABILITY,
   'aquaclean_connection_state',
@@ -484,6 +488,9 @@ class MeraComfortDevice extends Homey.Device {
     this.log('AquaClean device initialized', this.getName());
 
     await this.loadHomeyTimezone();
+    // Before ensureCapabilities, which is what puts the re-created capability
+    // back in the manifest's position on its way through.
+    await this.refreshCapabilityDefinitions();
     await this.ensureCapabilities();
     await this.ensureInsightsCapabilityOptions();
     if (this.hasCapability('aquaclean_connection_state')) {
@@ -546,16 +553,20 @@ class MeraComfortDevice extends Homey.Device {
     if (wanted.join('|') === current.join('|')) return;
 
     // A rebuild that does not take is worth one attempt, not one per restart.
+    // The marker is written at the END, and only if nothing failed: a rebuild
+    // that dies halfway leaves the device with a half-built page, and marking
+    // it as attempted up front meant no restart would ever repair it.
     const signature = wanted.join(',');
     if (this.getStoreValue('capabilityOrderAttempt') === signature) {
       this.log('AquaClean capability order still differs from the manifest; not retrying');
       return;
     }
-    await this.setStoreValue('capabilityOrderAttempt', signature);
 
+    let failed = false;
     this.log('Rebuilding the AquaClean capability order', { capabilities: wanted });
     for (const capabilityId of current) {
       await this.removeCapability(capabilityId).catch(error => {
+        failed = true;
         this.error('Could not remove a capability while reordering', {
           capabilityId,
           message: error.message
@@ -564,12 +575,50 @@ class MeraComfortDevice extends Homey.Device {
     }
     for (const capabilityId of wanted) {
       await this.addCapability(capabilityId).catch(error => {
+        failed = true;
         this.error('Could not re-add a capability while reordering', {
           capabilityId,
           message: error.message
         });
       });
     }
+
+    if (failed) {
+      this.error('AquaClean capability rebuild did not complete; it will run again on the next start');
+      return;
+    }
+    await this.setStoreValue('capabilityOrderAttempt', signature);
+  }
+
+  // Homey snapshots a capability's icon and title when the capability is added
+  // to the device, so editing the definition in the manifest never reaches a
+  // device that already has it. Removing and re-adding is the only way to pick
+  // up the new one. Keyed on a version so it happens once per change, and the
+  // order rebuild above puts the capability back where the manifest wants it.
+  async refreshCapabilityDefinitions() {
+    if (typeof this.removeCapability !== 'function') return;
+    if (this.getStoreValue('capabilityIconVersion') === CAPABILITY_ICON_VERSION) return;
+
+    for (const capabilityId of REDEFINED_CAPABILITIES) {
+      if (!this.hasCapability(capabilityId)) continue;
+      this.log('Re-creating an AquaClean capability to pick up its new icon', capabilityId);
+      try {
+        await this.removeCapability(capabilityId);
+        await this.addCapability(capabilityId);
+      } catch (error) {
+        this.error('Could not re-create an AquaClean capability', {
+          capabilityId,
+          message: error.message
+        });
+        return;
+      }
+    }
+
+    // Re-adding appends, so the capability is now last. The order rebuild is
+    // what puts it back, and it refuses to run while its marker still matches
+    // the target order — clear it, or the tile stays where it landed.
+    await this.setStoreValue('capabilityOrderAttempt', null);
+    await this.setStoreValue('capabilityIconVersion', CAPABILITY_ICON_VERSION);
   }
 
   // Everything the user can see is localized. The raw error keeps flowing to

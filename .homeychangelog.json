@@ -154,5 +154,9 @@
   "1.10.4": {
     "en": "Drops the abbreviation dot that sat against the comma in the timestamp.",
     "no": "Fjerner forkortelsespunktumet som lå inntil kommaet i tidsstempelet."
+  },
+  "1.10.5": {
+    "en": "Bluetooth signal strength is shown as dBm without decimals. Homey labels the system capability dB and renders two decimals, but RSSI is an absolute power in dBm and is always a whole number.",
+    "no": "Bluetooth-signalstyrke vises nå som dBm uten desimaler. Homey merker systemkapabiliteten dB og viser to desimaler, men RSSI er absolutt effekt i dBm og alltid et heltall."
   }
 }

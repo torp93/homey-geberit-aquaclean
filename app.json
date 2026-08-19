@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.10.4",
+  "version": "1.10.5",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -1544,6 +1544,12 @@
             "en": "Dryer off",
             "no": "Tørker av"
           }
+        },
+        "measure_signal_strength": {
+          "units": {
+            "en": "dBm"
+          },
+          "decimals": 0
         }
       },
       "settings": [

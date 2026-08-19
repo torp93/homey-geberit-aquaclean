@@ -186,5 +186,9 @@
   "1.12.0": {
     "en": "Flow cards for every setting: seat heating, water temperature, shower pressure and arm position, dryer, orientation light and the lid, plus profile switches — set from a Flow, not just the settings page. New conditions for days until descaling or filter change and for weak Bluetooth signal, a trigger for a visit lasting longer than a chosen time, a reset-filter and restart-proxy action, and the repair screen now shows signal strength and the toilet's model, serial and firmware next to the fault.",
     "no": "Flow-kort for alle innstillinger: setevarme, vanntemperatur, spylestyrke og armposisjon, tørker, orienteringslys og lokket, samt profilbrytere — settes fra en Flow, ikke bare fra innstillingssiden. Nye betingelser for dager til avkalking eller filterbytte og for svakt Bluetooth-signal, en utløser for besøk som varer lenger enn en valgt tid, handlinger for filternullstilling og proxy-restart, og reparasjonsskjermen viser nå signalstyrke og toalettets modell, serienummer og fastvare ved siden av feilen."
+  },
+  "1.12.1": {
+    "en": "New driver icon: a line drawing of the Mera Comfort shower toilet, replacing the generic toilet glyph.",
+    "no": "Nytt driverikon: en strektegning av Mera Comfort dusj-WC, i stedet for det generiske toalettsymbolet."
   }
 }

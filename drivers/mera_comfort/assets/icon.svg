@@ -1,7 +1,61 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="960" viewBox="0 0 960 960">
-  <!-- Material Design Icons "toilet" - Apache License 2.0, pictogrammers.com
-       Drawn on the 960x960 canvas the App Store guidelines ask for: the glyph's
-       native 24x24 grid scaled by 40, so the artwork fills the canvas instead
-       of sitting in a 24-unit corner of it. -->
-  <path fill="#000" transform="scale(40)" d="M9,22H17V19.5C19.41,17.87 21,15.12 21,12V4A2,2 0 0,0 19,2H15C13.89,2 13,2.9 13,4V12H3C3,15.09 5,18 9,19.5V22M5.29,14H18.71C18.14,15.91 16.77,17.5 15,18.33V20H11V18.33C9,18 5.86,15.91 5.29,14M15,4H19V12H15V4M16,5V8H18V5H16Z"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="960"
+  height="960"
+  viewBox="0 0 960 960"
+>
+  <g
+    transform="translate(20 20) scale(0.9583333333)"
+    fill="none"
+    stroke="#000000"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <!-- Overall rear housing and raised technical cover. -->
+    <path
+      stroke-width="34"
+      d="M0 178 489 49q9-2 18 3l101 61"
+    />
+    <path
+      stroke-width="34"
+      d="M0 178c-2 142 5 384 42 494q4 13 17 21"
+    />
+    <path
+      stroke-width="20"
+      d="m0 178 107 80"
+    />
+
+    <!-- Lid and seat, traced from the supplied product photograph. -->
+    <path
+      stroke-width="34"
+      d="m107 258 484-144q31-9 62 6c146 70 249 161 293 234q24 38 13 74-8 28-37 48c-66 46-169 65-287 57-178-12-357-74-527-180q-8-6-7-19l1-51q0-17 5-25z"
+    />
+    <path
+      stroke-width="20"
+      d="M108 353c172 112 351 178 527 190 120 8 225-12 292-59q25-18 32-42"
+    />
+
+    <!-- Smooth ceramic body. -->
+    <path
+      stroke-width="34"
+      d="M108 353c4 122 12 241 42 299q12 25 44 44c165 100 331 152 489 155q103 2 164-42 38-27 56-82c28-84 44-184 56-299"
+    />
+    <path
+      stroke-width="20"
+      d="M107 258c-5 122 1 323 43 394"
+    />
+
+    <!-- Wall-hung underside and characteristic rounded base. -->
+    <path
+      stroke-width="34"
+      d="m59 693 333 183c87 46 180 46 262 25q65-17 106-52"
+    />
+
+    <!-- Single clean side button following the photograph's perspective. -->
+    <path
+      stroke-width="16"
+      d="M34 297q-6 1-6 10v18q1 11 8 17l25 19q7 6 12 1 4-5 3-15l-1-10q-1-10-8-16l-26-20q-4-3-7-4z"
+    />
+  </g>
 </svg>

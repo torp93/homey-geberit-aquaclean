@@ -166,5 +166,9 @@
   "1.11.0": {
     "en": "Bluetooth signal strength is now the app's own capability, shown with the Bluetooth icon and in dBm without decimals. Homey's system capability ignored both and kept its WiFi icon and \"dB\" label. Its recorded history does not carry over.",
     "no": "Bluetooth-signalstyrke er nå appens egen kapabilitet, vist med Bluetooth-ikonet og i dBm uten desimaler. Homeys systemkapabilitet overså begge deler og beholdt WiFi-ikonet og «dB». Den registrerte historikken følger ikke med."
+  },
+  "1.11.1": {
+    "en": "The Bluetooth signal icon is the plain Bluetooth rune. The previous one was the connect variant, whose side markers read as sound waves.",
+    "no": "Ikonet for Bluetooth-signal er nå den rene Bluetooth-runen. Det forrige var connect-varianten, hvis sidemarkører leses som lydbølger."
   }
 }

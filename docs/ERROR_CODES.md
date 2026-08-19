@@ -314,6 +314,18 @@ shows "No error" while something is visibly wrong.
 > this app. Do not read that as the toilet being fine; it is the documented
 > behaviour for this class of fault, and the fix is mechanical (calibration or
 > a lid-lever replacement under warranty), not something the app can clear.
+>
+> On this device the fix was a parts replacement, not calibration:
+>
+> | Part | Description | Replaced |
+> |---|---|---|
+> | `243.212.00.1` | Lid lifter with control (lokkløfter med styring) | 2026-08-19 |
+> | `243.216.11.1` | Heated WC seat | 2025-10-08 |
+>
+> The lid lifter is a single module that carries both the motor and the lid
+> sensor, so its replacement resets the reference this app reads at SPL index
+> 12. That index read 16 originally and 11/15 after the fault developed; a
+> fresh reading after this replacement is the clean baseline to record.
 
 The one most likely to be met in practice, reproduced here because a lid
 fault is what sends people looking. Causes are listed per symptom in the

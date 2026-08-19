@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.10.6",
+  "version": "1.11.0",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -514,6 +514,25 @@
       "decimals": 0,
       "insights": true,
       "chartType": "stepLine"
+    },
+    "aquaclean_signal_strength": {
+      "type": "number",
+      "title": {
+        "en": "Bluetooth signal",
+        "no": "Bluetooth-signal"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "units": {
+        "en": "dBm"
+      },
+      "decimals": 0,
+      "min": -127,
+      "max": 0,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/bluetooth.svg"
     }
   },
   "images": {
@@ -1367,7 +1386,7 @@
         "aquaclean_dryer_running",
         "aquaclean_days_until_descaling",
         "aquaclean_days_until_filter",
-        "measure_signal_strength",
+        "aquaclean_signal_strength",
         "aquaclean_connection_state",
         "aquaclean_last_status_update",
         "aquaclean_connection_error",
@@ -1544,13 +1563,6 @@
             "en": "Dryer off",
             "no": "Tørker av"
           }
-        },
-        "measure_signal_strength": {
-          "units": {
-            "en": "dBm"
-          },
-          "decimals": 0,
-          "icon": "/assets/capability-icons/bluetooth.svg"
         }
       },
       "settings": [

@@ -39,7 +39,7 @@ test('legacy system buttons migrate to icon-capable AquaClean buttons', async ()
       'aquaclean_descaling_state', 'aquaclean_error_code', 'aquaclean_raw_status',
       'aquaclean_days_until_descaling', 'aquaclean_days_until_filter',
       'aquaclean_dryer_running',
-      'aquaclean_last_setting_write', 'measure_signal_strength',
+      'aquaclean_last_setting_write', 'aquaclean_signal_strength',
       'aquaclean_connection_state', 'aquaclean_last_status_update',
       'aquaclean_connection_error'
     ] } },
@@ -1276,7 +1276,7 @@ test('retired capabilities keep their definitions until every device is clean', 
 
   // Every capability the driver does carry must be defined, retired or not.
   for (const capabilityId of driver.capabilities) {
-    if (capabilityId.startsWith('measure_signal_strength')) continue;
+    // Every capability is now the app's own, so all of them must be defined.
     assert.ok(appJson.capabilities[capabilityId], `${capabilityId} has no definition`);
   }
 });

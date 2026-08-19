@@ -160,7 +160,11 @@
     "no": "Bluetooth-signalstyrke vises nå som dBm uten desimaler. Homey merker systemkapabiliteten dB og viser to desimaler, men RSSI er absolutt effekt i dBm og alltid et heltall."
   },
   "1.10.6": {
-    "en": "Bluetooth signal strength now uses the Bluetooth icon instead of Homey's generic signal icon.",
-    "no": "Bluetooth-signalstyrke bruker nå Bluetooth-ikonet i stedet for Homeys generiske signalikon."
+    "en": "Bluetooth signal strength gets the Bluetooth icon.",
+    "no": "Bluetooth-signalstyrke får Bluetooth-ikonet."
+  },
+  "1.11.0": {
+    "en": "Bluetooth signal strength is now the app's own capability, shown with the Bluetooth icon and in dBm without decimals. Homey's system capability ignored both and kept its WiFi icon and \"dB\" label. Its recorded history does not carry over.",
+    "no": "Bluetooth-signalstyrke er nå appens egen kapabilitet, vist med Bluetooth-ikonet og i dBm uten desimaler. Homeys systemkapabilitet overså begge deler og beholdt WiFi-ikonet og «dB». Den registrerte historikken følger ikke med."
   }
 }

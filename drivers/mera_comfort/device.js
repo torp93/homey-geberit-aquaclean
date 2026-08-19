@@ -254,8 +254,9 @@ const DETERMINISTIC_FUNCTIONS = Object.freeze({
 // duration is measured here from the transitions, so it is only as precise
 // as the poll interval -- 2.5 s while a status is active.
 const SITTING_DURATION_CAPABILITY = 'measure_aquaclean_sitting_duration';
+const SIGNAL_STRENGTH_CAPABILITY = 'aquaclean_signal_strength';
 const STATUS_CAPABILITIES = Object.freeze([
-  'measure_signal_strength',
+  SIGNAL_STRENGTH_CAPABILITY,
   'aquaclean_connection_state',
   'aquaclean_connection_error',
   'aquaclean_last_status_update',
@@ -393,15 +394,6 @@ const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
   aquaclean_error_code: {
     insights: true,
     chartType: 'stepLine'
-  },
-  // Not an Insights option, but it rides the same push: a paired device keeps
-  // the options it was created with, so a manifest change alone would never
-  // reach it. Homey's system capability calls itself dB with two decimals;
-  // RSSI is an absolute power in dBm and always a whole number.
-  measure_signal_strength: {
-    units: { en: 'dBm' },
-    decimals: 0,
-    icon: '/assets/capability-icons/bluetooth.svg'
   }
 });
 
@@ -1487,8 +1479,12 @@ class MeraComfortDevice extends Homey.Device {
     this._forceFreshScan = false;
     peripheralUuid = advertisement.uuid;
 
-    if (typeof advertisement.rssi === 'number' && this.hasCapability('measure_signal_strength')) {
-      await this.setCapabilityValue('measure_signal_strength', advertisement.rssi);
+    // Our own capability rather than Homey's measure_signal_strength: a system
+    // capability keeps its own definition, so the icon stays a WiFi symbol and
+    // the unit stays "dB" no matter what capabilitiesOptions say.
+    if (typeof advertisement.rssi === 'number'
+      && this.hasCapability(SIGNAL_STRENGTH_CAPABILITY)) {
+      await this.setCapabilityValue(SIGNAL_STRENGTH_CAPABILITY, advertisement.rssi);
     }
 
     const peripheral = await this.connectWithRetry(advertisement, peripheralUuid);

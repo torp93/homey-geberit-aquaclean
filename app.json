@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.11.1",
+  "version": "1.11.2",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -35,7 +35,7 @@
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
-      "icon": "/assets/capability-icons/bluetooth.svg",
+      "icon": "/assets/capability-icons/bluetooth-plain.svg",
       "values": [
         {
           "id": "ready",

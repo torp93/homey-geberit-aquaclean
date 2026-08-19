@@ -170,5 +170,9 @@
   "1.11.1": {
     "en": "The Bluetooth signal icon is the plain Bluetooth rune. The previous one was the connect variant, whose side markers read as sound waves.",
     "no": "Ikonet for Bluetooth-signal er nå den rene Bluetooth-runen. Det forrige var connect-varianten, hvis sidemarkører leses som lydbølger."
+  },
+  "1.11.2": {
+    "en": "The Bluetooth connection tile gets the plain rune too, so both Bluetooth tiles carry the same symbol.",
+    "no": "Flisen for Bluetooth-forbindelse får også den rene runen, slik at begge Bluetooth-flisene har samme symbol."
   }
 }

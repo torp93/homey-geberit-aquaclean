@@ -834,14 +834,19 @@ class MeraComfortDevice extends Homey.Device {
     }
   }
 
+  // en-GB rather than en-US: 24-hour clock and day before month, which is what
+  // the rest of the app assumes and what Homey shows elsewhere in Europe. Read
+  // inline rather than through a helper so every caller keeps working with a
+  // plain object that only carries _language and _timeZone.
   formatLocalTime(date, options) {
+    const locale = this._language === 'no' ? 'nb-NO' : 'en-GB';
     const settings = { ...options };
     if (this._timeZone) settings.timeZone = this._timeZone;
     try {
-      return date.toLocaleString('nb-NO', settings);
+      return date.toLocaleString(locale, settings);
     } catch (error) {
       // An unknown timezone name must not cost us the timestamp entirely.
-      return date.toLocaleString('nb-NO', options);
+      return date.toLocaleString(locale, options);
     }
   }
 
@@ -1228,7 +1233,16 @@ class MeraComfortDevice extends Homey.Device {
       description: described ? described.description : null,
       updatedAt: this.hasCapability('aquaclean_last_status_update')
         ? this.getCapabilityValue('aquaclean_last_status_update')
-        : null
+        : null,
+      // What Geberit asks for on the phone, and what tells you whether a
+      // failed read was the toilet or the radio. Gathered here so the repair
+      // screen never has to make a second round trip to look useful.
+      signalStrength: this.hasCapability(SIGNAL_STRENGTH_CAPABILITY)
+        ? this.getCapabilityValue(SIGNAL_STRENGTH_CAPABILITY)
+        : null,
+      model: this.getSetting('info_model') || null,
+      serialNumber: this.getSetting('info_serial_number') || null,
+      firmware: this.getSetting('info_firmware') || null
     };
   }
 
@@ -2150,9 +2164,18 @@ class MeraComfortDevice extends Homey.Device {
     if (value !== false || previousValue !== true || !this._sittingSince) return;
     const seconds = Math.round((Date.now() - this._sittingSince) / 1000);
     this._sittingSince = null;
-    if (!this.hasCapability(SITTING_DURATION_CAPABILITY)) return;
-    await this.setCapabilityValue(SITTING_DURATION_CAPABILITY, seconds)
-      .catch(error => this.error('Could not record the visit duration', error.message));
+
+    if (this.hasCapability(SITTING_DURATION_CAPABILITY)) {
+      await this.setCapabilityValue(SITTING_DURATION_CAPABILITY, seconds)
+        .catch(error => this.error('Could not record the visit duration', error.message));
+    }
+
+    // The card carries the threshold; every completed visit is offered and the
+    // Flow's own run listener decides. Minutes as a token too, since that is
+    // the unit the threshold is written in.
+    await this.homey.flow.getDeviceTriggerCard('aquaclean_visit_longer_than')
+      .trigger(this, { seconds, minutes: Math.round(seconds / 60) }, { seconds })
+      .catch(error => this.error('AquaClean visit trigger failed', error.message));
   }
 
   async setStatusCapabilityValue(capabilityId, value) {

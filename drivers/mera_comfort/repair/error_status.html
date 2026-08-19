@@ -31,6 +31,12 @@
   .aq button.primary { background: #0072BA; border-color: #0072BA; color: #fff; }
   .aq button[disabled] { opacity: 0.4; cursor: default; }
   .aq .note { margin-top: 16px; font-size: 0.82em; opacity: 0.7; }
+  .aq .facts { margin: 0 0 16px; font-size: 0.85em; }
+  .aq .facts div { display: flex; justify-content: space-between; gap: 12px;
+                   padding: 6px 0; border-top: 1px solid rgba(128,128,128,0.18); }
+  .aq .facts dt { opacity: 0.6; }
+  .aq .facts dd { margin: 0; text-align: right;
+                  font-family: ui-monospace, Menlo, Consolas, monospace; }
 </style>
 
 <div class="aq">
@@ -39,6 +45,15 @@
     <div class="what" id="what" data-i18n="repair.status.reading">Reading the status from the toilet…</div>
     <div class="when" id="when"></div>
   </div>
+
+  <!-- Signal strength and the toilet's own identity, so a fault can be quoted
+       to Geberit in full and a failed read can be told apart from a weak link. -->
+  <dl class="facts" id="facts" hidden>
+    <div><dt data-i18n="repair.facts.signal">Bluetooth signal</dt><dd id="fact-signal">—</dd></div>
+    <div><dt data-i18n="repair.facts.model">Model</dt><dd id="fact-model">—</dd></div>
+    <div><dt data-i18n="repair.facts.serial">Serial number</dt><dd id="fact-serial">—</dd></div>
+    <div><dt data-i18n="repair.facts.firmware">Firmware</dt><dd id="fact-firmware">—</dd></div>
+  </dl>
 
   <div class="buttons">
     <button id="refresh" data-i18n="repair.status.refresh">Check again</button>
@@ -118,6 +133,25 @@
     whenEl.textContent = result.updatedAt
       ? t('repair.status.updated') + ' ' + result.updatedAt
       : '';
+
+    renderFacts(result);
+  }
+
+  const factsEl = document.getElementById('facts');
+  function setFact(id, value) {
+    document.getElementById(id).textContent =
+      (value === null || value === undefined || value === '') ? '—' : value;
+  }
+  function renderFacts(result) {
+    const signal = Number.isFinite(result.signalStrength)
+      ? result.signalStrength + ' dBm' : null;
+    setFact('fact-signal', signal);
+    setFact('fact-model', result.model);
+    setFact('fact-serial', result.serialNumber);
+    setFact('fact-firmware', result.firmware);
+    // Only worth showing once there is something in it; an all-dashes block is
+    // noise on a fresh device that has not read its identity yet.
+    factsEl.hidden = !(signal || result.model || result.serialNumber || result.firmware);
   }
 
   function load(refresh) {

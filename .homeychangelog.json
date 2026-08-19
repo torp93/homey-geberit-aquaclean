@@ -182,5 +182,9 @@
   "1.11.4": {
     "en": "Puts the Bluetooth connection tile back in its place on the device page. Re-creating it to pick up the new icon moved it to the end, and the reorder that should have restored it was blocked by its own guard.",
     "no": "Setter flisen for Bluetooth-forbindelse tilbake på plass på enhetssiden. Gjenopprettingen som hentet det nye ikonet flyttet den bakerst, og omrokeringen som skulle rettet det ble blokkert av sin egen vakt."
+  },
+  "1.12.0": {
+    "en": "Flow cards for every setting: seat heating, water temperature, shower pressure and arm position, dryer, orientation light and the lid, plus profile switches — set from a Flow, not just the settings page. New conditions for days until descaling or filter change and for weak Bluetooth signal, a trigger for a visit lasting longer than a chosen time, a reset-filter and restart-proxy action, and the repair screen now shows signal strength and the toilet's model, serial and firmware next to the fault.",
+    "no": "Flow-kort for alle innstillinger: setevarme, vanntemperatur, spylestyrke og armposisjon, tørker, orienteringslys og lokket, samt profilbrytere — settes fra en Flow, ikke bare fra innstillingssiden. Nye betingelser for dager til avkalking eller filterbytte og for svakt Bluetooth-signal, en utløser for besøk som varer lenger enn en valgt tid, handlinger for filternullstilling og proxy-restart, og reparasjonsskjermen viser nå signalstyrke og toalettets modell, serienummer og fastvare ved siden av feilen."
   }
 }

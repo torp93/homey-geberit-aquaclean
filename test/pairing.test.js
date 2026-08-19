@@ -314,6 +314,7 @@ test('the repair status reports a fault, health and a failed read apart', async 
       _language: 'en',
       hasCapability: id => id in caps,
       getCapabilityValue: id => caps[id],
+      getSetting: () => null,
       refreshStatus: async () => { if (refreshFails) throw new Error('unreachable'); },
       waitForIdle: async () => {},
       log: () => {},

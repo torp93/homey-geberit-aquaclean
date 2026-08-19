@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.11.4",
+  "version": "1.12.0",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -40,8 +40,8 @@
         {
           "id": "ready",
           "title": {
-            "en": "Ready (on-demand)",
-            "no": "Klar (on-demand)"
+            "en": "Ready (on demand)",
+            "no": "Klar (ved behov)"
           }
         },
         {
@@ -940,6 +940,53 @@
             }
           }
         ]
+      },
+      {
+        "id": "aquaclean_visit_longer_than",
+        "title": {
+          "en": "A visit lasted longer than",
+          "no": "Et besøk varte lenger enn"
+        },
+        "titleFormatted": {
+          "en": "A visit lasted longer than [[minutes]] minutes",
+          "no": "Et besøk varte lenger enn [[minutes]] minutter"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "minutes",
+            "type": "number",
+            "min": 1,
+            "max": 240,
+            "step": 1
+          }
+        ],
+        "tokens": [
+          {
+            "name": "minutes",
+            "type": "number",
+            "title": {
+              "en": "Minutes",
+              "no": "Minutter"
+            }
+          },
+          {
+            "name": "seconds",
+            "type": "number",
+            "title": {
+              "en": "Seconds",
+              "no": "Sekunder"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Fires when someone gets up again, so the length is known. A visit already under way when the app started is not counted.",
+          "no": "Utløses når noen reiser seg igjen, slik at lengden er kjent. Et besøk som allerede pågikk da appen startet, telles ikke."
+        }
       }
     ],
     "conditions": [
@@ -1073,6 +1120,85 @@
         "hint": {
           "en": "Whether Homey can reach the toilet over Bluetooth. This is not the same as the toilet reporting a fault.",
           "no": "Om Homey får kontakt med toalettet over Bluetooth. Det er ikke det samme som at toalettet melder en feil."
+        }
+      },
+      {
+        "id": "aquaclean_condition_days_until_descaling",
+        "title": {
+          "en": "Days until descaling !{{is|is not}} below",
+          "no": "Dager til avkalking !{{er|er ikke}} under"
+        },
+        "titleFormatted": {
+          "en": "Days until descaling !{{is|is not}} below [[days]]",
+          "no": "Dager til avkalking !{{er|er ikke}} under [[days]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "days",
+            "type": "number",
+            "min": 0,
+            "max": 365,
+            "step": 1
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_condition_days_until_filter",
+        "title": {
+          "en": "Days until the filter change !{{is|is not}} below",
+          "no": "Dager til filterbytte !{{er|er ikke}} under"
+        },
+        "titleFormatted": {
+          "en": "Days until the filter change !{{is|is not}} below [[days]]",
+          "no": "Dager til filterbytte !{{er|er ikke}} under [[days]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "days",
+            "type": "number",
+            "min": 0,
+            "max": 365,
+            "step": 1
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_condition_signal_strength",
+        "title": {
+          "en": "Bluetooth signal !{{is|is not}} weaker than",
+          "no": "Bluetooth-signalet !{{er|er ikke}} svakere enn"
+        },
+        "titleFormatted": {
+          "en": "Bluetooth signal !{{is|is not}} weaker than [[dbm]] dBm",
+          "no": "Bluetooth-signalet !{{er|er ikke}} svakere enn [[dbm]] dBm"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "dbm",
+            "type": "number",
+            "min": -127,
+            "max": 0,
+            "step": 1
+          }
+        ],
+        "hint": {
+          "en": "Less than about -90 dBm is where the connection starts failing.",
+          "no": "Under omtrent −90 dBm er der forbindelsen begynner å svikte."
         }
       }
     ],
@@ -1355,6 +1481,531 @@
           }
         ],
         "deprecated": true
+      },
+      {
+        "id": "aquaclean_action_set_profile_level",
+        "title": {
+          "en": "Set a profile level",
+          "no": "Sett et profilnivå"
+        },
+        "titleFormatted": {
+          "en": "Set [[setting]] to [[value]] in [[profile]]",
+          "no": "Sett [[setting]] til [[value]] i [[profile]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "setting",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "profile_seat_heat",
+                "label": {
+                  "en": "Seat heating",
+                  "no": "Setevarme"
+                }
+              },
+              {
+                "id": "profile_water_temperature",
+                "label": {
+                  "en": "Water temperature",
+                  "no": "Vanntemperatur"
+                }
+              },
+              {
+                "id": "profile_anal_pressure",
+                "label": {
+                  "en": "Anal shower pressure",
+                  "no": "Spylestyrke analdusj"
+                }
+              },
+              {
+                "id": "profile_anal_position",
+                "label": {
+                  "en": "Anal shower arm position",
+                  "no": "Dusjarmposisjon analdusj"
+                }
+              },
+              {
+                "id": "profile_lady_pressure",
+                "label": {
+                  "en": "Lady shower pressure",
+                  "no": "Spylestyrke ladydusj"
+                }
+              },
+              {
+                "id": "profile_lady_position",
+                "label": {
+                  "en": "Lady shower arm position",
+                  "no": "Dusjarmposisjon ladydusj"
+                }
+              },
+              {
+                "id": "profile_dryer_temperature",
+                "label": {
+                  "en": "Dryer air temperature",
+                  "no": "Lufttemperatur tørker"
+                }
+              },
+              {
+                "id": "profile_dryer_fan_power",
+                "label": {
+                  "en": "Dryer fan power",
+                  "no": "Viftestyrke tørker"
+                }
+              }
+            ]
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "min": 0,
+            "max": 5,
+            "step": 1
+          },
+          {
+            "name": "profile",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "current",
+                "label": {
+                  "en": "The profile being edited",
+                  "no": "Profilen som redigeres"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "Base settings",
+                  "no": "Grunninnstillinger"
+                }
+              },
+              {
+                "id": "1",
+                "label": {
+                  "en": "Profile 1",
+                  "no": "Profil 1"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "Profile 2",
+                  "no": "Profil 2"
+                }
+              },
+              {
+                "id": "3",
+                "label": {
+                  "en": "Profile 3",
+                  "no": "Profil 3"
+                }
+              },
+              {
+                "id": "4",
+                "label": {
+                  "en": "Profile 4",
+                  "no": "Profil 4"
+                }
+              }
+            ]
+          }
+        ],
+        "hint": {
+          "en": "Steps run 0-4 for pressure, arm position and fan power, and 0-5 for the two temperatures and the seat heating. A value the setting does not accept is reported rather than written.",
+          "no": "Trinnene går 0–4 for spylestyrke, armposisjon og viftestyrke, og 0–5 for de to temperaturene og setevarmen. En verdi innstillingen ikke godtar blir meldt fra om, ikke skrevet."
+        }
+      },
+      {
+        "id": "aquaclean_action_set_profile_switch",
+        "title": {
+          "en": "Turn a profile setting on or off",
+          "no": "Slå en profilinnstilling av eller på"
+        },
+        "titleFormatted": {
+          "en": "Turn [[setting]] [[state]] in [[profile]]",
+          "no": "Slå [[setting]] [[state]] i [[profile]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "setting",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "profile_oscillation",
+                "label": {
+                  "en": "Oscillation",
+                  "no": "Oscillasjon"
+                }
+              },
+              {
+                "id": "profile_odour_extraction",
+                "label": {
+                  "en": "Odour extraction",
+                  "no": "Luktavsug"
+                }
+              },
+              {
+                "id": "profile_system_flush",
+                "label": {
+                  "en": "System flush",
+                  "no": "Systemspyling"
+                }
+              },
+              {
+                "id": "profile_dryer_state",
+                "label": {
+                  "en": "Dryer",
+                  "no": "Tørker"
+                }
+              }
+            ]
+          },
+          {
+            "name": "state",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "on",
+                "label": {
+                  "en": "On",
+                  "no": "På"
+                }
+              },
+              {
+                "id": "off",
+                "label": {
+                  "en": "Off",
+                  "no": "Av"
+                }
+              }
+            ]
+          },
+          {
+            "name": "profile",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "current",
+                "label": {
+                  "en": "The profile being edited",
+                  "no": "Profilen som redigeres"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "Base settings",
+                  "no": "Grunninnstillinger"
+                }
+              },
+              {
+                "id": "1",
+                "label": {
+                  "en": "Profile 1",
+                  "no": "Profil 1"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "Profile 2",
+                  "no": "Profil 2"
+                }
+              },
+              {
+                "id": "3",
+                "label": {
+                  "en": "Profile 3",
+                  "no": "Profil 3"
+                }
+              },
+              {
+                "id": "4",
+                "label": {
+                  "en": "Profile 4",
+                  "no": "Profil 4"
+                }
+              }
+            ]
+          }
+        ],
+        "hint": {
+          "en": "These are the profile defaults, not the running functions. Turning the dryer on here means it runs after a shower; it does not start the dryer now.",
+          "no": "Dette er profilens standardvalg, ikke funksjonene som kjører. Å slå på tørkeren her betyr at den går etter en dusj — den starter ikke tørkeren nå."
+        }
+      },
+      {
+        "id": "aquaclean_action_set_light_mode",
+        "title": {
+          "en": "Set when the orientation light comes on",
+          "no": "Velg når orienteringslyset tennes"
+        },
+        "titleFormatted": {
+          "en": "Orientation light: [[mode]]",
+          "no": "Orienteringslys: [[mode]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "0",
+                "label": {
+                  "en": "Never",
+                  "no": "Aldri"
+                }
+              },
+              {
+                "id": "1",
+                "label": {
+                  "en": "Always on",
+                  "no": "Alltid på"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "When approached",
+                  "no": "Ved tilnærming"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_set_light_colour",
+        "title": {
+          "en": "Set the orientation light colour",
+          "no": "Sett fargen på orienteringslyset"
+        },
+        "titleFormatted": {
+          "en": "Orientation light colour: [[colour]]",
+          "no": "Orienteringslysets farge: [[colour]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "colour",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "0",
+                "label": {
+                  "en": "Blue",
+                  "no": "Blå"
+                }
+              },
+              {
+                "id": "1",
+                "label": {
+                  "en": "Turquoise",
+                  "no": "Turkis"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "Magenta",
+                  "no": "Magenta"
+                }
+              },
+              {
+                "id": "3",
+                "label": {
+                  "en": "Orange",
+                  "no": "Oransje"
+                }
+              },
+              {
+                "id": "4",
+                "label": {
+                  "en": "Yellow",
+                  "no": "Gul"
+                }
+              },
+              {
+                "id": "5",
+                "label": {
+                  "en": "Warm white",
+                  "no": "Varmhvit"
+                }
+              },
+              {
+                "id": "6",
+                "label": {
+                  "en": "Cold white",
+                  "no": "Kaldhvit"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_set_light_brightness",
+        "title": {
+          "en": "Set the orientation light brightness",
+          "no": "Sett lysstyrken på orienteringslyset"
+        },
+        "titleFormatted": {
+          "en": "Orientation light brightness [[value]]",
+          "no": "Lysstyrke orienteringslys [[value]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "min": 0,
+            "max": 4,
+            "step": 1
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_set_lid_auto",
+        "title": {
+          "en": "Turn automatic lid movement on or off",
+          "no": "Slå automatisk lokkbevegelse av eller på"
+        },
+        "titleFormatted": {
+          "en": "Turn [[movement]] [[state]]",
+          "no": "Slå [[movement]] [[state]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "movement",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "lid_auto_open",
+                "label": {
+                  "en": "Open on approach",
+                  "no": "Åpne ved tilnærming"
+                }
+              },
+              {
+                "id": "lid_auto_close",
+                "label": {
+                  "en": "Close automatically",
+                  "no": "Lukk automatisk"
+                }
+              }
+            ]
+          },
+          {
+            "name": "state",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "on",
+                "label": {
+                  "en": "On",
+                  "no": "På"
+                }
+              },
+              {
+                "id": "off",
+                "label": {
+                  "en": "Off",
+                  "no": "Av"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_set_lid_sensor_range",
+        "title": {
+          "en": "Set the lid proximity sensor range",
+          "no": "Sett rekkevidden til lokkets nærhetssensor"
+        },
+        "titleFormatted": {
+          "en": "Lid sensor range [[value]]",
+          "no": "Rekkevidde lokksensor [[value]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "min": 0,
+            "max": 4,
+            "step": 1
+          }
+        ]
+      },
+      {
+        "id": "aquaclean_action_reset_filter_counter",
+        "title": {
+          "en": "Record that the ceramic filter was replaced",
+          "no": "Registrer at det keramiske filteret er byttet"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ],
+        "hint": {
+          "en": "Sets the filter counter back to 365 days and records the date. Only do this when the filter has actually been changed.",
+          "no": "Setter filtertelleren tilbake til 365 dager og lagrer datoen. Gjør dette bare når filteret faktisk er byttet."
+        }
+      },
+      {
+        "id": "aquaclean_action_restart_proxy",
+        "title": {
+          "en": "Restart the Bluetooth proxy",
+          "no": "Restart Bluetooth-proxyen"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=mera_comfort"
+          }
+        ],
+        "hint": {
+          "en": "Reboots the ESP32 running the proxy. The toilet is unreachable for about half a minute afterwards.",
+          "no": "Starter ESP32-en som kjører proxyen på nytt. Toalettet er utilgjengelig i omtrent et halvt minutt etterpå."
+        }
       }
     ]
   },

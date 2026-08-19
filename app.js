@@ -142,6 +142,91 @@ class GeberitAquaCleanApp extends Homey.App {
         (args, state) => state.current < args.days && state.previous >= args.days,
       );
     }
+
+    this.registerSettingFlowCards();
+    this.registerThresholdConditions();
+
+    this.homey.flow
+      .getDeviceTriggerCard('aquaclean_visit_longer_than')
+      .registerRunListener((args, state) => state.seconds > args.minutes * 60);
+  }
+
+  // Everything on the settings page was unreachable from a Flow: the toilet
+  // could be told to shower on a schedule but not to have the seat warm when
+  // you got there. These write through the same path the settings page uses,
+  // so range checking, the read-back and the error messages are shared.
+  registerSettingFlowCards() {
+    // "current" means the profile the settings page is editing, which is the
+    // only sensible default: the toilet never says which profile it is using.
+    const profileFromArgs = args => (!args.profile || args.profile === 'current'
+      ? null
+      : Number(args.profile));
+
+    this.homey.flow
+      .getActionCard('aquaclean_action_set_profile_level')
+      .registerRunListener(({ device, setting, value, ...args }) =>
+        device.writeConfigSetting(setting, Number(value), profileFromArgs(args)));
+
+    this.homey.flow
+      .getActionCard('aquaclean_action_set_profile_switch')
+      .registerRunListener(({ device, setting, state, ...args }) =>
+        device.writeConfigSetting(setting, state === 'on', profileFromArgs(args)));
+
+    // Device-wide settings: no profile, so the override stays null. The
+    // dropdown ids are the wire values, which writeConfigSetting expects as
+    // strings for a dropdown-kind setting.
+    const deviceWide = {
+      aquaclean_action_set_light_mode: ['light_mode', args => args.mode],
+      aquaclean_action_set_light_colour: ['light_colour', args => args.colour],
+      aquaclean_action_set_light_brightness: ['light_brightness', args => Number(args.value)],
+      aquaclean_action_set_lid_sensor_range: ['lid_sensor_range', args => Number(args.value)]
+    };
+    for (const [cardId, [settingId, pick]] of Object.entries(deviceWide)) {
+      this.homey.flow.getActionCard(cardId).registerRunListener(args =>
+        args.device.writeConfigSetting(settingId, pick(args)));
+    }
+
+    // Which of the two automatic movements is chosen by the card's own
+    // dropdown, whose ids are the setting ids.
+    this.homey.flow
+      .getActionCard('aquaclean_action_set_lid_auto')
+      .registerRunListener(({ device, movement, state }) =>
+        device.writeConfigSetting(movement, state === 'on'));
+
+    this.homey.flow
+      .getActionCard('aquaclean_action_reset_filter_counter')
+      .registerRunListener(({ device }) => device.executeFilterReset());
+
+    this.homey.flow
+      .getActionCard('aquaclean_action_restart_proxy')
+      .registerRunListener(({ device }) => device.pressProxyButton('restart_ble_proxy'));
+  }
+
+  // A capability the device never gained answers null, and null compares as
+  // less than every threshold. "Unknown" must not read as "urgent".
+  registerThresholdConditions() {
+    const belowConditions = {
+      aquaclean_condition_days_until_descaling: 'aquaclean_days_until_descaling',
+      aquaclean_condition_days_until_filter: 'aquaclean_days_until_filter'
+    };
+    for (const [cardId, capabilityId] of Object.entries(belowConditions)) {
+      this.homey.flow.getConditionCard(cardId).registerRunListener(({ device, days }) => {
+        const value = device.hasCapability(capabilityId)
+          ? device.getCapabilityValue(capabilityId)
+          : null;
+        return Number.isFinite(value) && value < days;
+      });
+    }
+
+    // Weaker means a more negative number: -95 dBm is weaker than -90 dBm.
+    this.homey.flow
+      .getConditionCard('aquaclean_condition_signal_strength')
+      .registerRunListener(({ device, dbm }) => {
+        const value = device.hasCapability('aquaclean_signal_strength')
+          ? device.getCapabilityValue('aquaclean_signal_strength')
+          : null;
+        return Number.isFinite(value) && value < dbm;
+      });
   }
 }
 

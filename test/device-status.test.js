@@ -110,10 +110,18 @@ test('boolean event Insights are enabled once for all duration statuses', async 
 
 test('a visit is timed from the transitions, and only when it is complete', async () => {
   const written = [];
+  const triggered = [];
   const device = {
     hasCapability: () => true,
     setCapabilityValue: async (capabilityId, value) => {
       written.push({ capabilityId, value });
+    },
+    homey: {
+      flow: {
+        getDeviceTriggerCard: () => ({
+          trigger: async (self, tokens, state) => { triggered.push({ tokens, state }); }
+        })
+      }
     },
     error: () => {}
   };
@@ -135,11 +143,18 @@ test('a visit is timed from the transitions, and only when it is complete', asyn
   await track.call(device, true, false);
   assert.equal(written.length, 1);
 
+  // Every completed visit is offered to the Flow card; its own threshold
+  // decides. The duration goes in the state so the run listener can compare.
+  assert.equal(triggered.length, 1);
+  assert.ok(Math.abs(triggered[0].state.seconds - 320) <= 1);
+  assert.equal(triggered[0].tokens.minutes, 5);
+
   // A visit already under way when the app started has no start timestamp.
   // Inventing one would read as a measurement, so nothing is written.
   const fresh = { ...device, _sittingSince: null };
   await track.call(fresh, true, false);
   assert.equal(written.length, 1);
+  assert.equal(triggered.length, 1, 'an unmeasured visit must not fire the trigger either');
 });
 
 test('adaptive polling is slow while idle and fast during activity', () => {
@@ -608,10 +623,12 @@ test('status heartbeat is throttled while still advancing during healthy polling
   // was truncated in the mobile app's sensor tile. Two heartbeats inside the
   // same minute therefore render identically — correct, and worth pinning so
   // nobody "fixes" it by putting the seconds back.
-  // No year, and the month as a word: "18. aug, 20:32". Same reason as the
-  // seconds — every character saved is one the tile does not truncate. The
-  // abbreviation dot Intl puts before the comma is stripped, so no dot here.
-  assert.match(values[1].value, /^\d{1,2}\. \p{L}+, \d{2}:\d{2}$/u, values[1].value);
+  // No year, and the month as a word. Norwegian renders "18. aug, 20:32" and
+  // English "18 Aug, 20:32" — the day's ordinal dot belongs in one and not the
+  // other, while the month's abbreviation dot is stripped from both. Same
+  // reason as the seconds: every character saved is one the tile keeps.
+  assert.match(values[1].value, /^\d{1,2}\.? \p{L}+, \d{2}:\d{2}$/u, values[1].value);
+  assert.ok(!values[1].value.includes('., '), values[1].value);
 });
 
 test('technical Bluetooth error is exposed and cleared after recovery', async () => {

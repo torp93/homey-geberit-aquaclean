@@ -115,6 +115,12 @@
       "resetting": "Kobler til på nytt …",
       "calibrate": "Kalibrer sete og lokk",
       "note": "Toalettet melder kun siste feil, uten historikk. Homey lagrer hver endring under Innsikt."
+    },
+    "facts": {
+      "signal": "Bluetooth-signal",
+      "model": "Modell",
+      "serial": "Serienummer",
+      "firmware": "Fastvare"
     }
   }
 }

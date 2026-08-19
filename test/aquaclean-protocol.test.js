@@ -322,3 +322,33 @@ test('the decoder exposes the service state', () => {
   assert.equal(decoded.serviceState, 3, 'service state must survive decoding');
   assert.equal(decoded.userIsSitting, false);
 });
+
+// The failure this guards against cannot be undone from software: the toilet
+// answers the oversized request, then refuses GetFilterStatus until its mains
+// power is cycled. jens62/geberit-aquaclean#44 hit it on this same firmware.
+test('a system parameter request may not cross the BLE frame boundary', () => {
+  const {
+    buildSystemParameterPayload,
+    MAX_SYSTEM_PARAMETERS_PER_REQUEST,
+    SYSTEM_PARAMETER_IDS
+  } = require('../lib/aquaclean-protocol');
+
+  assert.equal(MAX_SYSTEM_PARAMETERS_PER_REQUEST, 8);
+  assert.ok(SYSTEM_PARAMETER_IDS.length <= MAX_SYSTEM_PARAMETERS_PER_REQUEST,
+    'the full read this app performs must stay inside the limit');
+
+  // Eight is the largest request that stays in the first frame.
+  const payload = buildSystemParameterPayload([0, 1, 2, 3, 4, 5, 6, 7]);
+  assert.equal(payload[0], 8);
+  assert.equal(payload.length, 13);
+
+  // The exact request from the upstream report must be refused.
+  assert.throws(
+    () => buildSystemParameterPayload([0, 1, 2, 3, 4, 5, 6, 7, 12, 13]),
+    /power-cycled/,
+  );
+  assert.throws(() => buildSystemParameterPayload([0, 1, 2, 3, 4, 5, 6, 7, 8]), RangeError);
+
+  // Indices above 7 are still readable -- one separate request at a time.
+  assert.equal(buildSystemParameterPayload([12, 13])[0], 2);
+});

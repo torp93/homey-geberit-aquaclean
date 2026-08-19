@@ -36,7 +36,18 @@ const CAPABILITY_BACKED_ACTIONS = {
   aquaclean_action_odour_run_on: 'aquaclean_button_odour_run_on'
 };
 const METHOD_BACKED_ACTIONS = {
-  aquaclean_action_refresh_status: 'executeStatusRefresh'
+  aquaclean_action_refresh_status: 'executeStatusRefresh',
+  // The settings cards all go through the same writer the settings page uses,
+  // which range-checks the value and reads it back before reporting success.
+  aquaclean_action_set_profile_level: 'writeConfigSetting',
+  aquaclean_action_set_profile_switch: 'writeConfigSetting',
+  aquaclean_action_set_light_mode: 'writeConfigSetting',
+  aquaclean_action_set_light_colour: 'writeConfigSetting',
+  aquaclean_action_set_light_brightness: 'writeConfigSetting',
+  aquaclean_action_set_lid_auto: 'writeConfigSetting',
+  aquaclean_action_set_lid_sensor_range: 'writeConfigSetting',
+  aquaclean_action_reset_filter_counter: 'executeFilterReset',
+  aquaclean_action_restart_proxy: 'pressProxyButton'
 };
 // The deterministic cards all land in setFunctionState(), which refuses any
 // function key it does not know — so the key matters as much as the card id.

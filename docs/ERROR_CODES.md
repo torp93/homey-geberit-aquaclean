@@ -306,6 +306,15 @@ shows "No error" while something is visibly wrong.
 
 ### Lid lever — symptoms with no code
 
+> **Field note (2026-08-19).** A Geberit service technician on site described
+> the lid mechanism as a known early-production weakness on these units — a
+> *barnesykdom* — and confirmed it produces **no error code**: the firmware
+> leaves `LAST_ERROR` at 0 while the lid misbehaves. So a lid that closes on
+> its own, does not open fully, or collides is expected to show "No error" in
+> this app. Do not read that as the toilet being fine; it is the documented
+> behaviour for this class of fault, and the fix is mechanical (calibration or
+> a lid-lever replacement under warranty), not something the app can clear.
+
 The one most likely to be met in practice, reproduced here because a lid
 fault is what sends people looking. Causes are listed per symptom in the
 manual; the measures are drawn from the same table.
@@ -438,6 +447,21 @@ position (1008), setpoint (32594), angle (32570), motor current (32569), motor
 voltage (32572), angle limits (1058–1060) — exactly what one would want for a
 failing lid sensor, and all of it unreachable here. Over BLE on this model a
 lid fault can only surface as a non-zero LAST_ERROR in the 05xx range.
+
+## Reading the toilet's own fault report
+
+There is a manufacturer path that reads far more than the single `LAST_ERROR`
+this app can see: the **Geberit Service app** ("Geberit Service", iOS App Store
+id `1015277447`, Android `com.geberit.acmeraserviceapp`). It connects to the
+same shower toilet over Bluetooth and reads out a full on-site report — fault
+history, counters and diagnostics — and can install firmware.
+
+It is **not usable by an owner.** Sign-in requires a Geberit ID that Geberit
+must activate for a trained service technician; registering an account does not
+grant access, and there is no local bypass — the toilet answers a token issued
+by Geberit's server, not the app itself. The practical way to benefit from it
+is to ask the attending technician to show the report on screen and note the
+codes, which can then be looked up in the tables above.
 
 ## System parameter mapping
 

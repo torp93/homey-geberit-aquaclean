@@ -115,6 +115,12 @@
       "resetting": "Reconnecting…",
       "calibrate": "Calibrate seat and lid",
       "note": "The toilet reports only the most recent fault, with no history. Homey records every change under Insights."
+    },
+    "facts": {
+      "signal": "Bluetooth signal",
+      "model": "Model",
+      "serial": "Serial number",
+      "firmware": "Firmware"
     }
   }
 }

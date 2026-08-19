@@ -158,5 +158,9 @@
   "1.10.5": {
     "en": "Bluetooth signal strength is shown as dBm without decimals. Homey labels the system capability dB and renders two decimals, but RSSI is an absolute power in dBm and is always a whole number.",
     "no": "Bluetooth-signalstyrke vises nå som dBm uten desimaler. Homey merker systemkapabiliteten dB og viser to desimaler, men RSSI er absolutt effekt i dBm og alltid et heltall."
+  },
+  "1.10.6": {
+    "en": "Bluetooth signal strength now uses the Bluetooth icon instead of Homey's generic signal icon.",
+    "no": "Bluetooth-signalstyrke bruker nå Bluetooth-ikonet i stedet for Homeys generiske signalikon."
   }
 }

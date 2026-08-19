@@ -73,7 +73,7 @@ const OPTIMISTIC_FUNCTION_STATE_HOLD_MS = 12 * 1000;
 // Anything slower is a person pressing again, and must be sent.
 const DUPLICATE_COMMAND_WINDOW_MS = 750;
 const DEFAULT_ODOUR_RUN_ON_SECONDS = 120;
-const INSIGHTS_OPTIONS_VERSION = 11;
+const INSIGHTS_OPTIONS_VERSION = 12;
 
 const CONTROL_CAPABILITY_COMMANDS = Object.freeze({
   aquaclean_button_anal_shower: {
@@ -400,7 +400,8 @@ const INSIGHTS_CAPABILITY_OPTIONS = Object.freeze({
   // RSSI is an absolute power in dBm and always a whole number.
   measure_signal_strength: {
     units: { en: 'dBm' },
-    decimals: 0
+    decimals: 0,
+    icon: '/assets/capability-icons/bluetooth.svg'
   }
 });
 

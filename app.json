@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.12.2",
+  "version": "1.13.0",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -533,6 +533,156 @@
       "max": 0,
       "uiComponent": "sensor",
       "icon": "/assets/capability-icons/bluetooth-plain.svg"
+    },
+    "aquaclean_visits_today": {
+      "type": "number",
+      "title": {
+        "en": "Visits today",
+        "no": "Besøk i dag"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/user-seat.svg"
+    },
+    "aquaclean_anal_today": {
+      "type": "number",
+      "title": {
+        "en": "Anal shower today",
+        "no": "Analdusj i dag"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/anal-shower.svg"
+    },
+    "aquaclean_lady_today": {
+      "type": "number",
+      "title": {
+        "en": "Lady shower today",
+        "no": "Ladydusj i dag"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/lady-shower.svg"
+    },
+    "aquaclean_dryer_today": {
+      "type": "number",
+      "title": {
+        "en": "Dryer today",
+        "no": "Tørker i dag"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/dryer.svg"
+    },
+    "aquaclean_odour_today": {
+      "type": "number",
+      "title": {
+        "en": "Odour extraction today",
+        "no": "Luktavsug i dag"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/odour.svg"
+    },
+    "aquaclean_visits_total": {
+      "type": "number",
+      "title": {
+        "en": "Visits total",
+        "no": "Besøk totalt"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/user-seat.svg"
+    },
+    "aquaclean_anal_total": {
+      "type": "number",
+      "title": {
+        "en": "Anal shower total",
+        "no": "Analdusj totalt"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/anal-shower.svg"
+    },
+    "aquaclean_lady_total": {
+      "type": "number",
+      "title": {
+        "en": "Lady shower total",
+        "no": "Ladydusj totalt"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/lady-shower.svg"
+    },
+    "aquaclean_dryer_total": {
+      "type": "number",
+      "title": {
+        "en": "Dryer total",
+        "no": "Tørker totalt"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/dryer.svg"
+    },
+    "aquaclean_odour_total": {
+      "type": "number",
+      "title": {
+        "en": "Odour extraction total",
+        "no": "Luktavsug totalt"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "chartType": "stepLine",
+      "decimals": 0,
+      "min": 0,
+      "uiComponent": "sensor",
+      "icon": "/assets/capability-icons/odour.svg"
     }
   },
   "images": {
@@ -2045,7 +2195,17 @@
         "aquaclean_last_setting_write",
         "aquaclean_error_code",
         "aquaclean_error_text",
-        "measure_aquaclean_sitting_duration"
+        "measure_aquaclean_sitting_duration",
+        "aquaclean_visits_today",
+        "aquaclean_anal_today",
+        "aquaclean_lady_today",
+        "aquaclean_dryer_today",
+        "aquaclean_odour_today",
+        "aquaclean_visits_total",
+        "aquaclean_anal_total",
+        "aquaclean_lady_total",
+        "aquaclean_dryer_total",
+        "aquaclean_odour_total"
       ],
       "capabilitiesOptions": {
         "aquaclean_connection_state": {

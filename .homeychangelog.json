@@ -194,5 +194,9 @@
   "1.12.2": {
     "en": "Shorter App Store description, per review feedback.",
     "no": "Kortere App Store-beskrivelse, etter tilbakemelding fra review."
+  },
+  "1.13.0": {
+    "en": "Usage counters for each function: visits, anal shower, lady shower, dryer and odour extraction, each as a count today (resets at midnight) and a running total. Whole numbers you can read on the phone and follow in Insights at any zoom, unlike the on/off graphs which Homey does not list on mobile.",
+    "no": "Brukstellere for hver funksjon: besøk, analdusj, ladydusj, tørker og luktavsug, hver som antall i dag (nullstilles ved midnatt) og et løpende totalt. Hele tall du kan lese på telefonen og følge i Innsikt ved enhver zoom, i motsetning til av/på-grafene som Homey ikke viser på mobil."
   }
 }

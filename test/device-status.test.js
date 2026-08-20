@@ -157,6 +157,55 @@ test('a visit is timed from the transitions, and only when it is complete', asyn
   assert.equal(triggered.length, 1, 'an unmeasured visit must not fire the trigger either');
 });
 
+test('usage counters tally off->on edges and reset today at midnight', async () => {
+  const store = new Map();
+  const caps = new Map();
+  const P = MeraComfortDevice.prototype;
+  const device = {
+    _timeZone: 'Europe/Oslo',
+    getStoreValue: key => store.get(key),
+    setStoreValue: async (key, value) => { store.set(key, value); },
+    hasCapability: () => true,
+    getCapabilityValue: id => caps.get(id),
+    setCapabilityValue: async (id, value) => { caps.set(id, value); },
+    error: () => {},
+    getLocalDateStamp: P.getLocalDateStamp,
+    readUsageState: P.readUsageState,
+    setCounterCapability: P.setCounterCapability,
+    syncUsageCounters: P.syncUsageCounters,
+    refreshTodayCounters: P.refreshTodayCounters
+  };
+  const rec = P.recordUsage;
+
+  // An off->on edge counts once, on both today and total.
+  await rec.call(device, 'aquaclean_anal_shower_running', false, true);
+  assert.equal(caps.get('aquaclean_anal_total'), 1);
+  assert.equal(caps.get('aquaclean_anal_today'), 1);
+
+  // on->off does not count, and neither does null->true (no clean edge).
+  await rec.call(device, 'aquaclean_anal_shower_running', true, false);
+  await rec.call(device, 'aquaclean_anal_shower_running', null, true);
+  assert.equal(caps.get('aquaclean_anal_total'), 1);
+
+  // A capability with no counter is ignored entirely.
+  await rec.call(device, 'aquaclean_descaling_state', false, true);
+  assert.equal(store.get('usageCounts').total.aquaclean_descaling_state, undefined);
+
+  // A second real activation increments again.
+  await rec.call(device, 'aquaclean_anal_shower_running', false, true);
+  assert.equal(caps.get('aquaclean_anal_total'), 2);
+  assert.equal(caps.get('aquaclean_anal_today'), 2);
+
+  // Midnight rollover: force an old date, then refresh. Today zeroes; total
+  // survives, which is the whole point of counting over the long run.
+  const state = store.get('usageCounts');
+  state.todayDate = '2000-01-01';
+  store.set('usageCounts', state);
+  await device.refreshTodayCounters();
+  assert.equal(caps.get('aquaclean_anal_today'), 0);
+  assert.equal(caps.get('aquaclean_anal_total'), 2, 'total survives the day rollover');
+});
+
 test('adaptive polling is slow while idle and fast during activity', () => {
   const values = new Map([
     ['aquaclean_user_sitting', false],
@@ -395,6 +444,7 @@ test('anal shower status changes update Homey and fire the matching Flow trigger
     hasCapability: capabilityId => values.has(capabilityId),
     getCapabilityValue: capabilityId => values.get(capabilityId),
     setCapabilityValue: async (capabilityId, value) => values.set(capabilityId, value),
+    recordUsage: MeraComfortDevice.prototype.recordUsage,
     homey: {
       flow: {
         getDeviceTriggerCard: triggerId => ({
@@ -598,6 +648,7 @@ test('status heartbeat is throttled while still advancing during healthy polling
     hasCapability: capabilityId => capabilityId === 'aquaclean_last_status_update',
     setCapabilityValue: async (capabilityId, value) => values.push({ capabilityId, value }),
     formatLocalTime: MeraComfortDevice.prototype.formatLocalTime,
+    refreshTodayCounters: MeraComfortDevice.prototype.refreshTodayCounters,
     homey: {},
     error: () => {}
   };

@@ -259,6 +259,25 @@ const SIGNAL_STRENGTH_CAPABILITY = 'aquaclean_signal_strength';
 // Bump the version to have them re-created once on the next start.
 const CAPABILITY_ICON_VERSION = 2;
 const REDEFINED_CAPABILITIES = Object.freeze(['aquaclean_connection_state']);
+// Usage counters. The toilet keeps no counts of its own, so occurrences are
+// tallied here from the off->on transitions. "total" only ever rises, which
+// stays readable at any Insights zoom -- unlike a boolean timeline (not even
+// listed for app-defined capabilities) or a 0/1 number (averages into
+// fractions when zoomed out). "today" resets at local midnight.
+const USAGE_COUNTERS = Object.freeze({
+  aquaclean_user_sitting: { today: 'aquaclean_visits_today', total: 'aquaclean_visits_total' },
+  aquaclean_anal_shower_running: { today: 'aquaclean_anal_today', total: 'aquaclean_anal_total' },
+  aquaclean_lady_shower_running: { today: 'aquaclean_lady_today', total: 'aquaclean_lady_total' },
+  aquaclean_dryer_running: { today: 'aquaclean_dryer_today', total: 'aquaclean_dryer_total' },
+  aquaclean_odour_extraction_running: { today: 'aquaclean_odour_today', total: 'aquaclean_odour_total' }
+});
+// Order matches the manifest tail exactly (every today, then every total), or
+// the capability order rebuild fires and deletes every Insights log.
+const USAGE_COUNT_CAPABILITIES = Object.freeze([
+  ...Object.values(USAGE_COUNTERS).map(counter => counter.today),
+  ...Object.values(USAGE_COUNTERS).map(counter => counter.total)
+]);
+const USAGE_STORE_KEY = 'usageCounts';
 const STATUS_CAPABILITIES = Object.freeze([
   SIGNAL_STRENGTH_CAPABILITY,
   'aquaclean_connection_state',
@@ -273,7 +292,8 @@ const STATUS_CAPABILITIES = Object.freeze([
   'aquaclean_error_text',
   'aquaclean_raw_status',
   'aquaclean_dryer_running',
-  SITTING_DURATION_CAPABILITY
+  SITTING_DURATION_CAPABILITY,
+  ...USAGE_COUNT_CAPABILITIES
 ]);
 // Only capabilities the toilet actually reports may raise the poll rate.
 // Odour extraction is deliberately absent: the toilet never reports it, so the
@@ -493,6 +513,7 @@ class MeraComfortDevice extends Homey.Device {
     await this.refreshCapabilityDefinitions();
     await this.ensureCapabilities();
     await this.ensureInsightsCapabilityOptions();
+    await this.syncUsageCounters();
     if (this.hasCapability('aquaclean_connection_state')) {
       await this.setCapabilityValue('aquaclean_connection_state', 'reconnecting');
     }
@@ -2151,6 +2172,7 @@ class MeraComfortDevice extends Homey.Device {
       hour12: false
     }).replace('., ', ', ');
     await this.setCapabilityValue(capabilityId, formatted);
+    await this.refreshTodayCounters();
   }
 
   // Only a complete visit is recorded: a session already running when the app
@@ -2178,6 +2200,79 @@ class MeraComfortDevice extends Homey.Device {
       .catch(error => this.error('AquaClean visit trigger failed', error.message));
   }
 
+  getLocalDateStamp() {
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    if (this._timeZone) options.timeZone = this._timeZone;
+    // en-CA formats as YYYY-MM-DD, so string comparison is date comparison.
+    try {
+      return new Date().toLocaleDateString('en-CA', options);
+    } catch (error) {
+      return new Date().toLocaleDateString('en-CA');
+    }
+  }
+
+  // Reads the stored counters, rolling the day over if the local date has
+  // changed. Returns a fresh object; the caller persists it after any change.
+  readUsageState() {
+    const stored = (typeof this.getStoreValue === 'function'
+      && this.getStoreValue(USAGE_STORE_KEY)) || {};
+    const state = {
+      total: { ...(stored.total || {}) },
+      today: { ...(stored.today || {}) },
+      todayDate: stored.todayDate || null
+    };
+    const localDate = this.getLocalDateStamp();
+    if (state.todayDate !== localDate) {
+      state.today = {};
+      state.todayDate = localDate;
+    }
+    return state;
+  }
+
+  async setCounterCapability(capabilityId, value) {
+    if (!this.hasCapability(capabilityId)) return;
+    if (this.getCapabilityValue(capabilityId) === value) return;
+    await this.setCapabilityValue(capabilityId, value)
+      .catch(error => this.error('AquaClean counter update failed', {
+        capabilityId, message: error.message
+      }));
+  }
+
+  // Pushes every counter from the store onto its capability. Called at init
+  // and when the day rolls over, so a device that was off past midnight shows
+  // the right today value on the next start.
+  async syncUsageCounters() {
+    if (typeof this.setStoreValue !== 'function') return;
+    const state = this.readUsageState();
+    await this.setStoreValue(USAGE_STORE_KEY, state);
+    for (const [statusCapabilityId, caps] of Object.entries(USAGE_COUNTERS)) {
+      await this.setCounterCapability(caps.total, state.total[statusCapabilityId] || 0);
+      await this.setCounterCapability(caps.today, state.today[statusCapabilityId] || 0);
+    }
+  }
+
+  // Cheap to call on every heartbeat: it only writes when the local day has
+  // actually changed, zeroing the today tiles at midnight.
+  async refreshTodayCounters() {
+    if (typeof this.getStoreValue !== 'function') return;
+    const stored = this.getStoreValue(USAGE_STORE_KEY);
+    if (stored && stored.todayDate === this.getLocalDateStamp()) return;
+    await this.syncUsageCounters();
+  }
+
+  // One occurrence per activation, counted on the off->on edge.
+  async recordUsage(statusCapabilityId, previousValue, value) {
+    const caps = USAGE_COUNTERS[statusCapabilityId];
+    if (!caps || value !== true || previousValue !== false) return;
+    if (typeof this.setStoreValue !== 'function') return;
+    const state = this.readUsageState();
+    state.total[statusCapabilityId] = (state.total[statusCapabilityId] || 0) + 1;
+    state.today[statusCapabilityId] = (state.today[statusCapabilityId] || 0) + 1;
+    await this.setStoreValue(USAGE_STORE_KEY, state);
+    await this.setCounterCapability(caps.total, state.total[statusCapabilityId]);
+    await this.setCounterCapability(caps.today, state.today[statusCapabilityId]);
+  }
+
   async setStatusCapabilityValue(capabilityId, value) {
     const previousValue = this.getCapabilityValue(capabilityId);
     if (previousValue === value) return;
@@ -2186,6 +2281,7 @@ class MeraComfortDevice extends Homey.Device {
     if (capabilityId === 'aquaclean_user_sitting') {
       await this.trackSittingDuration(previousValue, value);
     }
+    await this.recordUsage(capabilityId, previousValue, value);
     if (previousValue === null || previousValue === undefined) return;
 
     // An error appearing and an error clearing are the two moments worth a

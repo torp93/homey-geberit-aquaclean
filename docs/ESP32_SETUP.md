@@ -40,28 +40,60 @@ Everyone else, follow the steps below.
 
 ---
 
-## Step 1 — Install ESPHome
+## Step 1: Install ESPHome
 
 ESPHome is the tool that compiles the configuration and flashes it onto the
-board. The simplest way that needs nothing else installed is the Python
-package:
+board. This configuration bakes your WiFi details in when it is compiled, so
+this step has to happen once no matter which operating system you use, and no
+matter how you flash later. Pick the section for your computer.
+
+### Windows
+
+1. Install **Python** from [python.org](https://www.python.org/downloads/). On
+   the first screen of the installer, tick **"Add python.exe to PATH"** before
+   clicking Install. This one checkbox is what lets the next command work.
+2. Open **PowerShell** (Start menu, type "PowerShell") and run:
+
+   ```powershell
+   pip install esphome
+   ```
+
+3. You will also need a USB driver so the board shows up. Most generic ESP32-C3
+   boards use a **CH340** chip; some use **CP210x**. Search for the exact name
+   plus "driver", install it, and reboot if asked. If you are not sure which
+   one, install CH340 first, it is the more common of the two.
+
+### macOS
+
+The cleanest path uses [Homebrew](https://brew.sh):
 
 ```bash
-pip install esphome
+brew install esphome
 ```
 
-If you would rather not touch Python, ESPHome also ships as a Docker image and
-as a Home Assistant add-on. Any of the three works; the commands below assume
-the `esphome` command is available.
+If you do not have Homebrew, install it with the one-line command on that
+page first, or use `pip3 install esphome` with the Python that ships with
+macOS.
 
-> **Windows:** if you later plug in the board and it does not appear as a
-> serial port, you are missing the USB-to-serial driver for the chip on your
-> board. Install **CH340** or **CP210x** drivers (search the exact name plus
-> "driver"), unplug and replug, and it will show up.
+Modern macOS recognises most boards with no driver at all. If a board with a
+**CH340** chip is not detected on an older macOS, install the CH340 driver for
+Mac; **CP210x** boards may need Silicon Labs' driver.
+
+### Prefer not to install anything?
+
+You can skip installing ESPHome on your own machine two ways:
+
+- **Docker:** `docker run` the official `esphome/esphome` image, mounting the
+  folder with the configuration. Works the same on Windows and Mac.
+- **Someone else compiles for you:** ESPHome produces a single firmware file
+  (`.factory.bin`). Anyone running ESPHome can build it from the configuration
+  plus your `secrets.yaml` and send you that file, which you then flash from a
+  browser (see [Step 3](#step-3-flash-the-board-first-time-over-usb)). You
+  still choose your own WiFi details; they just do the compile.
 
 ---
 
-## Step 2 — Get the configuration and your secrets
+## Step 2: Get the configuration and your secrets
 
 1. Download [`geberit-aquaclean-proxy.yaml`](../esphome/geberit-aquaclean-proxy.yaml)
    into an empty folder.
@@ -91,42 +123,54 @@ commented, and is best left alone.
 
 ---
 
-## Step 3 — Flash the board (first time, over USB)
+## Step 3: Flash the board (first time, over USB)
 
-1. Plug the ESP32 into the computer with the data cable.
-2. From the folder with the two files, run:
+The first flash always goes over the USB cable. After that the board updates
+itself wirelessly, and the cable is never needed again. There are two ways to
+do the first flash; both start by plugging the board in.
 
-   ```bash
-   esphome run geberit-aquaclean-proxy.yaml
-   ```
+### Option A: The command line (Windows PowerShell or macOS Terminal)
 
-3. ESPHome compiles the firmware (the first build takes a few minutes) and
-   then asks where to install it. Choose the **serial / USB port**, not
-   "Over the Air" — there is nothing on the board yet to update wirelessly.
-4. Watch the log. When it connects to WiFi and prints an IP address, the
-   proxy is running. You can stop the log with `Ctrl+C`; the board keeps
-   running on its own.
+From the folder with `geberit-aquaclean-proxy.yaml` and `secrets.yaml`:
 
-From now on the board updates **wirelessly**: the next time you run
-`esphome run`, pick the OTA option and leave the USB cable out of it.
+```bash
+esphome run geberit-aquaclean-proxy.yaml
+```
 
-### Prefer the browser? (no command line)
+ESPHome compiles the firmware (the first build takes a few minutes) and then
+asks where to install it. Choose the **serial / USB port**, not "Over the
+Air". There is nothing on the board yet to update wirelessly.
 
-If the command line is not for you, flash from a browser instead:
+- On **Windows** the port looks like `COM5`.
+- On **macOS** it looks like `/dev/cu.usbserial-...` or `/dev/cu.wchusbserial-...`.
 
-1. Run `esphome compile geberit-aquaclean-proxy.yaml` once to produce a
-   firmware file (ESPHome prints its path, ending in `.factory.bin`), **or**
-   ask someone with ESPHome to send you that file.
-2. Open **[web.esphome.io](https://web.esphome.io)** in Chrome or Edge, plug
-   in the board, click **Connect**, pick the port, and install the
-   `.factory.bin`.
+Watch the log. When it connects to WiFi and prints an IP address, the proxy is
+running. Stop the log with `Ctrl+C`; the board keeps running on its own. Next
+time you run `esphome run`, pick the OTA option and leave the cable out.
 
-The browser installer only does the first USB flash; WiFi and future updates
-still come from the configuration above.
+### Option B: The browser (Chrome or Edge, Windows or Mac)
+
+Good if you would rather click than type. It needs the compiled firmware file
+first, so do this once on the command line (or have someone send you the file):
+
+```bash
+esphome compile geberit-aquaclean-proxy.yaml
+```
+
+ESPHome prints the path to a file ending in `.factory.bin`. Then:
+
+1. Open **[web.esphome.io](https://web.esphome.io)** in **Chrome or Edge**
+   (Safari and Firefox cannot talk to USB serial devices, so they will not
+   work here).
+2. Plug in the board, click **Connect**, and pick the port.
+3. Choose **Install** and select the `.factory.bin` file.
+
+The browser only does the first USB flash; the WiFi details and every future
+update come from the configuration you compiled, not from the browser.
 
 ---
 
-## Step 4 — Find the proxy's IP address and enter it in Homey
+## Step 4: Find the proxy's IP address and enter it in Homey
 
 The board needs a fixed address so the app can always find it.
 

@@ -190,5 +190,9 @@
   "1.12.1": {
     "en": "New driver icon: a line drawing of the Mera Comfort shower toilet, replacing the generic toilet glyph.",
     "no": "Nytt driverikon: en strektegning av Mera Comfort dusj-WC, i stedet for det generiske toalettsymbolet."
+  },
+  "1.12.2": {
+    "en": "Shorter App Store description, per review feedback.",
+    "no": "Kortere App Store-beskrivelse, etter tilbakemelding fra review."
   }
 }

@@ -1,6 +1,6 @@
 {
   "id": "com.thomastorp.geberit-aquaclean",
-  "version": "1.12.1",
+  "version": "1.12.2",
   "compatibility": ">=12.2.0",
   "sdk": 3,
   "platforms": [
@@ -11,8 +11,8 @@
     "no": "Geberit AquaClean"
   },
   "description": {
-    "en": "Shower, dryer, lid and every profile setting for your AquaClean — entirely on your own network.",
-    "no": "Dusj, tørker, lokk og alle profilinnstillinger for AquaClean — helt på ditt eget nett."
+    "en": "Full local control of your Geberit AquaClean.",
+    "no": "Full lokal kontroll over din Geberit AquaClean."
   },
   "category": [
     "appliances"

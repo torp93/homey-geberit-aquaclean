@@ -48,12 +48,12 @@
       en: {
         title: 'ESPHome Bluetooth proxy',
         hint: 'The app reaches the toilet through an ESP32 running ESPHome with '
-             + 'bluetooth_proxy, not through Homey’s own Bluetooth. A complete, tested '
-             + 'configuration is on GitHub at github.com/torp93/homey-geberit-aquaclean, as '
-             + 'esphome/geberit-aquaclean-proxy.yaml. Put your WiFi name and '
-             + 'password into ESPHome’s secrets.yaml as wifi_ssid and wifi_password before '
-             + 'flashing, then enter the address of the ESP32 below. Use a fixed IP or a DHCP '
-             + 'reservation so it does not move.',
+             + 'bluetooth_proxy, not through Homey’s own Bluetooth. The easiest way to set '
+             + 'one up is the browser installer at torp93.github.io/homey-geberit-aquaclean '
+             + '(no ESPHome, no command line); advanced users can flash the ESPHome config '
+             + 'from GitHub instead. Then enter the proxy’s address below — its IP, or '
+             + 'geberit-aquaclean-proxy.local. Use a fixed IP or a DHCP reservation so it '
+             + 'does not move.',
         hostLabel: 'Address',
         portLabel: 'Port (native API, normally 6053)',
         test: 'Test connection',
@@ -69,11 +69,11 @@
       no: {
         title: 'ESPHome Bluetooth-proxy',
         hint: 'Appen når toalettet gjennom en ESP32 som kjører ESPHome med '
-            + 'bluetooth_proxy, ikke gjennom Homeys egen Bluetooth. En komplett, testet '
-            + 'konfigurasjon ligger på GitHub: github.com/torp93/homey-geberit-aquaclean, som '
-            + 'esphome/geberit-aquaclean-proxy.yaml. Legg inn WiFi-navn og '
-            + 'passord i ESPHome sin secrets.yaml som wifi_ssid og wifi_password før du '
-            + 'flasher, og skriv deretter inn adressen til ESP32-en under. Bruk fast IP eller '
+            + 'bluetooth_proxy, ikke gjennom Homeys egen Bluetooth. Enklest er '
+            + 'nettleser-installasjonen på torp93.github.io/homey-geberit-aquaclean '
+            + '(ingen ESPHome, ingen kommandolinje); avanserte brukere kan flashe '
+            + 'ESPHome-configen fra GitHub i stedet. Skriv deretter inn proxyens adresse '
+            + 'under — IP-en, eller geberit-aquaclean-proxy.local. Bruk fast IP eller '
             + 'DHCP-reservasjon så den ikke flytter seg.',
         hostLabel: 'Adresse',
         portLabel: 'Port (native API, normalt 6053)',

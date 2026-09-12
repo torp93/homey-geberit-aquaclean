@@ -198,5 +198,9 @@
   "1.13.0": {
     "en": "New usage counters. Every function (visits, anal shower, lady shower, dryer and odour extraction) now shows a count for today and a running total, so you can see how often each is used and follow the trend in Insights at any zoom.",
     "no": "Nye brukstellere. Hver funksjon (besøk, analdusj, ladydusj, tørker og luktavsug) viser nå antall i dag og et løpende totalt, slik at du ser hvor ofte hver brukes og kan følge utviklingen i Innsikt ved enhver zoom."
+  },
+  "1.13.1": {
+    "en": "Setup text now points to the new one-click browser installer for the ESP32 proxy (no ESPHome or command line), in the pairing wizard, the app settings and the store description. Hand-flashing stays documented as the advanced path.",
+    "no": "Oppsett-teksten peker nå til den nye ett-klikks nettleser-installasjonen for ESP32-proxyen (ingen ESPHome eller kommandolinje), i paringsveiviseren, appinnstillingene og butikkbeskrivelsen. Manuell flashing er fortsatt dokumentert som den avanserte veien."
   }
 }

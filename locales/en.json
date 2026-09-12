@@ -56,8 +56,8 @@
     "start": {
       "title": "Before you start",
       "intro": "Homey does not talk to the AquaClean directly. It goes through an ESP32 running ESPHome as a Bluetooth proxy, so a few things need to be in place.",
-      "step_proxy": "Flash an ESP32 with ESPHome. A complete, tested configuration is on GitHub at github.com/torp93/homey-geberit-aquaclean, as esphome/geberit-aquaclean-proxy.yaml.",
-      "step_wifi": "Before flashing, put your WiFi name and password into ESPHome’s secrets.yaml as wifi_ssid and wifi_password.",
+      "step_proxy": "Flash an ESP32. Easiest: open the installer at torp93.github.io/homey-geberit-aquaclean in Chrome or Edge, plug the board in, click Install, and enter your WiFi there. No ESPHome, no compiling.",
+      "step_wifi": "Advanced alternative: flash the ESPHome config from GitHub (github.com/torp93/homey-geberit-aquaclean) yourself, putting your WiFi in secrets.yaml first.",
       "step_range": "Place the ESP32 within a few metres of the toilet, with as little concrete and metal in between as possible.",
       "step_address": "The next screen asks for the ESP32’s address. Use a fixed IP or a DHCP reservation so it does not move.",
       "step_app": "Close the Geberit Home app on your phone. The toilet accepts only one Bluetooth connection at a time.",

@@ -31,6 +31,15 @@ wifi:
 
 improv_serial:
 
+# A small diagnostic web page at the board's IP: WiFi signal, free heap,
+# uptime, the restart / clear-cache buttons and a live log. Version 3 keeps
+# its assets off-device, so the heap cost is modest. Measured safe even on a
+# C3 with this lean config (the Geberit proxy at .13 is a C3 and sits around
+# 88 KB free block with the web server on).
+web_server:
+  port: 80
+  version: 3
+
 esp32_ble_tracker:
   id: ble_tracker_id
   scan_parameters:

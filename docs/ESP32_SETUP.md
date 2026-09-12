@@ -217,6 +217,7 @@ which is when the app is used.
 | Symptom | Cause and fix |
 |---|---|
 | The board never appears when flashing over USB | Wrong cable (charge-only), or a missing USB-serial driver on Windows. Try a known data cable first, then install CH340 / CP210x drivers. |
+| The port is listed but flashing will not start | The board is not in download mode. Hold **BOOT** (sometimes **IO9**), tap **RESET** (or plug the USB in while holding BOOT), release BOOT, then flash. Many C3 boards auto-enter and never need this. |
 | WiFi will not connect | 5 GHz network (the ESP32 is 2.4 GHz only), or a typo in `secrets.yaml`. The board falls back to its own `AquaClean Proxy Fallback` network so you can still reach it. |
 | Homey cannot reach the proxy | Wrong IP, or the address changed. Reserve the IP in the router, and check the port is 6053. |
 | The toilet pairs but readings time out | On a C3 this is usually low memory. The device page in ESPHome shows **Proxy Max Free Block**; below about 25 KB, GATT reads fail while the connection itself looks fine. Do not enable `web_server` on a C3 unless that number stays above 40 KB. |

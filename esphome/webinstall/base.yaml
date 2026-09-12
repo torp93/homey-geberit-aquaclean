@@ -75,3 +75,13 @@ sensor:
 
   - platform: uptime
     name: "Proxy Uptime"
+
+# The board's IP as a first-class entity: it shows on the web status page and is
+# logged on connect, so you never have to hunt for it. (Homey still reaches the
+# proxy by the IP or geberit-aquaclean-proxy.local; this just makes it visible.)
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "Proxy IP Address"
+    ssid:
+      name: "Proxy WiFi Network"

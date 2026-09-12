@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Install the Geberit AquaClean proxy</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚽</text></svg>" />
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      font-family: -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+      line-height: 1.55;
+      color: #1a1c1f;
+      background: #f4f6f8;
+    }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px 64px; }
+    header { border-bottom: 3px solid #0072BA; padding-bottom: 16px; margin-bottom: 24px; }
+    h1 { font-size: 1.5em; margin: 0 0 4px; }
+    .sub { opacity: 0.7; margin: 0; }
+    h2 { font-size: 1.05em; margin: 28px 0 8px; }
+    ol { padding-left: 20px; }
+    li { margin: 6px 0; }
+    .cta { text-align: center; margin: 28px 0; }
+    esp-web-install-button { --esp-tools-button-color: #fff; --esp-tools-button-background-color: #0072BA; }
+    .note { font-size: 0.9em; background: #fff; border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px; padding: 12px 16px; margin: 18px 0; }
+    .browser { font-size: 0.88em; opacity: 0.75; text-align: center; margin-top: 8px; }
+    a { color: #0072BA; }
+    footer { margin-top: 40px; font-size: 0.85em; opacity: 0.7; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 16px; }
+    @media (prefers-color-scheme: dark) {
+      body { color: #e8e9ec; background: #17181c; }
+      .note { background: #1f2126; border-color: rgba(255,255,255,0.12); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Geberit AquaClean proxy</h1>
+      <p class="sub">Flash the Bluetooth proxy for the Homey app, straight from your browser.</p>
+    </header>
+
+    <p>
+      The Homey <strong>Geberit AquaClean</strong> app talks to the toilet through a
+      small ESP32 board placed nearby. This page puts the firmware on that board
+      for you. No ESPHome, no Python, no command line.
+    </p>
+
+    <h2>You need</h2>
+    <ol>
+      <li>An <strong>ESP32-C3</strong> board.</li>
+      <li>A USB cable that carries <strong>data</strong>, not just power.</li>
+      <li><strong>Chrome</strong> or <strong>Edge</strong> on a computer (Safari and Firefox cannot flash over USB).</li>
+      <li>Your <strong>2.4 GHz</strong> WiFi name and password.</li>
+    </ol>
+
+    <div class="cta">
+      <esp-web-install-button manifest="firmware/manifest.json"></esp-web-install-button>
+      <p class="browser">Plug the board in, click Install, pick the serial port, then enter your WiFi when asked.</p>
+    </div>
+
+    <div class="note">
+      After flashing, the installer asks for your WiFi over the same USB cable and
+      the board joins your network. Then open the Homey app's settings and enter
+      the board's IP address (find it in your router). Port <strong>6053</strong>.
+    </div>
+
+    <h2>Placement</h2>
+    <p>
+      Put the board within a few metres of the toilet with clear line of sight.
+      Bluetooth range is the most common source of trouble, and a person sitting
+      between the board and the toilet weakens the signal noticeably.
+    </p>
+
+    <footer>
+      Full guide and the advanced (baked-in) configuration are in the
+      <a href="https://github.com/torp93/homey-geberit-aquaclean/blob/main/docs/ESP32_SETUP.md">setup documentation</a>.
+      Firmware based on
+      <a href="https://github.com/jens62/geberit-aquaclean">jens62/geberit-aquaclean</a>.
+    </footer>
+  </div>
+
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+</body>
+</html>

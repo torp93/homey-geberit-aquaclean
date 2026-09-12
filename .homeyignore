@@ -6,3 +6,5 @@
 esphome/
 docs/
 test/
+webinstall/
+.github/

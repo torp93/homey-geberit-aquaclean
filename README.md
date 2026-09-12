@@ -46,9 +46,13 @@ Homey Pro ──TCP 6053──> ESP32 (ESPHome bluetooth_proxy) ──BLE──>
   flash it. Pairing in Homey asks for the proxy's address afterwards; the app
   settings hold the same two fields if you need to change them later.
 
-  New to ESPHome? **[docs/ESP32_SETUP.md](docs/ESP32_SETUP.md)** is a
-  step-by-step guide from a bare board to a working proxy, including flashing
-  from the command line or a browser, finding the IP address, placement, and
+  Easiest path: **[flash it from your browser](https://torp93.github.io/homey-geberit-aquaclean/)**
+  — plug in an ESP32-C3, click Install, enter your WiFi. No ESPHome, no Python,
+  no command line. Chrome or Edge only.
+
+  Prefer to compile it yourself, or want the baked-in config? **[docs/ESP32_SETUP.md](docs/ESP32_SETUP.md)**
+  is a step-by-step guide from a bare board to a working proxy, including
+  flashing from the command line, finding the IP address, placement, and
   troubleshooting.
 
   A basic ESP32-C3 is enough — the config is tuned for one, with BLE 5.0

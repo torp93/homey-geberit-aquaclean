@@ -1,0 +1,69 @@
+name: Build proxy firmware and publish install page
+
+# Compiles the browser-install ESP32 firmware and deploys a one-click install
+# page to GitHub Pages. New users flash from the browser and enter WiFi there;
+# nobody needs ESPHome, Python or a command line. The tuned baked-in config in
+# esphome/geberit-aquaclean-proxy.yaml is untouched and stays the advanced path.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - esphome/geberit-aquaclean-proxy-webinstall.yaml
+      - webinstall/**
+      - .github/workflows/build-firmware.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never run two Pages deploys at once, but let a running one finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build firmware
+        id: build
+        uses: esphome/build-action@v7.0.0
+        with:
+          yaml-file: esphome/geberit-aquaclean-proxy-webinstall.yaml
+          version: latest
+          complete-manifest: true
+
+      # The build output lands in a folder named after the device. Move it under
+      # the site and drop in the static install page next to it.
+      - name: Assemble the install site
+        run: |
+          mkdir -p site
+          cp webinstall/index.html site/index.html
+          mv "${{ steps.build.outputs.name }}" site/firmware
+          echo "Published firmware files:"
+          ls -R site/firmware
+
+      - name: Enable GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

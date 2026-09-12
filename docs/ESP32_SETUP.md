@@ -5,6 +5,12 @@ through a small ESP32 board running [ESPHome](https://esphome.io) as a
 Bluetooth proxy, placed near the toilet. This guide takes you from a bare
 board to a working proxy the app can connect to.
 
+> **Just want it working?** The easiest way is to
+> **[flash from your browser](https://torp93.github.io/homey-geberit-aquaclean/)**:
+> plug in an ESP32-C3, click Install, enter your WiFi. No ESPHome, no Python,
+> no command line (Chrome or Edge only). This page is for people who would
+> rather compile it themselves or want the baked-in configuration.
+
 If you already run ESPHome, skip to [The short version](#the-short-version).
 Everyone else, start at [What you need](#what-you-need).
 

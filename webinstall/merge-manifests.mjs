@@ -20,11 +20,13 @@ for (const file of files) {
   const manifest = JSON.parse(readFileSync(file, 'utf8'));
   if (!combined) {
     // Keep the top-level project fields from the first manifest; only the
-    // builds array differs between chips.
+    // builds array differs between chips. home_assistant_domain is deliberately
+    // dropped: it is what makes esp-web-tools show an "Add to Home Assistant"
+    // button, which is irrelevant and confusing for a Homey proxy. The proxy is
+    // reached from the Homey app's settings by IP, not "added" from this page.
     combined = {
       name: manifest.name,
       version: manifest.version,
-      home_assistant_domain: manifest.home_assistant_domain,
       new_install_prompt_erase: manifest.new_install_prompt_erase,
       builds: []
     };

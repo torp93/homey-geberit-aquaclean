@@ -24,8 +24,12 @@ for (const file of files) {
     // dropped: it is what makes esp-web-tools show an "Add to Home Assistant"
     // button, which is irrelevant and confusing for a Homey proxy. The proxy is
     // reached from the Homey app's settings by IP, not "added" from this page.
+    // A human title for the esp-web-tools dialog. The manifest name copied from
+    // the ESPHome config is the namespaced project id (torp93.geberit_...),
+    // which reads badly as a heading; the version/chip subtitle still shows the
+    // project id, so provenance is not lost.
     combined = {
-      name: manifest.name,
+      name: 'Geberit AquaClean Proxy',
       version: manifest.version,
       new_install_prompt_erase: manifest.new_install_prompt_erase,
       builds: []

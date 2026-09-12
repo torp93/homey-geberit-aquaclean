@@ -1,5 +1,7 @@
 # Geberit AquaClean for Homey
 
+[![Proxy firmware & install page](https://github.com/torp93/homey-geberit-aquaclean/actions/workflows/build-firmware.yml/badge.svg)](https://github.com/torp93/homey-geberit-aquaclean/actions/workflows/build-firmware.yml)
+
 Control a **Geberit AquaClean** shower toilet from a Homey Pro,
 over Bluetooth LE through an **ESP32 running ESPHome as a Bluetooth proxy**.
 No cloud, no Geberit account — everything stays on your own network.

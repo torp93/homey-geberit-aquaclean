@@ -48,10 +48,11 @@ jobs:
           echo "Published firmware files:"
           ls -R site/firmware
 
-      - name: Enable GitHub Pages
+      # Pages must be enabled once by hand: repo Settings -> Pages -> Build and
+      # deployment -> Source: "GitHub Actions". The workflow token cannot create
+      # the Pages site itself, only deploy to it once it exists.
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:

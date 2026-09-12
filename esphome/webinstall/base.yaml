@@ -60,6 +60,23 @@ button:
   - platform: factory_reset
     name: "Clear Bluetooth Cache"
 
+# Maintenance mode — a real switch, not a stub. ON stops the BLE scanner to free
+# the shared radio for OTA/firmware flashing or debugging; OFF resumes scanning.
+# restore_mode ALWAYS_OFF means a reboot always returns to normal operation even
+# if it was left on. While ON the toilet is unreachable by design.
+switch:
+  - platform: template
+    name: "Proxy Maintenance Mode"
+    id: maintenance_mode
+    icon: "mdi:wrench"
+    optimistic: true
+    restore_mode: ALWAYS_OFF
+    turn_on_action:
+      - esp32_ble_tracker.stop_scan:
+    turn_off_action:
+      - esp32_ble_tracker.start_scan:
+          continuous: true
+
 debug:
 
 sensor:

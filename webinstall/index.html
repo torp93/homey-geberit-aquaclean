@@ -29,6 +29,15 @@
     }
     .install-btn:hover { background: #005a92; }
     .unsupported { display: inline-block; max-width: 440px; color: #c0392b; font-size: 0.9em; }
+    .erase { margin-top: 34px; border-top: 1px solid rgba(128,128,128,0.25); padding-top: 20px; }
+    .erase-btn { background: transparent; color: #c0392b; border: 1px solid #c0392b;
+                 border-radius: 24px; padding: 11px 22px; font-size: 0.95em; cursor: pointer; }
+    .erase-btn:hover { background: #c0392b; color: #fff; }
+    .erase-btn[disabled] { opacity: 0.5; cursor: default; }
+    .erase-status { margin-top: 12px; font-size: 0.9em; opacity: 0.9;
+                    font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .erase-status.error { color: #c0392b; }
+    .erase-status.done { color: #1a8a3c; }
     .note { font-size: 0.9em; background: #fff; border: 1px solid rgba(0,0,0,0.1);
             border-radius: 8px; padding: 12px 16px; margin: 18px 0; }
     .browser { font-size: 0.88em; opacity: 0.75; text-align: center; margin-top: 8px; }
@@ -113,6 +122,17 @@
       between the board and the toilet weakens the signal noticeably.
     </p>
 
+    <div class="erase">
+      <h2>Erase the board</h2>
+      <p>
+        Completely wipes the ESP32 flash (firmware, WiFi and every setting) to
+        decommission the board or start over. It will be blank afterwards and
+        must be re-flashed to use again. Chrome or Edge, board plugged in.
+      </p>
+      <button id="erase-btn" class="erase-btn">Completely erase ESP32 flash</button>
+      <p id="erase-status" class="erase-status" hidden></p>
+    </div>
+
     <footer>
       Full guide and the advanced (baked-in) configuration are in the
       <a href="https://github.com/torp93/homey-geberit-aquaclean/blob/main/docs/ESP32_SETUP.md">setup documentation</a>.
@@ -122,5 +142,51 @@
   </div>
 
   <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+
+  <script type="module">
+    // Full chip erase over Web Serial, the same engine esp-web-tools uses.
+    import { ESPLoader, Transport } from 'https://cdn.jsdelivr.net/npm/esptool-js@0.6.1/bundle.js';
+
+    const btn = document.getElementById('erase-btn');
+    const out = document.getElementById('erase-status');
+    const say = (msg, cls) => {
+      out.hidden = false;
+      out.textContent = msg;
+      out.className = 'erase-status' + (cls ? ' ' + cls : '');
+    };
+
+    btn.addEventListener('click', async () => {
+      if (!('serial' in navigator)) {
+        say('This browser cannot reach USB serial. Use Chrome or Edge on a computer.', 'error');
+        return;
+      }
+      if (!confirm('This erases the ENTIRE ESP32 flash: firmware, WiFi and all '
+        + 'settings. The board will be blank and must be re-flashed to use again. Continue?')) {
+        return;
+      }
+      let transport;
+      try {
+        btn.disabled = true;
+        say('Select the serial port for the board…');
+        const port = await navigator.serial.requestPort();
+        transport = new Transport(port, true);
+        const esploader = new ESPLoader({
+          transport,
+          baudrate: 115200,
+          terminal: { clean() {}, writeLine(line) { say(String(line)); }, write() {} },
+        });
+        say('Connecting to the board…');
+        const chip = await esploader.main();
+        say('Erasing ' + chip + '. This can take 10 to 30 seconds. Do not unplug.');
+        await esploader.eraseFlash();
+        say('Done. The ESP32 flash is completely erased.', 'done');
+      } catch (err) {
+        say('Erase failed: ' + (err && err.message ? err.message : err), 'error');
+      } finally {
+        try { if (transport) await transport.disconnect(); } catch (e) { /* ignore */ }
+        btn.disabled = false;
+      }
+    });
+  </script>
 </body>
 </html>

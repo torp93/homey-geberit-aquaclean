@@ -1,0 +1,12 @@
+# ESP32-C3 build. Native USB on most boards. esp-idf + BLE 5.0 disabled to free
+# the ~40 KB of heap the BLE proxy needs on the C3's smaller SRAM.
+packages:
+  base: !include base.yaml
+
+esp32:
+  variant: esp32c3
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_BT_BLE_50_FEATURES_SUPPORTED: n
+      CONFIG_BT_BLE_42_FEATURES_SUPPORTED: y

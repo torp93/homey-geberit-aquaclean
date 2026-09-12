@@ -7,7 +7,7 @@ board to a working proxy the app can connect to.
 
 > **Just want it working?** The easiest way is to
 > **[flash from your browser](https://torp93.github.io/homey-geberit-aquaclean/)**:
-> plug in an ESP32-C3, click Install, enter your WiFi. No ESPHome, no Python,
+> plug in an ESP32 board, click Install, enter your WiFi. No ESPHome, no Python,
 > no command line (Chrome or Edge only). This page is for people who would
 > rather compile it themselves or want the baked-in configuration.
 

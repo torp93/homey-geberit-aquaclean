@@ -47,7 +47,7 @@ Homey Pro ──TCP 6053──> ESP32 (ESPHome bluetooth_proxy) ──BLE──>
   settings hold the same two fields if you need to change them later.
 
   Easiest path: **[flash it from your browser](https://torp93.github.io/homey-geberit-aquaclean/)**
-  — plug in an ESP32-C3, click Install, enter your WiFi. No ESPHome, no Python,
+  — plug in an ESP32 board, click Install, enter your WiFi. No ESPHome, no Python,
   no command line. Chrome or Edge only.
 
   Prefer to compile it yourself, or want the baked-in config? **[docs/ESP32_SETUP.md](docs/ESP32_SETUP.md)**

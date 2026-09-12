@@ -1,15 +1,21 @@
 name: Build proxy firmware and publish install page
 
-# Compiles the browser-install ESP32 firmware and deploys a one-click install
-# page to GitHub Pages. New users flash from the browser and enter WiFi there;
-# nobody needs ESPHome, Python or a command line. The tuned baked-in config in
-# esphome/geberit-aquaclean-proxy.yaml is untouched and stays the advanced path.
+# Compiles the browser-install ESP32 firmware for every supported chip family
+# and deploys a one-click install page to GitHub Pages. New users flash from the
+# browser and enter WiFi there; nobody needs ESPHome, Python or a command line.
+# esp-web-tools picks the build that matches the board that is plugged in.
+#
+# The tuned baked-in config in esphome/geberit-aquaclean-proxy.yaml is untouched
+# and stays the advanced path.
+#
+# Pages must be enabled once by hand: repo Settings -> Pages -> Build and
+# deployment -> Source: "GitHub Actions".
 
 on:
   push:
     branches: [main]
     paths:
-      - esphome/geberit-aquaclean-proxy-webinstall.yaml
+      - esphome/webinstall/**
       - webinstall/**
       - .github/workflows/build-firmware.yml
   workflow_dispatch:
@@ -19,7 +25,6 @@ permissions:
   pages: write
   id-token: write
 
-# Never run two Pages deploys at once, but let a running one finish.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -30,27 +35,49 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build firmware
-        id: build
+      - name: Build ESP32 (classic, e.g. WROOM)
+        id: esp32
         uses: esphome/build-action@v7.0.0
         with:
-          yaml-file: esphome/geberit-aquaclean-proxy-webinstall.yaml
+          yaml-file: esphome/webinstall/esp32.yaml
           version: latest
           complete-manifest: true
 
-      # The build output lands in a folder named after the device. Move it under
-      # the site and drop in the static install page next to it.
-      - name: Assemble the install site
+      - name: Build ESP32-C3
+        id: c3
+        uses: esphome/build-action@v7.0.0
+        with:
+          yaml-file: esphome/webinstall/esp32c3.yaml
+          version: latest
+          complete-manifest: true
+
+      - name: Build ESP32-S3
+        id: s3
+        uses: esphome/build-action@v7.0.0
+        with:
+          yaml-file: esphome/webinstall/esp32s3.yaml
+          version: latest
+          complete-manifest: true
+
+      # Collect every chip's firmware into one folder and merge the per-chip
+      # manifests into a single manifest esp-web-tools can pick from.
+      - name: Combine into one install site
         run: |
-          mkdir -p site
+          mkdir -p site/firmware
           cp webinstall/index.html site/index.html
-          mv "${{ steps.build.outputs.name }}" site/firmware
+          for dir in "${{ steps.esp32.outputs.name }}" "${{ steps.c3.outputs.name }}" "${{ steps.s3.outputs.name }}"; do
+            cp "$dir"/*.bin site/firmware/
+          done
+          node webinstall/merge-manifests.mjs \
+            "${{ steps.esp32.outputs.name }}/manifest.json" \
+            "${{ steps.c3.outputs.name }}/manifest.json" \
+            "${{ steps.s3.outputs.name }}/manifest.json" \
+            > site/firmware/manifest.json
+          echo "Combined manifest:"
+          cat site/firmware/manifest.json
           echo "Published firmware files:"
           ls -R site/firmware
 
-      # Pages must be enabled once by hand: repo Settings -> Pages -> Build and
-      # deployment -> Source: "GitHub Actions". The workflow token cannot create
-      # the Pages site itself, only deploy to it once it exists.
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 

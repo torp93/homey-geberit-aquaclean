@@ -71,8 +71,12 @@ jobs:
           version: latest
           complete-manifest: true
 
+      # Best effort: if the C6 build ever fails (e.g. an ESPHome change), the
+      # proven chips and the page still deploy — the merged manifest just omits
+      # C6 rather than blocking everything.
       - name: Build ESP32-C6
         if: steps.fwcache.outputs.cache-hit != 'true'
+        continue-on-error: true
         uses: esphome/build-action@v7.0.0
         with:
           yaml-file: esphome/webinstall/esp32c6.yaml

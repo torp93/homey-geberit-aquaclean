@@ -64,6 +64,7 @@ Three behaviours worth knowing:
 
 - Homey Pro (tested on Homey Pro 2023, firmware ≥ 12.2.0)
 - An ESP32 running ESPHome with `bluetooth_proxy`, placed near the toilet
+  (a **C3 or C6** board is the most reliable; classic ESP32 can drop the link)
 - A Geberit AquaClean (developed against a Mera Comfort)
 
 Aim for better than **−80 dBm** between the ESP32 and the toilet. Below that the
@@ -78,7 +79,9 @@ is used, so place the board close with clear line of sight.
 Easiest path: **[flash it from your browser](https://torp93.github.io/homey-geberit-aquaclean/)**.
 Plug the board in over USB, click Install, pick the serial port and enter your
 WiFi on the page. No ESPHome, Python or command line. It needs Chrome or Edge on
-a computer, and works with classic ESP32, C3 and S3 boards.
+a computer, and works with classic ESP32, C3, C6 and S3 boards. A **C3 or C6** is
+the most reliable; classic ESP32 boards have shown intermittent BLE disconnects
+([jens62#48](https://github.com/jens62/geberit-aquaclean/issues/48)).
 
 The advanced path builds the config yourself, with WiFi baked in.
 [`esphome/geberit-aquaclean-proxy.yaml`](esphome/geberit-aquaclean-proxy.yaml)

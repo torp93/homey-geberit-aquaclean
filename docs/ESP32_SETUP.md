@@ -18,9 +18,10 @@ Everyone else, start at [What you need](#what-you-need).
 
 ## What you need
 
-- **An ESP32-C3 board.** Any generic one works. The included configuration is
-  tuned for the C3; a classic ESP32 works too (see the note at the top of
-  [`../esphome/geberit-aquaclean-proxy.yaml`](../esphome/geberit-aquaclean-proxy.yaml)).
+- **An ESP32 board.** A **C3 or C6** is the most reliable choice; classic ESP32
+  boards (WROOM) work but have shown intermittent BLE disconnects
+  ([jens62#48](https://github.com/jens62/geberit-aquaclean/issues/48)). C3, C6,
+  S3 and classic are all supported by the browser installer.
 - **A USB cable that carries data, not just power.** This is the single most
   common first mistake: many charging cables have no data wires, and the board
   simply never appears on the computer. If nothing shows up, try another cable
@@ -223,6 +224,7 @@ which is when the app is used.
 | The toilet pairs but readings time out | On a C3 this is usually low memory. The device page in ESPHome shows **Proxy Max Free Block**; below about 25 KB, GATT reads fail while the connection itself looks fine. Do not enable `web_server` on a C3 unless that number stays above 40 KB. |
 | BLE connects, then disconnects every few seconds | Same low-memory symptom as above, or a stale Bluetooth cache. Press **Clear Bluetooth Cache** (the app does this itself after repeated failures), which wipes the cache a plain restart cannot. |
 | It worked, then stopped | The app restarts and clears the proxy on its own after repeated failures, using the two buttons in the config. Keep both buttons in the configuration, or it cannot recover by itself. |
+| Random BLE disconnects on a classic ESP32 | The classic ESP32 BLE stack can drop the link intermittently (reason 0x08), independent of this toilet or app ([jens62#48](https://github.com/jens62/geberit-aquaclean/issues/48)). A C3 or C6 board avoids it. Also make sure no stray `esphome logs` / `homey app run` sessions are holding the proxy's Native API connections. |
 
 ---
 

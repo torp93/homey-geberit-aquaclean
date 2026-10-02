@@ -71,6 +71,14 @@ jobs:
           version: latest
           complete-manifest: true
 
+      - name: Build ESP32-C6
+        if: steps.fwcache.outputs.cache-hit != 'true'
+        uses: esphome/build-action@v7.0.0
+        with:
+          yaml-file: esphome/webinstall/esp32c6.yaml
+          version: latest
+          complete-manifest: true
+
       # Runs every time, cached firmware or fresh: this is what applies page and
       # manifest (title, HA button, etc.) changes on the fast path. Globbing the
       # build folders means it does not depend on the build steps having run.

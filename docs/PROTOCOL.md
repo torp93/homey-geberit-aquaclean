@@ -156,6 +156,29 @@ on it.
 
 ---
 
+## Profile settings: stored versus active
+
+Profile settings are read and written **per profile** with procedures `0x53`
+(read) and `0x54` (write); the payload starts with the profile id (0–4).
+Profile 0 is the base settings, used when no user profile is selected.
+
+There is a separate procedure for the **current session**: `0x08`
+(`SetActiveProfileSetting`), payload `[setting_id, value_lo, value_hi]` with no
+profile id. It sets the value in use right now rather than in a stored profile,
+which is how the official app's sliders take effect live during a shower.
+
+Confirmed on this device against seat heat (id 7): `0x08` is accepted with
+status 0. But it is **transient**. The toilet reloads the default profile every
+time the user leaves the seat and sits down again, so a `0x08` override lasts
+only for the current sitting and is then wiped. There is no readable "active
+setting" to read it back, and nothing over this GATT service changes which
+profile is the persistent default — that is set on the toilet itself.
+
+Practical consequence: a "use profile N" automation could only ever apply for
+the current session, and would have to fire right after the user is detected.
+Nothing here can switch the toilet's default profile, so the app does not expose
+a profile-switch action.
+
 ## The USB port
 
 The main control carries a USB-B connector. The service manual labels it

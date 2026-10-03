@@ -2364,21 +2364,27 @@ class MeraComfortDevice extends Homey.Device {
   // The proxy can wedge in a state where the toilet advertises but every
   // connection is refused — seen live: nine orphaned diagnostic sessions left
   // the ESP32's single slot hanging, and only its restart button cleared it.
-  // After enough consecutive failures the app now presses those buttons
-  // itself: first the cheap cache clear, then a full restart if failures
-  // continue. A cooldown keeps it from flapping, and none of it helps against
-  // weak signal — that is placement, and the log says so.
+  // After enough consecutive failures the app presses the proxy's own restart
+  // button, then does a full transport reset if failures continue. A cooldown
+  // keeps it from flapping, and none of it helps against weak signal — that is
+  // placement, and the log says so.
+  //
+  // It deliberately never presses the factory-reset "Clear Bluetooth Cache"
+  // button on its own: on browser-installed firmware the WiFi credentials live
+  // in NVS (set over Improv), and factory_reset wipes them, which would strand
+  // the proxy off the network until it is re-flashed over USB. Clearing the
+  // cache stays a manual action the user takes knowingly.
   async runCircuitBreaker() {
     if (this._reconnectFailures < CIRCUIT_BREAKER_FAILURES) return;
     if (Date.now() - this._lastBreakerActionAt < CIRCUIT_BREAKER_COOLDOWN_MS) return;
 
     const stage = this._breakerStage;
     this._lastBreakerActionAt = Date.now();
-    this._breakerStage = (stage + 1) % 3;
+    this._breakerStage = (stage + 1) % 2;
     this._reconnectFailures = 0;
     this._nextReconnectAt = Date.now() + RECONNECT_DELAY_MIN_MS;
 
-    if (stage >= 2) {
+    if (stage >= 1) {
       // The app-restart equivalent, done from the inside: a manual restart
       // once fixed a stuck app, and everything it actually did — dropping the
       // backoff, the session and the proxy TCP client — is reproduced here
@@ -2387,14 +2393,13 @@ class MeraComfortDevice extends Homey.Device {
       return;
     }
 
-    const settingId = stage === 0 ? 'clear_ble_cache' : 'restart_ble_proxy';
     this.log('AquaClean circuit breaker engaged', {
-      action: settingId,
+      action: 'restart_ble_proxy',
       note: 'helps a wedged proxy, not a weak signal'
     });
-    await this.pressProxyButton(settingId).catch(error => {
+    await this.pressProxyButton('restart_ble_proxy').catch(error => {
       this.error('AquaClean circuit breaker failed', {
-        action: settingId,
+        action: 'restart_ble_proxy',
         message: error.message
       });
     });

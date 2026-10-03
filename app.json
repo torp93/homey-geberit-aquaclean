@@ -3105,8 +3105,8 @@
               },
               "value": false,
               "hint": {
-                "en": "Asks the proxy to forget what it cached about the toilet Bluetooth services. Try this before a restart if connecting fails immediately while the toilet is still visible in a scan.",
-                "no": "Ber proxyen glemme det den har lagret om toalettets Bluetooth-tjenester. Prøv denne før omstart hvis tilkoblingen feiler med det samme, men toalettet er synlig i skann."
+                "en": "Asks the proxy to forget what it cached about the toilet Bluetooth services. On firmware flashed from the browser installer this is a full factory reset: it also erases the WiFi the proxy was given over WiFi setup, so the proxy drops off the network until you reconnect it over USB. The app never does this on its own. Prefer Restart Bluetooth proxy first; use this only when restarting does not help.",
+                "no": "Ber proxyen glemme det den har lagret om toalettets Bluetooth-tjenester. På firmware flashet fra nettleser-installereren er dette en full tilbakestilling: den sletter også WiFi-et proxyen fikk under WiFi-oppsettet, så proxyen faller av nettet til du kobler den til igjen over USB. Appen gjør dette aldri av seg selv. Prøv Restart Bluetooth-proxy først; bruk denne bare når omstart ikke hjelper."
               }
             }
           ]

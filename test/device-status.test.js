@@ -1138,32 +1138,35 @@ test('connection is lost after 3 failures; the breaker presses proxy buttons aft
   assert.deepEqual(pressed, [], 'no breaker action before 5 failures');
 
   await fail(); await fail();
-  assert.deepEqual(pressed, ['clear_ble_cache'],
-    'failure 5: the cheap cache clear goes first');
+  assert.deepEqual(pressed, ['restart_ble_proxy'],
+    'failure 5: a plain proxy restart goes first');
   assert.equal(device._reconnectFailures, 0, 'the breaker resets the counter');
 
-  // Five NEW failures escalate to a restart — but only after the cooldown.
-  for (let i = 0; i < 5; i += 1) await fail();
-  assert.deepEqual(pressed, ['clear_ble_cache'], 'cooldown must hold the restart back');
+  // The breaker never presses the factory-reset cache clear on its own: on
+  // browser-installed firmware that wipes the proxy's Improv WiFi credentials.
+  assert.ok(!pressed.includes('clear_ble_cache'),
+    'automatic recovery must never trigger a factory reset');
 
-  device._lastBreakerActionAt = Date.now() - (31 * 60 * 1000);
+  // Five NEW failures escalate to a transport reset — but only after cooldown.
   for (let i = 0; i < 5; i += 1) await fail();
-  assert.deepEqual(pressed, ['clear_ble_cache', 'restart_ble_proxy'],
-    'persistent failure escalates to a proxy restart');
+  assert.deepEqual(pressed, ['restart_ble_proxy'], 'cooldown must hold the escalation back');
+  assert.equal(resets, 0, 'cooldown must hold the transport reset back too');
 
-  // Stage 3: the app-restart equivalent — a transport reset, no button press.
+  // Stage 2: the app-restart equivalent — a transport reset, no button press.
   device._lastBreakerActionAt = Date.now() - (31 * 60 * 1000);
   for (let i = 0; i < 5; i += 1) await fail();
   assert.equal(resets, 1, 'persistent failure ends in a full transport reset');
-  assert.deepEqual(pressed, ['clear_ble_cache', 'restart_ble_proxy'],
+  assert.deepEqual(pressed, ['restart_ble_proxy'],
     'the reset stage must not press proxy buttons');
 
-  // A successful operation resets the escalation ladder.
+  // A successful operation resets the escalation ladder back to the restart.
   device._breakerStage = 0;
   device._lastBreakerActionAt = Date.now() - (31 * 60 * 1000);
   for (let i = 0; i < 5; i += 1) await fail();
-  assert.equal(pressed[pressed.length - 1], 'clear_ble_cache',
-    'after a recovery the breaker starts from the cheap action again');
+  assert.equal(pressed[pressed.length - 1], 'restart_ble_proxy',
+    'after a recovery the breaker starts from the plain restart again');
+  assert.ok(!pressed.includes('clear_ble_cache'),
+    'no stage of the ladder may factory-reset the proxy');
 });
 
 // --- Regressions from the pre-certification audit --------------------------

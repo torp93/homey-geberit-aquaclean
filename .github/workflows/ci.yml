@@ -1,0 +1,30 @@
+name: CI
+
+# Runs the test suite and the Homey publish-level validator on every push and
+# pull request, so a regression or a manifest problem is caught before release
+# rather than at `homey app publish` time.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run tests
+        run: npm test
+
+      - name: Install Homey CLI
+        run: npm install --global homey
+
+      - name: Validate app (publish level)
+        run: homey app validate --level publish

@@ -222,8 +222,8 @@ which is when the app is used.
 | WiFi will not connect | 5 GHz network (the ESP32 is 2.4 GHz only), or a typo in `secrets.yaml`. The board falls back to its own `AquaClean Proxy Fallback` network so you can still reach it. |
 | Homey cannot reach the proxy | Wrong IP, or the address changed. Reserve the IP in the router, and check the port is 6053. |
 | The toilet pairs but readings time out | On a C3 this is usually low memory. The device page in ESPHome shows **Proxy Max Free Block**; below about 25 KB, GATT reads fail while the connection itself looks fine. Do not enable `web_server` on a C3 unless that number stays above 40 KB. |
-| BLE connects, then disconnects every few seconds | Same low-memory symptom as above, or a stale Bluetooth cache. Press **Clear Bluetooth Cache** (the app does this itself after repeated failures), which wipes the cache a plain restart cannot. |
-| It worked, then stopped | The app restarts and clears the proxy on its own after repeated failures, using the two buttons in the config. Keep both buttons in the configuration, or it cannot recover by itself. |
+| BLE connects, then disconnects every few seconds | Same low-memory symptom as above, or a stale Bluetooth cache. Restart the proxy first; if that does not help, press **Clear Bluetooth Cache**, which wipes the cache a plain restart cannot. On browser-flashed firmware that button is a full factory reset and also erases the WiFi, so you then have to reconnect the board over USB. |
+| It worked, then stopped | The app restarts the proxy on its own after repeated failures, using the restart button in the config. Keep that button in the configuration, or it cannot recover by itself. |
 | Random BLE disconnects on a classic ESP32 | The classic ESP32 BLE stack can drop the link intermittently (reason 0x08), independent of this toilet or app ([jens62#48](https://github.com/jens62/geberit-aquaclean/issues/48)). A C3 or C6 board avoids it. Also make sure no stray `esphome logs` / `homey app run` sessions are holding the proxy's Native API connections. |
 
 ---
@@ -231,10 +231,38 @@ which is when the app is used.
 ## Why two buttons must stay in the config
 
 The configuration defines two buttons, **Restart AquaClean Proxy** and
-**Clear Bluetooth Cache**. The Homey app presses these itself when a
-connection wedges: first the cache clear, then the restart. This is how the
-app heals a stuck proxy without you having to do anything. If you trim the
-configuration, leave those two buttons in place.
+**Clear Bluetooth Cache**. When a connection wedges the Homey app presses
+**Restart AquaClean Proxy** itself, and escalates to a full transport reset if
+restarting does not help. This is how the app heals a stuck proxy without you
+having to do anything. If you trim the configuration, leave the restart button
+in place.
+
+**Clear Bluetooth Cache** is a `factory_reset`, so the app never presses it on
+its own: on firmware flashed from the browser installer the WiFi credentials
+live in the ESP32's preferences (set over WiFi setup), and a factory reset
+erases them, which would drop the proxy off the network until you reconnect it
+over USB. It stays a manual button you press knowingly, from the device
+settings in Homey or from the proxy's own web page. On advanced-YAML
+installations where WiFi is compiled into the firmware this is harmless, but the
+button behaves the same way everywhere.
+
+---
+
+## Security: the proxy trusts your LAN
+
+The proxy's ESPHome native API (the connection Homey uses, TCP port 6053) is
+intentionally plaintext and unauthenticated, and the browser-installer firmware
+also serves an unauthenticated web page with **Restart** and **Clear Bluetooth
+Cache** (factory reset) controls on port 80. There is no password on either.
+
+The practical consequence: any other device on the same network can reach the
+proxy, read its Bluetooth traffic, restart it, or factory-reset it. That is an
+acceptable tradeoff on a trusted home network, which is what this is designed
+for, but it is a real one. If your LAN is shared with guests or untrusted
+devices, put the proxy (and ideally the toilet's Bluetooth range) on an isolated
+VLAN or IoT network. If you need authentication, compile the firmware yourself
+with an API encryption key and a `web_server` password and point the app at
+that; the app speaks the standard native API either way.
 
 ---
 

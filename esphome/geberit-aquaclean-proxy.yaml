@@ -111,6 +111,27 @@ sensor:
   - platform: uptime
     name: "Proxy Uptime"
 
+  # True supply voltage is NOT available in software on the ESP32-C3: its ADC
+  # reads a GPIO pin, not VCC. To measure the real rail, fit a resistor divider
+  # from 3V3 (or 5V) to a free ADC1 GPIO (GPIO0-4) and uncomment this, with
+  # `multiply` set to (R1+R2)/R2. Example for 5V with R1=100k, R2=47k:
+  # - platform: adc
+  #   pin: GPIO3
+  #   name: "Proxy Supply Voltage"
+  #   attenuation: 12db
+  #   update_interval: 60s
+  #   accuracy_decimals: 2
+  #   filters:
+  #     - multiply: 3.128
+
+# The real "power health" signal on a C3: why the board last reset. A brownout
+# here (not a clean power-on or software restart) is the fingerprint of an
+# unstable supply. Read it together with uptime.
+text_sensor:
+  - platform: debug
+    reset_reason:
+      name: "Proxy Reset Reason"
+
 # ---------------------------------------------------------------------------
 # web_server and captive_portal cost ~30-50 KB of heap between them. On a C3
 # that can push "Max Free Block" under ~25 KB, and the symptom is deceptive:

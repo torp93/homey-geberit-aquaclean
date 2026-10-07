@@ -93,6 +93,21 @@ sensor:
   - platform: uptime
     name: "Proxy Uptime"
 
+  # True supply voltage is NOT available in software on the ESP32-C3: its ADC
+  # reads a GPIO pin, not VCC (the `pin: VCC` trick is ESP8266-only). To measure
+  # the real rail, fit a resistor divider from 3V3 (or 5V) to a free ADC1 GPIO
+  # (GPIO0-4 on the C3) and uncomment this. Pick R1/R2 so the divided voltage
+  # stays under ~2.5 V, and set `multiply` to (R1+R2)/R2. Example for 5V with
+  # R1=100k, R2=47k -> ratio 3.13:
+  # - platform: adc
+  #   pin: GPIO3            # ADC1_CH3
+  #   name: "Proxy Supply Voltage"
+  #   attenuation: 12db
+  #   update_interval: 60s
+  #   accuracy_decimals: 2
+  #   filters:
+  #     - multiply: 3.128   # (100k + 47k) / 47k
+
 # The board's IP as a first-class entity: it shows on the web status page and is
 # logged on connect, so you never have to hunt for it. (Homey still reaches the
 # proxy by the IP or geberit-aquaclean-proxy.local; this just makes it visible.)
@@ -102,3 +117,11 @@ text_sensor:
       name: "Proxy IP Address"
     ssid:
       name: "Proxy WiFi Network"
+
+  # The real "power health" signal on a C3: why the board last reset. A
+  # brownout here (rather than a clean power-on or software restart) is the
+  # fingerprint of an unstable supply, which is what a voltage reading would be
+  # watched for anyway. Read it together with uptime.
+  - platform: debug
+    reset_reason:
+      name: "Proxy Reset Reason"

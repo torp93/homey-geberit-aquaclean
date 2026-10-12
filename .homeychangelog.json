@@ -1,4 +1,8 @@
 {
+  "1.13.2": {
+    "en": "Fixed the Start calibration button in the repair screen, which did nothing because the two repair screens clashed over a shared script. Automatic recovery is now safer: the Bluetooth proxy is only restarted, never factory reset on its own.",
+    "no": "Rettet Start kalibrering-knappen i reparasjonsskjermen, som ikke gjorde noe fordi de to reparasjonsskjermene kolliderte om et delt skript. Automatisk gjenoppretting er nå tryggere: Bluetooth-proxyen startes bare på nytt, aldri tilbakestilt til fabrikk av seg selv."
+  },
   "0.10.6": {
     "en": "Beta Test",
     "no": "Betatest"

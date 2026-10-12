@@ -64,6 +64,12 @@
 </div>
 
 <script type="application/javascript">
+  // Wrapped in an IIFE because repair views share one JS scope. error_status
+  // loads first and declares top-level `const FALLBACK` and `function t`; when
+  // this view loads via Homey.showView it would redeclare them in the same
+  // scope, which throws and silently kills this whole script (every button then
+  // does nothing). Keeping the declarations function-local avoids the collision.
+  (function () {
   const FALLBACK = {
     'repair.calibrate.title': 'Calibrate seat and lid position',
     'repair.calibrate.sending': 'Sending…',
@@ -144,4 +150,5 @@
   for (const step of Object.keys(buttons)) {
     buttons[step].addEventListener('click', () => send(step));
   }
+  })();
 </script>

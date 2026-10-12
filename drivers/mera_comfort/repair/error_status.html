@@ -67,6 +67,12 @@
 </div>
 
 <script type="application/javascript">
+  // Wrapped in an IIFE because repair views share one JS scope: this view and
+  // calibrate_lid both declare top-level `const FALLBACK` and `function t`, and
+  // whichever loads second would redeclare them in the same scope, which throws
+  // and silently kills that view's whole script. Keeping them function-local
+  // avoids the collision.
+  (function () {
   const FALLBACK = {
     'repair.status.title': 'Status',
     'repair.status.reading': 'Reading the status from the toilet…',
@@ -195,4 +201,5 @@
   calibrateBtn.addEventListener('click', () => Homey.showView('calibrate_lid'));
 
   load(true);
+  })();
 </script>
